@@ -11,6 +11,7 @@ class Auth extends Controller
 
     public function __construct()
     {
+        require_once SITE_ROOT . '/core/SecureAuth.php';
         $this->userModel = $this->model('User');
     }
 
@@ -20,7 +21,7 @@ class Auth extends Controller
     public function login()
     {
         // Redirect if already logged in
-        if ($this->isLoggedIn()) {
+        if (SecureAuth::isLoggedIn()) {
             redirect('admin');
         }
 
@@ -38,11 +39,13 @@ class Auth extends Controller
             $user = $this->userModel->findByEmail($email);
 
             if ($user && $this->userModel->verifyPassword($password, $user->password)) {
-                // Login success
-                $_SESSION['user_id'] = $user->id;
-                $_SESSION['user_name'] = $user->name;
-                $_SESSION['user_email'] = $user->email;
-                $_SESSION['user_role'] = $user->role;
+                // Login success - use SecureAuth for Vercel compatibility
+                SecureAuth::login(
+                    $user->id,
+                    $user->name,
+                    $user->email,
+                    $user->role
+                );
 
                 $this->userModel->updateLastLogin($user->id);
 
@@ -66,12 +69,7 @@ class Auth extends Controller
      */
     public function logout()
     {
-        unset($_SESSION['user_id']);
-        unset($_SESSION['user_name']);
-        unset($_SESSION['user_email']);
-        unset($_SESSION['user_role']);
-        session_destroy();
-
+        SecureAuth::logout();
         redirect('auth/login');
     }
 
@@ -80,7 +78,7 @@ class Auth extends Controller
      */
     private function isLoggedIn()
     {
-        return isset($_SESSION['user_id']);
+        return SecureAuth::isLoggedIn();
     }
 
     /**

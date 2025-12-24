@@ -192,7 +192,7 @@ class Admin extends Controller
             'category' => $this->input('category'),
             'tags' => $this->input('tags'),
             'status' => $this->input('status'),
-            'author_id' => $_SESSION['user_id'],
+            'author_id' => SecureAuth::getUser()['user_id'] ?? 1,
             'featured_image' => $featuredImage
         ];
 
@@ -348,7 +348,7 @@ class Admin extends Controller
     public function deleteTag()
     {
         // Check if user is logged in
-        if (!isset($_SESSION['user_id'])) {
+        if (!SecureAuth::isLoggedIn()) {
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Unauthorized']);
             exit;
@@ -837,7 +837,8 @@ class Admin extends Controller
      */
     private function isLoggedIn()
     {
-        return isset($_SESSION['user_id']);
+        require_once SITE_ROOT . '/core/SecureAuth.php';
+        return SecureAuth::isLoggedIn();
     }
 
     /**
@@ -846,7 +847,7 @@ class Admin extends Controller
     private function getCurrentUser()
     {
         return (object) [
-            'id' => $_SESSION['user_id'] ?? null,
+            'id' => SecureAuth::getUser()['user_id'] ?? null,
             'name' => $_SESSION['user_name'] ?? '',
             'email' => $_SESSION['user_email'] ?? '',
             'role' => $_SESSION['user_role'] ?? ''
