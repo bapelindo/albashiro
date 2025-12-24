@@ -25,7 +25,13 @@ define('DB_CHARSET', 'utf8mb4');
 define('SITE_NAME', 'Albashiro');
 define('SITE_TAGLINE', 'Islamic Spiritual Hypnotherapy');
 // Detect environment URL
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+$protocol = 'http://';
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $protocol = 'https://';
+} elseif (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    $protocol = 'https://';
+}
+
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $root = $host === 'localhost' ? '/albashiro' : ''; // Vercel serves from root
 define('SITE_URL', getenv('SITE_URL') ?: $protocol . $host . $root);
