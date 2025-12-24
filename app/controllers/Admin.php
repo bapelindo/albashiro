@@ -569,13 +569,20 @@ class Admin extends Controller
         $oldDate = $booking->appointment_date;
         $oldTime = $booking->appointment_time;
 
+        // Determine rescheduled_by based on user role
+        $user = SecureAuth::getUser();
+        $rescheduledBy = 'admin'; // Default to admin
+
+        // If you want to support client reschedules in the future:
+        // $rescheduledBy = ($user['user_role'] ?? 'admin') === 'admin' ? 'admin' : 'client';
+
         // Reschedule
         $result = $this->bookingModel->reschedule(
             $bookingId,
             $newDate,
             $newTime,
             $reason,
-            $_SESSION['user_name'] ?? 'Admin'
+            $rescheduledBy
         );
 
         if ($result) {
