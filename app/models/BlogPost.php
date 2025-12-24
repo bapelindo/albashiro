@@ -17,14 +17,15 @@ class BlogPost
      */
     public function getPublished($limit = 10, $offset = 0)
     {
+        $limit = intval($limit);
+        $offset = intval($offset);
         return $this->db->query(
             "SELECT p.*, u.name as author_name 
              FROM blog_posts p 
              LEFT JOIN users u ON p.author_id = u.id 
              WHERE p.status = 'published' 
              ORDER BY p.published_at DESC 
-             LIMIT ? OFFSET ?",
-            [$limit, $offset]
+             LIMIT $limit OFFSET $offset"
         )->fetchAll();
     }
 
@@ -193,12 +194,12 @@ class BlogPost
      */
     public function getRecent($limit = 3)
     {
+        $limit = intval($limit);
         return $this->db->query(
             "SELECT * FROM blog_posts 
              WHERE status = 'published' 
              ORDER BY published_at DESC 
-             LIMIT ?",
-            [$limit]
+             LIMIT $limit"
         )->fetchAll();
     }
 
@@ -207,6 +208,8 @@ class BlogPost
      */
     public function getPublishedByTag($tag, $limit = 10, $offset = 0)
     {
+        $limit = intval($limit);
+        $offset = intval($offset);
         return $this->db->query(
             "SELECT p.*, u.name as author_name 
              FROM blog_posts p 
@@ -214,14 +217,12 @@ class BlogPost
              WHERE p.status = 'published' 
              AND (p.tags LIKE ? OR p.tags LIKE ? OR p.tags LIKE ? OR p.tags = ?)
              ORDER BY p.published_at DESC 
-             LIMIT ? OFFSET ?",
+             LIMIT $limit OFFSET $offset",
             [
                 $tag . ',%',      // tag at start
-                '%, ' . $tag . ',%', // tag in middle
+                '%, ' . $tag . ',%', // tag at middle
                 '%, ' . $tag,     // tag at end
-                $tag,             // exact match
-                $limit,
-                $offset
+                $tag              // exact match
             ]
         )->fetchAll();
     }
@@ -250,6 +251,8 @@ class BlogPost
     public function searchPublished($query, $limit = 10, $offset = 0)
     {
         $searchTerm = '%' . $query . '%';
+        $limit = intval($limit);
+        $offset = intval($offset);
         return $this->db->query(
             "SELECT p.*, u.name as author_name 
              FROM blog_posts p 
@@ -257,8 +260,8 @@ class BlogPost
              WHERE p.status = 'published' 
              AND (p.title LIKE ? OR p.content LIKE ? OR p.excerpt LIKE ? OR p.tags LIKE ?)
              ORDER BY p.published_at DESC 
-             LIMIT ? OFFSET ?",
-            [$searchTerm, $searchTerm, $searchTerm, $searchTerm, $limit, $offset]
+             LIMIT $limit OFFSET $offset",
+            [$searchTerm, $searchTerm, $searchTerm, $searchTerm]
         )->fetchAll();
     }
 
