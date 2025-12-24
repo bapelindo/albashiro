@@ -1,5 +1,6 @@
 <?php
 // Vercel Debug Tool
+define('ALBASHIRO', true);
 header('Content-Type: text/plain');
 
 echo "=== VERCEL DEBUG ===\n\n";
