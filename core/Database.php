@@ -22,10 +22,17 @@ class Database
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
             PDO::ATTR_EMULATE_PREPARES => false,
-            // Enable SSL for TiDB Cloud
-            PDO::MYSQL_ATTR_SSL_CA => SITE_ROOT . '/isrgrootx1.pem',
-            PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
         ];
+
+        // SSL Config with PHP 8.5+ Compatibility
+        $caPath = SITE_ROOT . '/isrgrootx1.pem';
+        if (defined('Pdo\Mysql::ATTR_SSL_CA')) {
+            $options[constant('Pdo\Mysql::ATTR_SSL_CA')] = $caPath;
+            $options[constant('Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')] = true;
+        } else {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $caPath;
+            $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+        }
 
         try {
             $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
