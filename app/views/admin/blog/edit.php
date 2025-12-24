@@ -108,8 +108,11 @@
                     <div class="bg-white rounded-2xl shadow-sm p-8">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Konten Artikel <span
                                 class="text-red-500">*</span></label>
-                        <textarea name="content" id="content" rows="20"
-                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"><?= htmlspecialchars($post->content) ?></textarea>
+                        <!-- Quill Editor Container -->
+                        <div id="quill-editor" style="height: 400px;"></div>
+                        <!-- Hidden textarea for form submission -->
+                        <textarea name="content" id="content"
+                            style="display:none;"><?= htmlspecialchars($post->content) ?></textarea>
                         <p class="text-xs text-gray-500 mt-2">
                             <i class="fas fa-info-circle mr-1"></i>
                             Gunakan editor untuk format teks, tambah gambar, dan styling
@@ -304,28 +307,43 @@
         </form>
     </main>
 
-    <!-- TinyMCE Editor -->
-    <script src="https://cdn.tiny.cloud/1/sl8yahm6h8anphyzo19mf1hw8wbug7frp83gyvw4g47k7mg9/tinymce/8/tinymce.min.js"
-        referrerpolicy="origin" crossorigin="anonymous"></script>
+
+    <!-- Quill Editor (Free, No API Key Required) -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <script>
-        // Initialize TinyMCE
-        tinymce.init({
-            selector: '#content',
-            height: 500,
-            menubar: false,
-            plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'help', 'wordcount'
-            ],
-            toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | image link | code | help',
-            content_style: 'body { font-family: Inter, sans-serif; font-size: 16px; line-height: 1.6; }',
-            setup: function (editor) {
-                editor.on('keyup change', function () {
-                    updateReadingStats();
-                });
-            }
+        // Initialize Quill Editor
+        var quill = new Quill('#quill-editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ['blockquote', 'code-block'],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Tulis konten artikel di sini...'
+        });
+
+        // Load existing content from hidden textarea
+        var existingContent = document.getElementById('content').value;
+        if (existingContent && existingContent.trim() !== '') {
+            quill.root.innerHTML = existingContent;
+            setTimeout(function() {
+                updateReadingStats(); // Update stats after content loads
+            }, 100);
+        }
+
+        // Sync Quill content to textarea for form submission
+        quill.on('text-change', function () {
+            document.getElementById('content').value = quill.root.innerHTML;
+            updateReadingStats();
         });
 
         // Slug preview
@@ -347,8 +365,8 @@
 
         // Reading time and word count
         function updateReadingStats() {
-            const content = tinymce.get('content').getContent({ format: 'text' });
-            const words = content.trim().split(/\s+/).length;
+            const content = quill.getText();
+            const words = content.trim().split(/\s+/).filter(w => w.length > 0).length;
             const readingTime = Math.ceil(words / 200); // Average reading speed: 200 words/min
 
             document.getElementById('word-count').textContent = words.toLocaleString();
