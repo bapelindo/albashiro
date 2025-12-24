@@ -15,12 +15,8 @@ class FonnteService
     public function __construct()
     {
         $this->apiToken = FONNTE_API_TOKEN;
-        $this->logFile = __DIR__ . '/../../logs/fonnte.log';
-
-        // Ensure logs directory exists
-        if (!is_dir(dirname($this->logFile))) {
-            mkdir(dirname($this->logFile), 0755, true);
-        }
+        // No file logging on Vercel (read-only filesystem)
+        $this->logFile = null;
     }
 
     /**
@@ -353,10 +349,14 @@ class FonnteService
     private function log($message, $level = 'INFO')
     {
         $timestamp = date('Y-m-d H:i:s');
-        $logMessage = "[{$timestamp}] [{$level}] {$message}\n";
-        file_put_contents($this->logFile, $logMessage, FILE_APPEND);
+        $logMessage = "[{$timestamp}] [{$level}] {$message}";
 
-        // Also echo for cron output
-        echo $logMessage;
+        // Use error_log for Vercel (works with serverless)
+        error_log($logMessage);
+
+        // Only echo in CLI mode (cron jobs)
+        if (php_sapi_name() === 'cli') {
+            echo $logMessage . "\n";
+        }
     }
 }
