@@ -30,14 +30,14 @@ class Testimonial
      */
     public function getFeatured($limit = 6)
     {
+        $limit = intval($limit); // Ensure integer safety
         return $this->db->query(
             "SELECT t.*, th.name as therapist_name 
              FROM testimonials t 
              LEFT JOIN therapists th ON t.therapist_id = th.id 
              WHERE t.is_featured = 1 
              ORDER BY t.rating DESC, t.created_at DESC 
-             LIMIT ?",
-            [$limit]
+             LIMIT $limit"
         )->fetchAll();
     }
 
