@@ -189,19 +189,13 @@ class Booking
             [$id, $booking->appointment_date, $booking->appointment_time, $newDate, $newTime, $reason, $rescheduledBy]
         );
 
-        // Update booking
+        // Update booking (history is saved in reschedule_history table)
         return $this->db->query(
             "UPDATE bookings 
-             SET original_date = COALESCE(original_date, appointment_date),
-                 original_time = COALESCE(original_time, appointment_time),
-                 appointment_date = ?,
-                 appointment_time = ?,
-                 reschedule_count = reschedule_count + 1,
-                 reschedule_reason = ?,
-                 rescheduled_by = ?,
-                 rescheduled_at = NOW()
+             SET appointment_date = ?,
+                 appointment_time = ?
              WHERE id = ?",
-            [$newDate, $newTime, $reason, $rescheduledBy, $id]
+            [$newDate, $newTime, $id]
         )->rowCount();
     }
 
