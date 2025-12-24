@@ -70,6 +70,25 @@ ini_set('display_errors', 1);
 // SESSION CONFIGURATION
 // =====================================================
 if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
+    // Vercel-compatible session configuration
+    // Use /tmp directory (only writable location on Vercel)
+    if (getenv('VERCEL')) {
+        ini_set('session.save_path', '/tmp');
+        ini_set('session.gc_probability', 1);
+        ini_set('session.gc_divisor', 100);
+        ini_set('session.gc_maxlifetime', 1440); // 24 minutes
+    }
+
+    // Set session cookie parameters for security
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => $_SERVER['HTTP_HOST'] ?? '',
+        'secure' => isset($_SERVER['HTTPS']) || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'),
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
     session_start();
 }
 
@@ -114,21 +133,60 @@ function e($string)
 }
 
 /**
- * Generate CSRF token
+ * Generate CSRF token (Vercel-compatible)
  */
 function csrf_token()
 {
+    $cookieName = 'albashiro_csrf';
+
+    // Try to get from cookie first
+    if (isset($_COOKIE[$cookieName])) {
+        $token = $_COOKIE[$cookieName];
+        $_SESSION['csrf_token'] = $token; // Sync to session
+        return $token;
+    }
+
+    // Generate new token
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
-    return $_SESSION['csrf_token'];
+
+    $token = $_SESSION['csrf_token'];
+
+    // Store in cookie for persistence across serverless instances
+    $secure = isset($_SERVER['HTTPS']) ||
+        (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+            $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
+    setcookie(
+        $cookieName,
+        $token,
+        [
+            'expires' => time() + 3600, // 1 hour
+            'path' => '/',
+            'domain' => '',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]
+    );
+
+    return $token;
 }
 
 /**
- * Verify CSRF token
+ * Verify CSRF token (Vercel-compatible)
  */
 function verify_csrf($token)
 {
+    $cookieName = 'albashiro_csrf';
+
+    // Check cookie first (for Vercel)
+    if (isset($_COOKIE[$cookieName])) {
+        return hash_equals($_COOKIE[$cookieName], $token);
+    }
+
+    // Fallback to session (for local)
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
