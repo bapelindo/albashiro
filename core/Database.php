@@ -23,7 +23,8 @@ class Database
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
             PDO::ATTR_EMULATE_PREPARES => false,
             // Enable SSL for TiDB Cloud
-            PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
+            PDO::MYSQL_ATTR_SSL_CA => SITE_ROOT . '/isrgrootx1.pem',
+            PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
         ];
 
         try {
