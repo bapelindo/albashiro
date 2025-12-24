@@ -15,12 +15,15 @@ class Database
      */
     private function __construct()
     {
-        $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+        $port = defined('DB_PORT') ? DB_PORT : 3306;
+        $dsn = "mysql:host=" . DB_HOST . ";port=" . $port . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
 
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-            PDO::ATTR_EMULATE_PREPARES => false
+            PDO::ATTR_EMULATE_PREPARES => false,
+            // Enable SSL for TiDB Cloud
+            PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
         ];
 
         try {

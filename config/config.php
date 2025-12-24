@@ -11,10 +11,12 @@ if (!defined('ALBASHIRO') && php_sapi_name() !== 'cli') {
 // =====================================================
 // DATABASE CONFIGURATION
 // =====================================================
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'albashiro');
-define('DB_USER', 'root');
-define('DB_PASS', 'root');
+// Support for Environment Variables (Vercel/Cloud) with Local Fallback
+define('DB_HOST', getenv('DB_HOST') ?: 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com');
+define('DB_NAME', getenv('DB_NAME') ?: 'test');
+define('DB_USER', getenv('DB_USER') ?: '4TnpUUxik5ZLHTT.root');
+define('DB_PASS', getenv('DB_PASS') ?: 'xYwYMe4gp4c7IkgI');
+define('DB_PORT', getenv('DB_PORT') ?: '4000');
 define('DB_CHARSET', 'utf8mb4');
 
 // =====================================================
