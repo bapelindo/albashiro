@@ -1,0 +1,190 @@
+/* ============================================
+   RESERVASI PAGE STYLES
+   ============================================ */
+
+/* Smooth focus animations */
+input:focus,
+select:focus,
+textarea:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);
+}
+
+/* Checkmark pulse animation */
+@keyframes checkPulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+.field-check {
+    animation: checkPulse 0.5s ease-in-out;
+}
+
+/* Progress bar shimmer effect */
+@keyframes shimmer-reservasi {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+#progress-bar {
+    background: linear-gradient(90deg,
+            #7c3aed 0%,
+            #a855f7 25%,
+            #ec4899 50%,
+            #a855f7 75%,
+            #7c3aed 100%);
+    background-size: 200% 100%;
+    animation: shimmer-reservasi 3s linear infinite;
+}
+
+/* Input hover glow */
+input:hover:not(:focus),
+select:hover:not(:focus),
+textarea:hover:not(:focus) {
+    border-color: #c4b5fd;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Success state animation */
+.border-green-300 {
+    animation: successGlow 0.6s ease-in-out;
+}
+
+@keyframes successGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.2);
+    }
+}
+
+/* Error shake animation */
+.border-red-300 {
+    animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes errorShake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Submit button pulse on hover */
+button[type="submit"]:hover {
+    animation: buttonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes buttonPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 15px 35px rgba(139, 92, 246, 0.5);
+    }
+}
+
+/* Label float effect on focus */
+input:focus+label,
+select:focus+label,
+textarea:focus+label {
+    color: #7c3aed;
+    transform: translateY(-2px);
+}
+
+/* Smooth transitions for all interactive elements */
+input,
+select,
+textarea,
+button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Progress hint fade in */
+#progress-hint {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Field wrapper hover effect */
+.relative:hover .field-check {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Gradient text animation for progress */
+#progress-text {
+    background: linear-gradient(90deg, #7c3aed, #ec4899, #7c3aed);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer-reservasi 3s linear infinite;
+}
+
+/* Loading state for time select */
+select:disabled {
+    cursor: wait;
+    opacity: 0.7;
+    animation: pulse-reservasi 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-reservasi {
+
+    0%,
+    100% {
+        opacity: 0.7;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Enhanced shadow on form container */
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.15);
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}

@@ -167,11 +167,11 @@
     <i class="fas fa-chevron-up text-white text-sm sm:text-base"></i>
 </button>
 
-<!-- Swiper JS -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<!-- Swiper JS - Local -->
+<script src="<?= base_url('public/js/swiper-bundle.min.js') ?>"></script>
 
-<!-- AOS Animation -->
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<!-- AOS Animation - Local -->
+<script src="<?= base_url('public/js/aos.js') ?>"></script>
 <script>
     AOS.init({
         duration: 800,
@@ -181,190 +181,10 @@
     });
 </script>
 
-<!-- Page Loader Script -->
-<script>
-    // Track when page started loading
-    const pageLoadStart = Date.now();
-    const minLoadTime = 800; // Minimum 800ms display time
 
-    // Fade out page loader when page is fully loaded
-    window.addEventListener('load', function () {
-        const loader = document.getElementById('page-loader');
-        if (loader) {
-            const elapsedTime = Date.now() - pageLoadStart;
-            const remainingTime = Math.max(0, minLoadTime - elapsedTime);
 
-            // Wait for minimum display time before fading out
-            setTimeout(() => {
-                loader.classList.add('fade-out');
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 500); // Wait for fade animation
-            }, remainingTime);
-        }
-    });
-</script>
-
-<!-- Custom Scripts -->
-<script>
-    // Mobile menu toggle
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    mobileMenuBtn?.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
-
-    // Close mobile menu when clicking a link
-    mobileMenu?.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-        });
-    });
-
-    // Navbar background on scroll
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('shadow-md');
-        } else {
-            navbar.classList.remove('shadow-md');
-        }
-    });
-
-    // Back to top button visibility
-    const backToTop = document.getElementById('back-to-top');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 500) {
-            backToTop.classList.remove('opacity-0', 'pointer-events-none');
-            backToTop.classList.add('opacity-100');
-        } else {
-            backToTop.classList.add('opacity-0', 'pointer-events-none');
-            backToTop.classList.remove('opacity-100');
-        }
-    });
-
-    // Animated Counter
-    const counters = document.querySelectorAll('.counter');
-    const speed = 100; // Animation speed
-
-    const animateCounter = (counter) => {
-        const target = +counter.getAttribute('data-target');
-        const increment = target / speed;
-        let count = 0;
-
-        const updateCount = () => {
-            count += increment;
-            if (count < target) {
-                counter.innerText = Math.ceil(count);
-                requestAnimationFrame(updateCount);
-            } else {
-                counter.innerText = target;
-            }
-        };
-
-        updateCount();
-    };
-
-    // Intersection Observer for counter animation
-    const counterObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const counter = entry.target;
-                if (!counter.classList.contains('animated')) {
-                    counter.classList.add('animated');
-                    animateCounter(counter);
-                }
-            }
-        });
-    }, { threshold: 0.5 });
-
-    counters.forEach(counter => {
-        counterObserver.observe(counter);
-    });
-
-    // Parallax Scrolling Effect
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-
-        // Hero parallax (if exists)
-        const heroSection = document.querySelector('.hero-section');
-        if (heroSection) {
-            heroSection.style.transform = `translateY(${scrolled * 0.5}px)`;
-        }
-
-        // Decorative elements parallax
-        const parallaxElements = document.querySelectorAll('[data-parallax]');
-        parallaxElements.forEach(el => {
-            const speed = el.dataset.parallax || 0.5;
-            el.style.transform = `translateY(${scrolled * speed}px)`;
-        });
-    });
-
-    // Smooth FAQ Accordion Enhancement
-    document.querySelectorAll('.faq-question').forEach(button => {
-        button.addEventListener('click', () => {
-            const answer = button.nextElementSibling;
-            const icon = button.querySelector('.faq-icon');
-
-            // Add smooth transition
-            answer.style.transition = 'max-height 0.3s ease-out, opacity 0.3s ease-out';
-
-            // Toggle current
-            if (answer.classList.contains('hidden')) {
-                answer.classList.remove('hidden');
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-                answer.style.opacity = '1';
-                icon.classList.add('rotate-180');
-            } else {
-                answer.style.maxHeight = '0';
-                answer.style.opacity = '0';
-                setTimeout(() => answer.classList.add('hidden'), 300);
-                icon.classList.remove('rotate-180');
-            }
-
-            // Close others
-            document.querySelectorAll('.faq-question').forEach(otherBtn => {
-                if (otherBtn !== button) {
-                    const otherAnswer = otherBtn.nextElementSibling;
-                    const otherIcon = otherBtn.querySelector('.faq-icon');
-                    otherAnswer.style.maxHeight = '0';
-                    otherAnswer.style.opacity = '0';
-                    setTimeout(() => otherAnswer.classList.add('hidden'), 300);
-                    otherIcon?.classList.remove('rotate-180');
-                }
-            });
-        });
-    });
-
-    // Initialize Swiper for Testimonials
-    if (document.querySelector('.testimonial-swiper')) {
-        new Swiper('.testimonial-swiper', {
-            slidesPerView: 1,
-            spaceBetween: 24,
-            autoplay: {
-                delay: 5000,
-                disableOnInteraction: false,
-            },
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-            breakpoints: {
-                640: {
-                    slidesPerView: 2,
-                },
-                1024: {
-                    slidesPerView: 3,
-                },
-            },
-        });
-    }
-</script>
+<!-- Custom Scripts - Local -->
+<script src="<?= base_url('public/js/main.js') ?>"></script>
 </body>
 
 </html>
