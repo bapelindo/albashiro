@@ -43,7 +43,7 @@ define('SITE_ROOT', dirname(__DIR__));
 define('ADMIN_WHATSAPP', '6282228967897');
 define('ADMIN_EMAIL', 'info@albashiro.com');
 define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
-define('FONNTE_GROUP_ID', '120363422821859147@g.us'); // WhatsApp Group for notifications
+define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
 
 // =====================================================
 // THERAPIST WHATSAPP NUMBERS
@@ -213,10 +213,10 @@ function generate_wa_link($therapist_name, $service_name, $client_name, $date)
 {
     $message = "Assalamu'alaikum,\n\n";
     $message .= "Saya ingin melakukan reservasi hipnoterapi:\n\n";
-    $message .= "👤 Nama: {$client_name}\n";
-    $message .= "👳 Terapis: {$therapist_name}\n";
-    $message .= "✨ Layanan: {$service_name}\n";
-    $message .= "📅 Tanggal: {$date}\n\n";
+    $message .= "Nama: {$client_name}\n";
+    $message .= "Terapis: {$therapist_name}\n";
+    $message .= "Layanan: {$service_name}\n";
+    $message .= "Tanggal: {$date}\n\n";
     $message .= "Mohon konfirmasi ketersediaan jadwal. Terima kasih.";
 
     return 'https://wa.me/' . ADMIN_WHATSAPP . '?text=' . urlencode($message);
