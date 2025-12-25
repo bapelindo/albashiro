@@ -149,6 +149,80 @@
     </div>
 </footer>
 
+
+<!-- AI Chatbot Widget -->
+<!-- Backdrop Overlay -->
+<div id="chat-backdrop" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300">
+</div>
+
+<div id="ai-chat-widget" class="fixed bottom-6 left-6 z-50">
+    <!-- Chat Window -->
+    <div id="ai-chat-window"
+        class="hidden fixed inset-0 m-auto w-[95vw] sm:w-[90vw] md:w-[600px] h-[90vh] sm:h-[95vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border-2 border-primary-200/30 flex flex-col backdrop-blur-sm animate-slide-up z-50">
+        <!-- Header -->
+        <div
+            class="bg-gradient-to-r from-primary-800 to-primary-900 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div
+                    class="w-9 h-9 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center ring-2 ring-white/20">
+                    <i class="fas fa-robot text-white text-base sm:text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold text-xs sm:text-sm">Asisten AI Albashiro</h3>
+                    <div class="flex items-center space-x-1 sm:space-x-1.5">
+                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                        <p class="text-white/70 text-[10px] sm:text-xs">Online 24/7</p>
+                    </div>
+                </div>
+            </div>
+            <button id="close-chat" class="text-white/60 hover:text-white transition-colors p-1">
+                <i class="fas fa-times text-base sm:text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50 space-y-2 sm:space-y-3 min-h-0">
+            <!-- Messages will be appended here -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="hidden px-3 sm:px-4 py-2 bg-gray-50">
+            <div class="flex items-center space-x-2 text-primary-600">
+                <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                    <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                </div>
+                <span class="text-xs">AI sedang mengetik...</span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-3 sm:p-4 bg-white border-t border-gray-200">
+            <form id="chat-form" class="flex space-x-2">
+                <input type="text" id="chat-input" placeholder="Ketik pesan Anda..."
+                    class="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
+                    autocomplete="off">
+                <button type="submit"
+                    class="w-10 h-10 sm:w-11 sm:h-11 bg-primary-800 hover:bg-primary-900 text-white rounded-full flex items-center justify-center transition-all shadow-md hover:shadow-lg flex-shrink-0">
+                    <i class="fas fa-paper-plane text-xs sm:text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Chat Toggle Button -->
+    <button id="ai-chat-toggle"
+        class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-800 to-primary-900 hover:from-primary-700 hover:to-primary-800 rounded-full flex items-center justify-center shadow-2xl hover:shadow-primary-500/30 transition-all group relative">
+        <i class="fas fa-robot text-white text-2xl sm:text-3xl group-hover:scale-110 transition-transform"></i>
+        <span
+            class="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+            <span class="w-3 h-3 bg-green-400 rounded-full animate-ping absolute"></span>
+            <span class="w-2 h-2 bg-white rounded-full relative"></span>
+        </span>
+    </button>
+</div>
+
 <!-- Floating WhatsApp Button -->
 <a href="https://wa.me/<?= ADMIN_WHATSAPP ?>?text=Assalamu'alaikum, saya ingin konsultasi tentang hipnoterapi"
     target="_blank"

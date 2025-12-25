@@ -229,4 +229,204 @@
     }, 5000);
 })();
 
+// ============================================
+// AI Chatbot
+// ============================================
+(function () {
+    const chatToggle = document.getElementById('ai-chat-toggle');
+    const chatWindow = document.getElementById('ai-chat-window');
+    const closeChat = document.getElementById('close-chat');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const typingIndicator = document.getElementById('typing-indicator');
+    const chatBackdrop = document.getElementById('chat-backdrop');
+
+    let isFirstOpen = true;
+
+    // Get CSRF token from meta tag or generate
+    const getCSRFToken = () => {
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) {
+            return metaTag.getAttribute('content');
+        }
+        // Fallback: get from PHP session via hidden input or cookie
+        return document.querySelector('input[name="csrf_token"]')?.value || '';
+    };
+
+
+    // Toggle chat window
+    chatToggle?.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering document click
+        const isHidden = chatWindow.classList.contains('hidden');
+
+        if (isHidden) {
+            chatWindow.classList.remove('hidden');
+            chatBackdrop.classList.remove('hidden');
+            chatInput.focus();
+
+            // Show welcome message on first open
+            if (isFirstOpen) {
+                isFirstOpen = false;
+                fetchWelcomeMessage();
+            }
+        } else {
+            chatWindow.classList.add('hidden');
+            chatBackdrop.classList.add('hidden');
+        }
+    });
+
+    // Close chat window
+    closeChat?.addEventListener('click', () => {
+        chatWindow.classList.add('hidden');
+        chatBackdrop.classList.add('hidden');
+    });
+
+    // Close chat when clicking backdrop
+    chatBackdrop?.addEventListener('click', () => {
+        chatWindow.classList.add('hidden');
+        chatBackdrop.classList.add('hidden');
+    });
+
+    // Prevent chat window clicks from closing it
+    chatWindow?.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    // Fetch welcome message
+    const fetchWelcomeMessage = async () => {
+        try {
+            const response = await fetch('/albashiro/chat/welcome', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                appendMessage('ai', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching welcome message:', error);
+            appendMessage('ai', 'Assalamu\'alaikum! Selamat datang di Albashiro. Ada yang bisa saya bantu?');
+        }
+    };
+
+    // Send message
+    chatForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Display user message
+        appendMessage('user', message);
+        chatInput.value = '';
+
+        // Show typing indicator
+        typingIndicator.classList.remove('hidden');
+        scrollToBottom();
+
+        try {
+            const response = await fetch('/albashiro/chat/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    csrf_token: getCSRFToken()
+                })
+            });
+
+            const data = await response.json();
+
+            // Debug logging
+            console.log('API Response:', data);
+
+            // Hide typing indicator
+            typingIndicator.classList.add('hidden');
+
+            if (data.success && data.response) {
+                appendMessage('ai', data.response);
+            } else {
+                appendMessage('ai', data.message || 'Maaf, terjadi kesalahan. Silakan coba lagi.');
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            typingIndicator.classList.add('hidden');
+            appendMessage('ai', 'Maaf, koneksi terputus. Silakan coba lagi atau hubungi admin via WhatsApp.');
+        }
+    });
+
+    // Append message to chat
+    const appendMessage = (sender, text) => {
+        // Safety check
+        if (!text) {
+            console.error('appendMessage called with undefined text');
+            text = 'Error: No response received';
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`;
+
+        const bubble = document.createElement('div');
+        bubble.className = `max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg ${sender === 'user'
+            ? 'bg-gradient-to-br from-accent-600 to-accent-700 text-white rounded-br-sm'
+            : 'bg-white text-primary-900 border-2 border-primary-100 rounded-bl-sm'
+            }`;
+
+        // Parse markdown for AI messages
+        let formattedText = text;
+        if (sender === 'ai') {
+            formattedText = parseMarkdown(text);
+        } else {
+            // Just line breaks for user messages
+            formattedText = text.replace(/\n/g, '<br>');
+        }
+
+        bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${formattedText}</p>`;
+
+        messageDiv.appendChild(bubble);
+        chatMessages.appendChild(messageDiv);
+
+        scrollToBottom();
+    };
+
+    // Simple markdown parser
+    const parseMarkdown = (text) => {
+        // Bold: **text** or __text__
+        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+        // Italic: *text* or _text_
+        text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        text = text.replace(/_(.+?)_/g, '<em>$1</em>');
+
+        // Links: [text](url)
+        text = text.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="underline text-accent-600">$1</a>');
+
+        // Unordered lists: * item or - item
+        text = text.replace(/^\* (.+)$/gm, '<li class="ml-4">$1</li>');
+        text = text.replace(/^- (.+)$/gm, '<li class="ml-4">$1</li>');
+
+        // Wrap consecutive <li> in <ul>
+        text = text.replace(/(<li.*<\/li>\n?)+/g, '<ul class="list-disc my-2">$&</ul>');
+
+        // Line breaks
+        text = text.replace(/\n/g, '<br>');
+
+        return text;
+    };
+
+    // Scroll to bottom of chat
+    const scrollToBottom = () => {
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+    };
+})();
+
 

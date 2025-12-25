@@ -18,6 +18,7 @@
         content="Albashiro - Islamic Spiritual Hypnotherapy. Temukan kedamaian jiwa dengan hipnoterapi yang berlandaskan nilai-nilai Islam.">
     <meta name="keywords"
         content="hipnoterapi islami, hipnoterapi syariah, konseling islam, terapi trauma, kecemasan, Jakarta">
+    <meta name="csrf-token" content="<?= csrf_token() ?>">
 
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="<?= base_url('public/images/favicon.jpg') ?>">

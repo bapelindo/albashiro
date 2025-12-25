@@ -46,6 +46,13 @@ define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
 define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
 
 // =====================================================
+// GEMINI AI CONFIGURATION
+// =====================================================
+define('GEMINI_API_KEY', 'AIzaSyC1AuUr3LvvJwWLHPntfQL8DbMnpe_rHcE');
+define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+define('GEMINI_MODEL', 'gemini-2.5-flash');
+
+// =====================================================
 // THERAPIST WHATSAPP NUMBERS
 // =====================================================
 // Format: Therapist ID => WhatsApp Number

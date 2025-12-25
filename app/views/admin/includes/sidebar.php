@@ -57,6 +57,25 @@
                     Analytics
                 </a>
             </li>
+            <li>
+                <a href="<?= base_url('admin/knowledge_suggestions') ?>"
+                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors <?= (isset($activeMenu) && $activeMenu === 'knowledge') ? 'bg-indigo-50 text-indigo-700' : '' ?>">
+                    <i class="fas fa-brain w-5 mr-3"></i>
+                    Auto-Learning
+                    <?php
+                    // Show notification badge if there are pending suggestions
+                    try {
+                        $db = Database::getInstance();
+                        $pendingCount = $db->query("SELECT COUNT(*) as count FROM knowledge_suggestions WHERE status = 'pending'")->fetch();
+                        if ($pendingCount && $pendingCount->count > 0) {
+                            echo '<span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">' . $pendingCount->count . '</span>';
+                        }
+                    } catch (Exception $e) {
+                        // Silently fail if table doesn't exist yet
+                    }
+                    ?>
+                </a>
+            </li>
             <li class="pt-4 border-t mt-4">
                 <a href="<?= base_url() ?>" target="_blank"
                     class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
