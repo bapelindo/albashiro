@@ -104,6 +104,16 @@ class Availability
     {
         $dayOfWeek = strtolower(date('l', strtotime($date)));
 
+        // Check for global holiday first (overrides everything)
+        $holidayCheck = $this->db->query(
+            "SELECT COUNT(*) FROM global_holidays WHERE holiday_date = ?",
+            [$date]
+        )->fetchColumn();
+
+        if ($holidayCheck > 0) {
+            return false;
+        }
+
         // Check for override first
         $override = $this->db->query(
             "SELECT * FROM availability_overrides 
@@ -142,6 +152,16 @@ class Availability
     {
         $dayOfWeek = strtolower(date('l', strtotime($date)));
         $slots = [];
+
+        // Check for global holiday first
+        $holidayCheck = $this->db->query(
+            "SELECT COUNT(*) FROM global_holidays WHERE holiday_date = ?",
+            [$date]
+        )->fetchColumn();
+
+        if ($holidayCheck > 0) {
+            return $slots; // Return empty slots on holidays
+        }
 
         // Get schedule
         $schedule = $this->db->query(

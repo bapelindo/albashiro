@@ -181,6 +181,20 @@
     });
 </script>
 
+<!-- Page Loader Script -->
+<script>
+    // Fade out page loader when page is fully loaded
+    window.addEventListener('load', function () {
+        const loader = document.getElementById('page-loader');
+        if (loader) {
+            loader.classList.add('fade-out');
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 500);
+        }
+    });
+</script>
+
 <!-- Custom Scripts -->
 <script>
     // Mobile menu toggle

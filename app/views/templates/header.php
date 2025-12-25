@@ -9,6 +9,10 @@
     <meta name="keywords"
         content="hipnoterapi islami, hipnoterapi syariah, konseling islam, terapi trauma, kecemasan, Jakarta">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="<?= base_url('public/images/favicon.jpg') ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('public/images/favicon.jpg') ?>">
+
     <title><?= e($title ?? 'Beranda') ?> | <?= SITE_NAME ?> - <?= SITE_TAGLINE ?></title>
 
     <!-- Tailwind CSS CDN -->
@@ -220,10 +224,199 @@
         .swiper-button-prev {
             color: #1e3a5f !important;
         }
+
+        /* Skeleton Loading Animations */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg,
+                    #f0f0f0 0%,
+                    #e0e0e0 20%,
+                    #f0f0f0 40%,
+                    #f0f0f0 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s linear infinite;
+            border-radius: 8px;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-title {
+            height: 24px;
+            width: 60%;
+            margin-bottom: 12px;
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .skeleton-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+        }
+
+        .skeleton-button {
+            height: 48px;
+            border-radius: 12px;
+        }
+
+        /* Page loader */
+        #page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fefdfb;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #page-loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #7c3aed;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animated Logo Circles */
+        @keyframes pulse-slow {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes pulse-medium {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.15) rotate(5deg);
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes pulse-slower {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+
+        .animate-pulse-slow {
+            animation: pulse-slow 2s ease-in-out infinite;
+        }
+
+        .animate-pulse-medium {
+            animation: pulse-medium 2.5s ease-in-out infinite;
+        }
+
+        .animate-pulse-slower {
+            animation: pulse-slower 3s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Logo breathing animation */
+        @keyframes logo-breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 10px 20px rgba(255, 0, 0, 0.2));
+            }
+
+            50% {
+                transform: scale(1.05);
+                filter: drop-shadow(0 15px 30px rgba(255, 0, 0, 0.3));
+            }
+        }
+
+        .animate-logo-breathe {
+            animation: logo-breathe 2.5s ease-in-out infinite;
+        }
     </style>
 </head>
 
 <body class="font-sans antialiased text-gray-800 bg-cream-50 overflow-x-hidden w-full">
+
+    <!-- Page Loader with Animated Logo -->
+    <div id="page-loader">
+        <div class="text-center">
+            <!-- Animated Logo -->
+            <div class="w-32 h-32 mx-auto mb-6 animate-logo-breathe">
+                <img src="<?= base_url('public/images/logo.png') ?>" alt="<?= SITE_NAME ?>"
+                    class="w-full h-full object-contain drop-shadow-xl">
+            </div>
+            <p class="text-primary-900 font-bold text-xl mb-1"><?= SITE_NAME ?></p>
+            <p class="text-primary-600 text-sm font-medium animate-pulse">Memuat halaman...</p>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-100" id="navbar">
@@ -232,8 +425,9 @@
                 <!-- Logo -->
                 <a href="<?= base_url() ?>" class="flex items-center space-x-3 group">
                     <div
-                        class="w-12 h-12 bg-gradient-to-br from-primary-800 to-accent-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                        <i class="fas fa-spa text-white text-xl"></i>
+                        class="w-12 h-12 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow bg-white p-1.5">
+                        <img src="<?= base_url('public/images/logo.png') ?>" alt="<?= SITE_NAME ?>"
+                            class="w-full h-full object-contain">
                     </div>
                     <div>
                         <span class="text-2xl font-bold text-primary-900"><?= SITE_NAME ?></span>

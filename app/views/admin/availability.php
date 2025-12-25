@@ -86,12 +86,74 @@ if (!isset($_SESSION['user_id'])) {
             </form>
         </div>
 
+        <!-- Global Holidays (All Therapists) -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-globe text-blue-600 mr-2"></i>
+                Global Holidays (All Therapists)
+            </h2>
+            <p class="text-sm text-gray-600 mb-2">
+                Set holidays that apply to ALL therapists. No bookings will be allowed on these dates.
+            </p>
+
+            <!-- CSV Import Section -->
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 class="font-semibold text-gray-800 mb-2">
+                    <i class="fas fa-file-csv text-green-600 mr-2"></i>Import dari CSV
+                </h3>
+                <form id="csv-import-form" onsubmit="importCSV(event)" class="flex items-center gap-3">
+                    <input type="file" id="csv-file" accept=".csv,.txt" required
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <button type="submit"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition whitespace-nowrap">
+                        <i class="fas fa-upload mr-2"></i>Upload CSV
+                    </button>
+                </form>
+                <p class="text-xs text-gray-500 mt-2">
+                    Format CSV: <code class="bg-gray-100 px-1 rounded">holiday_date,name</code> |
+                    <a href="<?= base_url('public/sample_holidays_2025.csv') ?>" download
+                        class="text-blue-600 hover:underline">
+                        <i class="fas fa-download"></i> Download Sample
+                    </a>
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Add Holiday Form -->
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-3">Add National Holiday</h3>
+                    <form id="global-holiday-form" onsubmit="addGlobalHoliday(event)" class="space-y-3">
+                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                        <input type="date" id="global-holiday-date" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <input type="text" id="global-holiday-name" placeholder="Holiday Name (e.g., Hari Kemerdekaan)"
+                            required class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <button type="submit"
+                            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-plus mr-2"></i>Add Global Holiday
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Holiday List -->
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-3">Upcoming Holidays</h3>
+                    <div id="global-holiday-list" class="space-y-2 max-h-64 overflow-y-auto">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Holidays/Overrides -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <h2 class="text-xl font-bold text-gray-800 mb-4">
                 <i class="fas fa-calendar-times text-red-600 mr-2"></i>
-                Holidays & Special Days
+                Individual Therapist Overrides
             </h2>
+            <p class="text-sm text-gray-600 mb-4">
+                Set specific dates when the selected therapist is unavailable.
+            </p>
 
             <div class="grid md:grid-cols-2 gap-6">
                 <!-- Add Override Form -->
@@ -133,9 +195,10 @@ if (!isset($_SESSION['user_id'])) {
             loadOverrides();
         });
 
-        // Load initial schedule
+        // Load initial data
         loadSchedule();
         loadOverrides();
+        loadGlobalHolidays();
 
         function loadSchedule() {
             const container = document.getElementById('schedule-container');
@@ -356,6 +419,134 @@ if (!isset($_SESSION['user_id'])) {
                     if (data.success) {
                         loadOverrides();
                     }
+                });
+        }
+
+        // ===== GLOBAL HOLIDAYS FUNCTIONS =====
+
+        function loadGlobalHolidays() {
+            fetch('<?= base_url('admin/getGlobalHolidays') ?>')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        renderGlobalHolidays(data.holidays);
+                    }
+                })
+                .catch(error => console.error('Error loading holidays:', error));
+        }
+
+        function renderGlobalHolidays(holidays) {
+            const list = document.getElementById('global-holiday-list');
+
+            if (holidays.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 text-sm">No holidays set</p>';
+                return;
+            }
+
+            list.innerHTML = holidays.map(holiday => `
+                <div class="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">${new Date(holiday.holiday_date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        <p class="text-sm font-semibold text-blue-700">${holiday.name}</p>
+                    </div>
+                    <button onclick="deleteGlobalHoliday(${holiday.id})" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addGlobalHoliday(e) {
+            e.preventDefault();
+
+            const date = document.getElementById('global-holiday-date').value;
+            const name = document.getElementById('global-holiday-name').value;
+
+            if (!date || !name) {
+                alert('Please fill in date and holiday name');
+                return;
+            }
+
+            fetch('<?= base_url('admin/addGlobalHoliday') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    date: date,
+                    name: name
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Global holiday added successfully!');
+                        document.getElementById('global-holiday-date').value = '';
+                        document.getElementById('global-holiday-name').value = '';
+                        loadGlobalHolidays();
+                    } else {
+                        alert('Error: ' + (data.message || 'Failed to add holiday'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding holiday:', error);
+                    alert('Error adding holiday: ' + error.message);
+                });
+        }
+
+        function importCSV(e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('csv-file');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Pilih file CSV terlebih dahulu');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('csv_file', file);
+
+            fetch('<?= base_url('admin/importHolidaysFromCSV') ?>', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        fileInput.value = ''; // Clear file input
+                        loadGlobalHolidays();
+                    } else {
+                        alert('Error: ' + (data.message || 'Failed to import CSV'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error importing CSV:', error);
+                    alert('Error importing CSV: ' + error.message);
+                });
+        }
+
+        function deleteGlobalHoliday(id) {
+            if (!confirm('Delete this global holiday? This will allow bookings on this date again.')) return;
+
+            fetch('<?= base_url('admin/deleteGlobalHoliday') ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadGlobalHolidays();
+                    } else {
+                        alert('Error: ' + (data.message || 'Failed to delete holiday'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting holiday:', error);
+                    alert('Error deleting holiday: ' + error.message);
                 });
         }
     </script>

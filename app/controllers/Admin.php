@@ -840,6 +840,163 @@ class Admin extends Controller
     }
 
     /**
+     * Get global holidays (AJAX)
+     */
+    public function getGlobalHolidays()
+    {
+        header('Content-Type: application/json');
+
+        $holidayModel = $this->model('Holiday');
+        $holidays = $holidayModel->getUpcoming();
+
+        echo json_encode([
+            'success' => true,
+            'holidays' => $holidays
+        ]);
+        exit;
+    }
+
+    /**
+     * Add global holiday (AJAX)
+     */
+    public function addGlobalHoliday()
+    {
+        header('Content-Type: application/json');
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $date = $input['date'] ?? '';
+        $name = $input['name'] ?? '';
+
+        if (!$date || !$name) {
+            echo json_encode(['success' => false, 'message' => 'Date and name are required']);
+            exit;
+        }
+
+        try {
+            $holidayModel = $this->model('Holiday');
+            $result = $holidayModel->add($date, $name);
+
+            echo json_encode(['success' => (bool) $result, 'message' => $result ? 'Holiday added' : 'Failed to add']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /**
+     * Delete global holiday (AJAX)
+     */
+    public function deleteGlobalHoliday()
+    {
+        header('Content-Type: application/json');
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = $input['id'] ?? 0;
+
+        if (!$id) {
+            echo json_encode(['success' => false]);
+            exit;
+        }
+
+        try {
+            $holidayModel = $this->model('Holiday');
+            $result = $holidayModel->delete($id);
+
+            echo json_encode(['success' => (bool) $result]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /**
+     * Import holidays from CSV file (AJAX)
+     */
+    public function importHolidaysFromCSV()
+    {
+        header('Content-Type: application/json');
+
+        // Check if file was uploaded
+        if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['success' => false, 'message' => 'No file uploaded or upload error']);
+            exit;
+        }
+
+        $file = $_FILES['csv_file'];
+
+        // Validate file type
+        $allowedExtensions = ['csv', 'txt'];
+        $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            echo json_encode(['success' => false, 'message' => 'File must be CSV format']);
+            exit;
+        }
+
+        // Validate file size (max 1MB)
+        if ($file['size'] > 1024 * 1024) {
+            echo json_encode(['success' => false, 'message' => 'File too large (max 1MB)']);
+            exit;
+        }
+
+        try {
+            $holidays = [];
+            $handle = fopen($file['tmp_name'], 'r');
+
+            if ($handle === false) {
+                throw new Exception('Failed to open CSV file');
+            }
+
+            // Skip header row
+            $header = fgetcsv($handle, 0, ',', '"', '\\');
+
+            // Read CSV rows
+            while (($row = fgetcsv($handle, 0, ',', '"', '\\')) !== false) {
+                // Skip empty rows
+                if (empty($row[0]) || empty($row[1])) {
+                    continue;
+                }
+
+                $date = trim($row[0]);
+                $name = trim($row[1]);
+
+                // Validate date format (YYYY-MM-DD)
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+                    continue; // Skip invalid dates
+                }
+
+                $holidays[] = [
+                    'date' => $date,
+                    'name' => $name
+                ];
+            }
+
+            fclose($handle);
+
+            if (empty($holidays)) {
+                echo json_encode(['success' => false, 'message' => 'No valid holidays found in CSV']);
+                exit;
+            }
+
+            // Import holidays using bulk method (auto-skips duplicates)
+            $holidayModel = $this->model('Holiday');
+            $imported = $holidayModel->addBulk($holidays);
+
+            $skipped = count($holidays) - $imported;
+
+            echo json_encode([
+                'success' => true,
+                'message' => "Berhasil import $imported hari libur" . ($skipped > 0 ? ", $skipped duplikat dilewati" : ""),
+                'imported' => $imported,
+                'skipped' => $skipped
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /**
      * Check if user is logged in
      */
     private function isLoggedIn()

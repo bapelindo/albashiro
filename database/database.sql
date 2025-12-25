@@ -134,6 +134,19 @@ CREATE TABLE IF NOT EXISTS `availability_overrides` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- Table: global_holidays (Holidays for All Therapists)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS `global_holidays` (
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `holiday_date` DATE NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_holiday_date` (`holiday_date`),
+    KEY `idx_date` (`holiday_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- Table: bookings (WITH REMINDER TRACKING)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS `bookings` (
