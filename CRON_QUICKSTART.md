@@ -24,10 +24,10 @@ Tidak perlu setup secrets! Semua konfigurasi sudah ada di `config/config.php`:
 - WhatsApp numbers
 
 **Cara Kerja:**
-- Cron berjalan otomatis setiap jam (00:00, 01:00, 02:00, dst.)
-- Mencari appointment yang akan dimulai dalam **30-60 menit**
-- Kirim reminder ke klien dan terapis
-- Reminder dikirim **30 menit sebelum** jadwal appointment
+- Cron berjalan otomatis **setiap jam di menit ke-30** (09:30, 10:30, 11:30, dst.)
+- Mencari appointment di jam bulat berikutnya (10:00, 11:00, 12:00, dst.)
+- Kirim reminder ke klien dan terapis **30 menit sebelum** appointment
+- **Contoh:** Cron jam 10:30 → kirim reminder untuk appointment jam 11:00
 
 ## 🧪 Testing
 
@@ -100,17 +100,18 @@ Edit file `.github/workflows/send-reminders.yml`:
 ```yaml
 on:
   schedule:
-    # Setiap jam (default)
-    - cron: '0 * * * *'
+    # Setiap jam di menit ke-30 (AKTIF SEKARANG)
+    # 09:30, 10:30, 11:30, dst.
+    - cron: '30 * * * *'
     
-    # Setiap 30 menit
-    # - cron: '*/30 * * * *'
+    # Setiap jam di menit ke-0
+    # - cron: '0 * * * *'
     
-    # Setiap hari jam 9 pagi
-    # - cron: '0 9 * * *'
+    # Setiap 30 menit (di :00 dan :30)
+    # - cron: '0,30 * * * *'
     
-    # Setiap jam dari 8 pagi - 8 malam
-    # - cron: '0 8-20 * * *'
+    # Setiap hari jam 9:30 pagi
+    # - cron: '30 9 * * *'
 ```
 
 **Format cron:** `minute hour day month dayOfWeek`

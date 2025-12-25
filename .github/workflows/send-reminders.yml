@@ -2,8 +2,9 @@ name: Send WhatsApp Reminders
 
 on:
   schedule:
-    # Runs every hour at minute 0
-    - cron: '0 * * * *'
+    # Runs at :30 of every hour (09:30, 10:30, 11:30, etc.)
+    # Sends reminders for appointments at the next hour (10:00, 11:00, 12:00, etc.)
+    - cron: '30 * * * *'
   
   # Allows manual trigger from GitHub Actions tab
   workflow_dispatch:

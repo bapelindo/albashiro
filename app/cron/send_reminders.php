@@ -49,10 +49,11 @@ try {
     $currentDateTimeStr = $currentDateTime->format('Y-m-d H:i:s');
 
     logMessage("Current time: {$currentDateTimeStr}");
-    logMessage("Looking for appointments in the next 30-60 minutes...");
+    logMessage("Looking for appointments approximately 30 minutes ahead...");
 
     // Query bookings that need reminders
-    // Find appointments where time difference is between 30-60 minutes from now
+    // Find appointments where time difference is between 25-35 minutes from now
+    // This gives ±5 minute tolerance for cron delays
     $query = "
         SELECT 
             b.id,
@@ -71,7 +72,7 @@ try {
         LEFT JOIN services s ON b.service_id = s.id
         WHERE b.status IN ('confirmed', 'pending')
         AND (b.reminder_sent = 0 OR b.reminder_sent IS NULL)
-        AND TIMESTAMPDIFF(MINUTE, NOW(), CONCAT(b.appointment_date, ' ', b.appointment_time)) BETWEEN 30 AND 60
+        AND TIMESTAMPDIFF(MINUTE, NOW(), CONCAT(b.appointment_date, ' ', b.appointment_time)) BETWEEN 0 AND 45
         ORDER BY b.appointment_time ASC
     ";
 
