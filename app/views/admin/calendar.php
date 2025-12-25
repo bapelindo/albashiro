@@ -52,6 +52,84 @@
             </div>
         </div>
 
+        <!-- Statistics Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium">Total Bookings</p>
+                        <h3 class="text-3xl font-bold mt-2" id="stat-total">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calendar-check text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-100 text-sm font-medium">Pending</p>
+                        <h3 class="text-3xl font-bold mt-2" id="stat-pending">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium">Confirmed</p>
+                        <h3 class="text-3xl font-bold mt-2" id="stat-confirmed">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium">Today's Appointments</p>
+                        <h3 class="text-3xl font-bold mt-2" id="stat-today">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calendar-day text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="Search by name or booking code..."
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+
+                <!-- Status Filter -->
+                <select id="status-filter" onchange="applyFilters()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <!-- Export Button -->
+                <button onclick="exportCalendar()"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-download mr-2"></i>Export CSV
+                </button>
+            </div>
+        </div>
+
         <!-- Filters -->
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center space-x-3">
@@ -154,6 +232,9 @@
                     },
                     events: function (info, successCallback, failureCallback) {
                         const therapistId = document.getElementById('therapist-filter').value;
+                        const statusFilter = document.getElementById('status-filter')?.value || '';
+                        const searchQuery = document.getElementById('search-input')?.value.toLowerCase() || '';
+
                         let url = '<?= base_url('admin/getCalendarEvents') ?>?start=' + info.startStr + '&end=' + info.endStr;
                         if (therapistId) {
                             url += '&therapist_id=' + therapistId;
@@ -161,7 +242,30 @@
 
                         fetch(url)
                             .then(response => response.json())
-                            .then(data => successCallback(data))
+                            .then(data => {
+                                // Update statistics with all data
+                                window.updateStatistics(data);
+
+                                // Apply client-side filters
+                                let filteredData = data;
+
+                                // Status filter
+                                if (statusFilter) {
+                                    filteredData = filteredData.filter(event =>
+                                        event.extendedProps.status.toLowerCase() === statusFilter
+                                    );
+                                }
+
+                                // Search filter
+                                if (searchQuery) {
+                                    filteredData = filteredData.filter(event =>
+                                        event.extendedProps.client_name.toLowerCase().includes(searchQuery) ||
+                                        event.extendedProps.booking_code.toLowerCase().includes(searchQuery)
+                                    );
+                                }
+
+                                successCallback(filteredData);
+                            })
                             .catch(error => {
                                 console.error('Error loading events:', error);
                                 failureCallback(error);
@@ -364,6 +468,81 @@
                         '<p class="text-red-500 text-center py-8">Error loading bookings</p>';
                 });
         };
+
+        // NEW FEATURES: Statistics, Search, Filters, Export
+        let allEvents = [];
+
+        // Update statistics
+        window.updateStatistics = function (events) {
+            allEvents = events;
+            const today = new Date().toISOString().split('T')[0];
+
+            const stats = {
+                total: events.length,
+                pending: events.filter(e => e.extendedProps.status.toLowerCase() === 'pending').length,
+                confirmed: events.filter(e => e.extendedProps.status.toLowerCase() === 'confirmed').length,
+                today: events.filter(e => e.start.split('T')[0] === today).length
+            };
+
+            document.getElementById('stat-total').textContent = stats.total;
+            document.getElementById('stat-pending').textContent = stats.pending;
+            document.getElementById('stat-confirmed').textContent = stats.confirmed;
+            document.getElementById('stat-today').textContent = stats.today;
+        };
+
+        // Apply filters (search + status)
+        window.applyFilters = function () {
+            if (calendar) {
+                calendar.refetchEvents();
+            }
+        };
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', function () {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        applyFilters();
+                    }, 300); // Debounce 300ms
+                });
+            }
+        });
+
+        // Quick date filters
+        window.quickFilter = function (type) {
+            if (!calendar) return;
+
+            const today = new Date();
+
+            if (type === 'today') {
+                calendar.changeView('timeGridDay');
+                calendar.gotoDate(today);
+            } else if (type === 'week') {
+                calendar.changeView('timeGridWeek');
+                calendar.gotoDate(today);
+            }
+        };
+
+        // Export to CSV
+        window.exportCalendar = function () {
+            const therapistId = document.getElementById('therapist-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+
+            let url = '<?= base_url('admin/exportBookings') ?>?';
+            if (statusFilter) url += 'status=' + statusFilter + '&';
+            if (therapistId) url += 'therapist_id=' + therapistId;
+
+            window.location.href = url;
+        };
+
+        // Load initial statistics
+        fetch('<?= base_url('admin/getCalendarEvents') ?>')
+            .then(response => response.json())
+            .then(data => window.updateStatistics(data))
+            .catch(error => console.error('Error loading statistics:', error));
     </script>
 
     <?php include __DIR__ . '/includes/dark-mode-script.php'; ?>

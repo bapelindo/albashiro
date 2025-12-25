@@ -213,6 +213,27 @@ class Booking
     }
 
     /**
+     * Get bookings with dynamic filters (for calendar API)
+     */
+    public function getWithFilters($conditions = [], $params = [])
+    {
+        $sql = "SELECT b.*, 
+                       t.name as therapist_name,
+                       s.name as service_name
+                FROM bookings b
+                LEFT JOIN therapists t ON b.therapist_id = t.id
+                LEFT JOIN services s ON b.service_id = s.id";
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY b.appointment_date, b.appointment_time";
+
+        return $this->db->query($sql, $params)->fetchAll();
+    }
+
+    /**
      * Check if a time slot is already booked
      */
     public function isSlotBooked($therapistId, $date, $time)
