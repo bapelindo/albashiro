@@ -52,8 +52,9 @@ try {
     logMessage("Looking for appointments approximately 30 minutes ahead...");
 
     // Query bookings that need reminders
-    // Find appointments where time difference is between 25-35 minutes from now
-    // This gives ±5 minute tolerance for cron delays
+    // Find appointments where time difference is between 0-45 minutes from now
+    // IMPORTANT: Appointment times are stored in WIB, but NOW() returns UTC
+    // So we need to convert appointment time to UTC for comparison
     $query = "
         SELECT 
             b.id,
@@ -66,13 +67,13 @@ try {
             b.therapist_id,
             t.name as therapist_name,
             s.name as service_name,
-            TIMESTAMPDIFF(MINUTE, NOW(), CONCAT(b.appointment_date, ' ', b.appointment_time)) as minutes_until
+            TIMESTAMPDIFF(MINUTE, NOW(), CONVERT_TZ(CONCAT(b.appointment_date, ' ', b.appointment_time), '+07:00', '+00:00')) as minutes_until
         FROM bookings b
         LEFT JOIN therapists t ON b.therapist_id = t.id
         LEFT JOIN services s ON b.service_id = s.id
         WHERE b.status IN ('confirmed', 'pending')
         AND (b.reminder_sent = 0 OR b.reminder_sent IS NULL)
-        AND TIMESTAMPDIFF(MINUTE, NOW(), CONCAT(b.appointment_date, ' ', b.appointment_time)) BETWEEN 0 AND 45
+        AND TIMESTAMPDIFF(MINUTE, NOW(), CONVERT_TZ(CONCAT(b.appointment_date, ' ', b.appointment_time), '+07:00', '+00:00')) BETWEEN 0 AND 45
         ORDER BY b.appointment_time ASC
     ";
 
