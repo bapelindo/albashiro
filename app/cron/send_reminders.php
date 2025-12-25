@@ -32,11 +32,13 @@ function logMessage($message)
 logMessage("=== Starting Reminder Cron Job ===");
 
 try {
-    // Direct PDO connection
-    $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+    // Direct PDO connection with SSL for TiDB Cloud
+    $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
     $pdo = new PDO($dsn, DB_USER, DB_PASS, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+        PDO::MYSQL_ATTR_SSL_CA => true,
+        PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
     ]);
 
     // Initialize Fonnte service
