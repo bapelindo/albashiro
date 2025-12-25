@@ -9,6 +9,9 @@
     <meta name="keywords"
         content="hipnoterapi islami, hipnoterapi syariah, konseling islam, terapi trauma, kecemasan, Jakarta">
 
+    <!-- Preload Critical Assets - Logo First -->
+    <link rel="preload" href="<?= base_url('public/images/logo.svg') ?>" as="image" type="image/svg+xml">
+
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="<?= base_url('public/images/favicon.jpg') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('public/images/favicon.jpg') ?>">
@@ -408,14 +411,38 @@
     <!-- Inline Page Loader - Shows Immediately -->
     <div id="page-loader"
         style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fefdfb;z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity 0.5s ease-out;">
-        <div style="text-center;">
-            <div style="width:128px;height:128px;margin:0 auto 24px;animation:logo-breathe 2.5s ease-in-out infinite;">
-                <img src="<?= base_url('public/images/logo.png') ?>" alt="<?= SITE_NAME ?>"
-                    style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(255,0,0,0.2));">
+        <div style="text-align:center;">
+            <div
+                style="width:200px;height:200px;margin:0 auto 32px;animation:logo-breathe 3s ease-in-out infinite;position:relative;">
+                <!-- Animated circles background -->
+                <div
+                    style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle, rgba(201,169,89,0.1) 0%, transparent 70%);animation:pulse-slow 2s ease-in-out infinite;">
+                </div>
+                <div
+                    style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:240px;height:240px;border-radius:50%;background:radial-gradient(circle, rgba(107,91,149,0.08) 0%, transparent 70%);animation:pulse-medium 2.5s ease-in-out infinite;">
+                </div>
+
+                <!-- Main logo with high priority loading -->
+                <img src="<?= base_url('public/images/logo.svg') ?>" alt="<?= SITE_NAME ?>" fetchpriority="high"
+                    loading="eager"
+                    style="width:100%;height:100%;object-fit:contain;position:relative;z-index:2;filter:drop-shadow(0 15px 35px rgba(201,169,89,0.3));">
             </div>
-            <p style="color:#1e3a5f;font-weight:bold;font-size:1.25rem;margin-bottom:0.25rem;"><?= SITE_NAME ?></p>
-            <p style="color:#627d98;font-size:0.875rem;animation:pulse 2s cubic-bezier(0.4,0,0.6,1) infinite;">Memuat
-                halaman...</p>
+            <p style="color:#1e3a5f;font-weight:bold;font-size:1.5rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">
+                <?= SITE_NAME ?>
+            </p>
+            <p style="color:#6b5b95;font-size:0.875rem;font-weight:500;margin-bottom:1rem;">Islamic Spiritual
+                Hypnotherapy</p>
+            <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+                <div
+                    style="width:8px;height:8px;border-radius:50%;background:#c9a959;animation:dot-pulse 1.5s ease-in-out infinite;">
+                </div>
+                <div
+                    style="width:8px;height:8px;border-radius:50%;background:#6b5b95;animation:dot-pulse 1.5s ease-in-out 0.2s infinite;">
+                </div>
+                <div
+                    style="width:8px;height:8px;border-radius:50%;background:#1e3a5f;animation:dot-pulse 1.5s ease-in-out 0.4s infinite;">
+                </div>
+            </div>
         </div>
     </div>
     <style>
@@ -424,12 +451,54 @@
             0%,
             100% {
                 transform: scale(1);
-                filter: drop-shadow(0 10px 20px rgba(255, 0, 0, 0.2));
+                filter: drop-shadow(0 15px 35px rgba(201, 169, 89, 0.3));
             }
 
             50% {
-                transform: scale(1.05);
-                filter: drop-shadow(0 15px 30px rgba(255, 0, 0, 0.3));
+                transform: scale(1.08);
+                filter: drop-shadow(0 20px 45px rgba(201, 169, 89, 0.4));
+            }
+        }
+
+        @keyframes pulse-slow {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes pulse-medium {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes dot-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.5;
             }
         }
     </style>
