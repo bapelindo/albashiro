@@ -43,15 +43,15 @@ define('SITE_ROOT', dirname(__DIR__));
 define('ADMIN_WHATSAPP', '6282228967897');
 define('ADMIN_EMAIL', 'info@albashiro.com');
 define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
-define('FONNTE_GROUP_ID', '120363422821859147@g.us'); // WhatsApp Group for notifications
+define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
 
 // =====================================================
 // THERAPIST WHATSAPP NUMBERS
 // =====================================================
 // Format: Therapist ID => WhatsApp Number
 define('THERAPIST_WHATSAPP', [
-    1 => '6282228967897',  // Ustadz Ahmad Fadhil
-    2 => '6282228967897',  // Dr. Siti Aminah
+    1 => '628155017069',  // Bunda Dewi
+    2 => '62895335419945',  // Bu Muza
     3 => '6282228967897',  // Ustadzah Fatimah Zahra
 ]);
 

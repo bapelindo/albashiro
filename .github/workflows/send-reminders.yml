@@ -1,0 +1,40 @@
+name: Send WhatsApp Reminders
+
+on:
+  schedule:
+    # Runs every hour at minute 0
+    - cron: '0 * * * *'
+  
+  # Allows manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo, pdo_mysql, mbstring
+      
+      - name: Run reminder cron script
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          cd app/cron
+          php send_reminders.php
+          
+      - name: Show execution result
+        if: always()
+        run: |
+          if [ -f logs/reminders.log ]; then
+            echo "=== Last 20 lines of reminder log ==="
+            tail -n 20 logs/reminders.log
+          else
+            echo "Log file not found"
+          fi

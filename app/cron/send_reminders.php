@@ -7,8 +7,11 @@
  * This version uses PDO directly to avoid Database class issues
  */
 
-// Load configuration and services
-require_once __DIR__ . '/../../config/config.php';
+// Load configuration and services (only if not already loaded)
+if (!defined('ALBASHIRO')) {
+    define('ALBASHIRO', true);
+    require_once __DIR__ . '/../../config/config.php';
+}
 require_once __DIR__ . '/../services/FonnteService.php';
 
 // Setup logging
