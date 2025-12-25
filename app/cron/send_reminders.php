@@ -44,13 +44,15 @@ try {
     // Initialize Fonnte service
     $fonnteService = new FonnteService();
 
-    // Get current date and hour
-    $currentDate = date('Y-m-d');
-    $currentHour = date('H:00:00');
+    // Get current time
+    $currentDateTime = new DateTime();
+    $currentDateTimeStr = $currentDateTime->format('Y-m-d H:i:s');
 
-    logMessage("Checking appointments for {$currentDate} at {$currentHour}");
+    logMessage("Current time: {$currentDateTimeStr}");
+    logMessage("Looking for appointments in the next 30-60 minutes...");
 
     // Query bookings that need reminders
+    // Find appointments where time difference is between 30-60 minutes from now
     $query = "
         SELECT 
             b.id,
@@ -62,22 +64,19 @@ try {
             b.problem_description,
             b.therapist_id,
             t.name as therapist_name,
-            s.name as service_name
+            s.name as service_name,
+            TIMESTAMPDIFF(MINUTE, NOW(), CONCAT(b.appointment_date, ' ', b.appointment_time)) as minutes_until
         FROM bookings b
         LEFT JOIN therapists t ON b.therapist_id = t.id
         LEFT JOIN services s ON b.service_id = s.id
-        WHERE b.appointment_date = :date
-        AND TIME_FORMAT(b.appointment_time, '%H:00:00') = :hour
-        AND b.status IN ('confirmed', 'pending')
+        WHERE b.status IN ('confirmed', 'pending')
         AND (b.reminder_sent = 0 OR b.reminder_sent IS NULL)
+        AND TIMESTAMPDIFF(MINUTE, NOW(), CONCAT(b.appointment_date, ' ', b.appointment_time)) BETWEEN 30 AND 60
         ORDER BY b.appointment_time ASC
     ";
 
     $stmt = $pdo->prepare($query);
-    $stmt->execute([
-        ':date' => $currentDate,
-        ':hour' => $currentHour
-    ]);
+    $stmt->execute();
 
     $bookings = $stmt->fetchAll();
     $totalBookings = count($bookings);
@@ -95,7 +94,8 @@ try {
     $failedCount = 0;
 
     foreach ($bookings as $booking) {
-        logMessage("Processing booking: {$booking->booking_code} for {$booking->client_name}");
+        $minutesUntil = isset($booking->minutes_until) ? $booking->minutes_until : 'unknown';
+        logMessage("Processing booking: {$booking->booking_code} for {$booking->client_name} (in {$minutesUntil} minutes)");
 
         try {
             // Format date and time
@@ -105,14 +105,14 @@ try {
             // Create reminder message for client
             $message = "Assalamu'alaikum {$booking->client_name},\n\n";
             $message .= "🔔 *PENGINGAT JANJI TEMU*\n\n";
-            $message .= "Anda memiliki jadwal hipnoterapi *HARI INI*:\n\n";
+            $message .= "Anda memiliki jadwal hipnoterapi dalam *{$minutesUntil} MENIT LAGI*:\n\n";
             $message .= "👳 Terapis: {$booking->therapist_name}\n";
             $message .= "✨ Layanan: " . ($booking->service_name ?: 'Konsultasi Umum') . "\n";
             $message .= "📅 Tanggal: {$formattedDate}\n";
             $message .= "⏰ Waktu: {$formattedTime}\n";
             $message .= "📍 Lokasi: Al-Bashiro Hypnotherapy Center\n";
             $message .= "🔖 Kode Booking: *{$booking->booking_code}*\n\n";
-            $message .= "⚠️ Mohon datang 10 menit lebih awal.\n\n";
+            $message .= "⚠️ Mohon bersiap dan datang 10 menit lebih awal.\n\n";
             $message .= "Jika berhalangan hadir, silakan hubungi kami segera.\n\n";
             $message .= "Jazakallahu khairan. 🤲";
 

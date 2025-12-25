@@ -23,7 +23,11 @@ Tidak perlu setup secrets! Semua konfigurasi sudah ada di `config/config.php`:
 - Fonnte API token
 - WhatsApp numbers
 
-Cron akan berjalan otomatis setiap jam pada menit ke-0 (00:00, 01:00, 02:00, dst.)
+**Cara Kerja:**
+- Cron berjalan otomatis setiap jam (00:00, 01:00, 02:00, dst.)
+- Mencari appointment yang akan dimulai dalam **30-60 menit**
+- Kirim reminder ke klien dan terapis
+- Reminder dikirim **30 menit sebelum** jadwal appointment
 
 ## 🧪 Testing
 
