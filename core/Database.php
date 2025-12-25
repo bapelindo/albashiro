@@ -65,11 +65,8 @@ class Database
      */
     public function query($sql, $params = [])
     {
-        $start = microtime(true);
         $this->statement = $this->pdo->prepare($sql);
         $this->statement->execute($params);
-        $duration = (microtime(true) - $start) * 1000;
-        ServerTiming::accumulate('db', $duration);
         return $this;
     }
 

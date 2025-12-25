@@ -229,33 +229,4 @@
     }, 5000);
 })();
 
-// ============================================
-// Server Timing Observer
-// ============================================
-(function () {
-    if ('performance' in window && 'PerformanceObserver' in window) {
-        try {
-            const observer = new PerformanceObserver((list) => {
-                for (const entry of list.getEntries()) {
-                    if (entry.serverTiming && entry.serverTiming.length > 0) {
-                        console.groupCollapsed(`Server Timing: ${entry.name}`);
-                        entry.serverTiming.forEach((timing) => {
-                            console.log(
-                                `%c${timing.name}`,
-                                'font-weight: bold; color: #1e3a5f',
-                                `${timing.duration.toFixed(2)}ms`,
-                                timing.description ? `(${timing.description})` : ''
-                            );
-                        });
-                        console.groupEnd();
-                    }
-                }
-            });
 
-            observer.observe({ type: 'navigation', buffered: true });
-            observer.observe({ type: 'resource', buffered: true });
-        } catch (e) {
-            console.warn('Server Timing API not supported or failed to initialize', e);
-        }
-    }
-})();
