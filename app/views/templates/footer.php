@@ -183,14 +183,24 @@
 
 <!-- Page Loader Script -->
 <script>
+    // Track when page started loading
+    const pageLoadStart = Date.now();
+    const minLoadTime = 800; // Minimum 800ms display time
+
     // Fade out page loader when page is fully loaded
     window.addEventListener('load', function () {
         const loader = document.getElementById('page-loader');
         if (loader) {
-            loader.classList.add('fade-out');
+            const elapsedTime = Date.now() - pageLoadStart;
+            const remainingTime = Math.max(0, minLoadTime - elapsedTime);
+
+            // Wait for minimum display time before fading out
             setTimeout(() => {
-                loader.style.display = 'none';
-            }, 500);
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); // Wait for fade animation
+            }, remainingTime);
         }
     });
 </script>

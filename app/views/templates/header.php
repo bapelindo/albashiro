@@ -405,18 +405,34 @@
 
 <body class="font-sans antialiased text-gray-800 bg-cream-50 overflow-x-hidden w-full">
 
-    <!-- Page Loader with Animated Logo -->
-    <div id="page-loader">
-        <div class="text-center">
-            <!-- Animated Logo -->
-            <div class="w-32 h-32 mx-auto mb-6 animate-logo-breathe">
+    <!-- Inline Page Loader - Shows Immediately -->
+    <div id="page-loader"
+        style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fefdfb;z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity 0.5s ease-out;">
+        <div style="text-center;">
+            <div style="width:128px;height:128px;margin:0 auto 24px;animation:logo-breathe 2.5s ease-in-out infinite;">
                 <img src="<?= base_url('public/images/logo.png') ?>" alt="<?= SITE_NAME ?>"
-                    class="w-full h-full object-contain drop-shadow-xl">
+                    style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(255,0,0,0.2));">
             </div>
-            <p class="text-primary-900 font-bold text-xl mb-1"><?= SITE_NAME ?></p>
-            <p class="text-primary-600 text-sm font-medium animate-pulse">Memuat halaman...</p>
+            <p style="color:#1e3a5f;font-weight:bold;font-size:1.25rem;margin-bottom:0.25rem;"><?= SITE_NAME ?></p>
+            <p style="color:#627d98;font-size:0.875rem;animation:pulse 2s cubic-bezier(0.4,0,0.6,1) infinite;">Memuat
+                halaman...</p>
         </div>
     </div>
+    <style>
+        @keyframes logo-breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 10px 20px rgba(255, 0, 0, 0.2));
+            }
+
+            50% {
+                transform: scale(1.05);
+                filter: drop-shadow(0 15px 30px rgba(255, 0, 0, 0.3));
+            }
+        }
+    </style>
 
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-100" id="navbar">
