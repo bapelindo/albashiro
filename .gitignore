@@ -27,5 +27,3 @@ temp/
 
 # Uploaded Files (should be stored in cloud storage for production)
 public/images/blog-*
-public/images/therapist-*
-public/uploads/

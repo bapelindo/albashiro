@@ -222,7 +222,7 @@
 
     // Animated Counter
     const counters = document.querySelectorAll('.counter');
-    const speed = 200; // Animation speed
+    const speed = 100; // Animation speed
 
     const animateCounter = (counter) => {
         const target = +counter.getAttribute('data-target');
