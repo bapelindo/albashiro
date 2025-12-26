@@ -303,7 +303,12 @@
                 }
             });
 
-            const data = await response.json();
+            // Debug: Log response details
+            console.log('Welcome API Response Status:', response.status);
+            const responseText = await response.text();
+            console.log('Welcome API Response Text (first 500 chars):', responseText.substring(0, 500));
+
+            const data = JSON.parse(responseText);
 
             if (data.success) {
                 appendMessage('ai', data.message);
@@ -341,7 +346,12 @@
                 })
             });
 
-            const data = await response.json();
+            // Debug: Log response details
+            console.log('Chat API Response Status:', response.status);
+            const responseText = await response.text();
+            console.log('Chat API Response Text (first 500 chars):', responseText.substring(0, 500));
+
+            const data = JSON.parse(responseText);
 
             // Debug logging
             console.log('API Response:', data);
