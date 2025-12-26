@@ -317,22 +317,31 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
         try {
             // Use PDO directly for better error visibility
             $pdo = $this->db->getPdo();
+            error_log("DEBUG getServicesInfo: PDO connection obtained");
+
             $stmt = $pdo->query("SELECT name, description, price_range FROM services WHERE is_active = 1");
+            error_log("DEBUG getServicesInfo: Query executed");
+
             $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            error_log("DEBUG getServicesInfo: Fetched " . count($services) . " services");
 
             if (empty($services)) {
                 error_log("WARNING: No active services found in database!");
-                return "(Data layanan tidak tersedia - hubungi admin)\n";
+                // Return explicit message so AI knows data is missing
+                return "⚠️ DATA LAYANAN KOSONG DI DATABASE - JANGAN MENGARANG HARGA!\n";
             }
 
             $output = "";
             foreach ($services as $s) {
                 $output .= "- **{$s['name']}**: {$s['description']} (Harga: {$s['price_range']})\n";
+                error_log("DEBUG: Service added: {$s['name']} - {$s['price_range']}");
             }
+            error_log("DEBUG getServicesInfo: Returning " . strlen($output) . " chars");
             return $output;
         } catch (Exception $e) {
             error_log("ERROR getServicesInfo: " . $e->getMessage());
-            return "(Error mengambil data layanan: " . $e->getMessage() . ")\n";
+            error_log("ERROR Stack trace: " . $e->getTraceAsString());
+            return "⚠️ ERROR DATABASE: " . $e->getMessage() . " - JANGAN MENGARANG!\n";
         }
     }
 
