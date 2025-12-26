@@ -71,7 +71,7 @@ define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for noti
 // =====================================================
 // Primary: Google Gemini
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');
-define('GOOGLE_MODEL', 'gemini-2.5-flash');
+define('GOOGLE_MODEL', 'gemini-2.0-flash');
 
 // Fallback: Hugging Face (Free, Unlimited)
 define('HUGGINGFACE_API_KEY', getenv('HUGGINGFACE_API_KEY') ?: '');

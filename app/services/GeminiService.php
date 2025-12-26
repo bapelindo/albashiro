@@ -14,11 +14,12 @@ class GeminiService
     private $lastKnowledgeMatchCount = 0;
     private $lastSearchKeywords = '';
 
-    // Fallback models (Hugging Face)
+    // Fallback models (Hugging Face - FREE & UNLIMITED)
     private $fallbackModels = [
-        'google/gemma-2-9b-it',
-        'Qwen/Qwen2.5-72B-Instruct',
-        'meta-llama/Meta-Llama-3-8B-Instruct'
+        'Qwen/Qwen2.5-72B-Instruct',        // Prioritas 1: Paling pintar, support Indonesia
+        'meta-llama/Llama-3.3-70B-Instruct', // Prioritas 2: Llama terbaru (Dec 2024)
+        'mistralai/Mixtral-8x7B-Instruct-v0.1', // Prioritas 3: Cepat & stabil
+        'meta-llama/Meta-Llama-3-8B-Instruct'   // Prioritas 4: Backup ringan
     ];
 
     public function __construct()
