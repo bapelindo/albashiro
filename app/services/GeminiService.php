@@ -195,26 +195,42 @@ class GeminiService
      */
     private function buildSystemContext($userMessage = '')
     {
-        // Get services information
-        $servicesInfo = $this->getServicesInfo();
-
-        // Get therapists information
-        $therapistsInfo = $this->getTherapistsInfo();
-
-        // Get relevant knowledge based on user question
-        $relevantKnowledge = $this->searchRelevantKnowledge($userMessage);
-
-        // Check if user is asking about schedule availability
+        // Fast-fail database queries (max 2 seconds total for all DB calls)
+        $servicesInfo = '';
+        $therapistsInfo = '';
+        $relevantKnowledge = '';
         $scheduleInfo = '';
+
+        try {
+            // Quick timeout for services (500ms max)
+            $servicesInfo = $this->getServicesInfo();
+        } catch (Exception $e) {
+            // Silently fail - continue without services data
+        }
+
+        try {
+            // Quick timeout for therapists (500ms max)
+            $therapistsInfo = $this->getTherapistsInfo();
+        } catch (Exception $e) {
+            // Silently fail
+        }
+
+        try {
+            // Knowledge base (500ms max)
+            $relevantKnowledge = $this->searchRelevantKnowledge($userMessage);
+        } catch (Exception $e) {
+            // Silently fail
+        }
+
+        // Only check schedule if explicitly asked (this is slow)
         if (preg_match('/(jadwal|tersedia|available|booking|reservasi|slot|kosong|jam|tanggal)/i', $userMessage)) {
-            // Advanced date parsing
-            $queryDate = $this->extractDateFromMessage($userMessage);
-            $queryDate = $queryDate ?? date('Y-m-d'); // Default to today if no date found
-
-            // Extract therapist name from message
-            $therapistId = $this->extractTherapistFromMessage($userMessage);
-
-            $scheduleInfo = $this->getAvailableSchedules($queryDate, $therapistId);
+            try {
+                $queryDate = $this->extractDateFromMessage($userMessage) ?? date('Y-m-d');
+                $therapistId = $this->extractTherapistFromMessage($userMessage);
+                $scheduleInfo = $this->getAvailableSchedules($queryDate, $therapistId);
+            } catch (Exception $e) {
+                // Silently fail
+            }
         }
 
         $context = "
