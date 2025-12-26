@@ -33,6 +33,7 @@ class GeminiService
     public function chat($userMessage, $conversationHistory = [])
     {
         $startTime = microtime(true);
+        $lastError = "Unknown error";
         $systemContext = $this->buildSystemContext($userMessage);
 
         // Try Google First (if configured)
@@ -73,15 +74,19 @@ class GeminiService
                         ]
                     ];
                 } catch (Exception $e) {
+                    $lastError = "Hugging Face ({$model}) Failed: " . $e->getMessage();
                     continue; // Try next model
                 }
             }
+        } else {
+            $lastError = "Hugging Face API Key not configured.";
         }
 
         // All providers failed
+        error_log("ALL AI MODELS FAILED. Final Error: " . $lastError);
         return [
             'response' => "Maaf, sistem sedang sangat sibuk. Silakan coba lagi dalam beberapa saat.",
-            'metadata' => ['error' => true]
+            'metadata' => ['error' => true, 'debug_last_error' => $lastError, 'google_key_set' => !empty($this->apiKey), 'hf_key_set' => defined('HUGGINGFACE_API_KEY') && !empty(HUGGINGFACE_API_KEY)]
         ];
     }
 
