@@ -1,4 +1,21 @@
 <?php
+// Load .env.local for localhost development
+if (file_exists(__DIR__ . '/../.env.local')) {
+    $envFile = file(__DIR__ . '/../.env.local', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($envFile as $line) {
+        if (strpos(trim($line), '#') === 0)
+            continue; // Skip comments
+        list($name, $value) = explode('=', $line, 2);
+        $name = trim($name);
+        $value = trim($value);
+        if (!getenv($name)) {
+            putenv("$name=$value");
+            $_ENV[$name] = $value;
+            $_SERVER[$name] = $value;
+        }
+    }
+}
+
 /**
  * Albashiro - Configuration File
  */
