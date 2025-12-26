@@ -26,6 +26,14 @@ class App
         $url = $this->parseUrl();
         $route = strtolower($url[0] ?? '');
 
+        // Debug logging for Vercel
+        error_log("=== APP ROUTING DEBUG ===");
+        error_log("Parsed URL: " . print_r($url, true));
+        error_log("Route: $route");
+        error_log("GET params: " . print_r($_GET, true));
+        error_log("REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'not set'));
+        error_log("========================");
+
         // Check for custom routes first
         if (isset($this->routes[$route])) {
             $this->controller = $this->routes[$route][0];
