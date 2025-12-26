@@ -14,12 +14,10 @@ class GeminiService
     private $lastKnowledgeMatchCount = 0;
     private $lastSearchKeywords = '';
 
-    // Fallback models (Hugging Face - FREE & UNLIMITED)
+    // Fallback models (Hugging Face - Optimized for Vercel 10s limit)
     private $fallbackModels = [
         'Qwen/Qwen2.5-72B-Instruct',        // Prioritas 1: Paling pintar, support Indonesia
-        'meta-llama/Llama-3.3-70B-Instruct', // Prioritas 2: Llama terbaru (Dec 2024)
-        'mistralai/Mixtral-8x7B-Instruct-v0.1', // Prioritas 3: Cepat & stabil
-        'meta-llama/Meta-Llama-3-8B-Instruct'   // Prioritas 4: Backup ringan
+        'meta-llama/Meta-Llama-3-8B-Instruct'   // Prioritas 2: Backup ringan & cepat
     ];
 
     public function __construct()
@@ -116,7 +114,7 @@ class GeminiService
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 7); // Vercel limit: keep under 10s total
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         $response = curl_exec($ch);
@@ -171,7 +169,7 @@ class GeminiService
             'Authorization: Bearer ' . HUGGINGFACE_API_KEY
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 6); // Vercel limit: fast fallback
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         $response = curl_exec($ch);
