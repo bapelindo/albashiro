@@ -15,9 +15,9 @@ class Chat extends Controller
         ini_set('display_errors', '1');
         error_reporting(E_ALL);
 
-        // Instantiation - Use LocalAIService (Standalone, No External API)
-        require_once SITE_ROOT . '/app/services/LocalAIService.php';
-        $this->aiService = new LocalAIService();
+        // Instantiation - Use OllamaService (Cloud Run LLM with LocalAI fallback)
+        require_once SITE_ROOT . '/app/services/OllamaService.php';
+        $this->aiService = new OllamaService();
 
         // Load Chat Model
         $this->chatModel = $this->model('ChatLog'); // Assuming model name is ChatLog or similar, verifying below
