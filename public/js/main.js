@@ -254,6 +254,16 @@
         return document.querySelector('input[name="csrf_token"]')?.value || '';
     };
 
+    // Get base URL for API calls (handles both localhost and Vercel)
+    const getBaseUrl = () => {
+        // On Vercel, base is just '/', on localhost it's '/albashiro'
+        const path = window.location.pathname;
+        if (path.startsWith('/albashiro')) {
+            return '/albashiro';
+        }
+        return '';
+    };
+
 
     // Toggle chat window
     chatToggle?.addEventListener('click', (e) => {
@@ -296,7 +306,7 @@
     // Fetch welcome message
     const fetchWelcomeMessage = async () => {
         try {
-            const response = await fetch('/albashiro/chat/welcome', {
+            const response = await fetch(getBaseUrl() + '/chat/welcome', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -335,7 +345,7 @@
         scrollToBottom();
 
         try {
-            const response = await fetch('/albashiro/chat/send', {
+            const response = await fetch(getBaseUrl() + '/chat/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
