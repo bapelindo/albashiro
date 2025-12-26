@@ -119,7 +119,8 @@ class GeminiService
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 7); // Vercel limit: keep under 10s total
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3); // Connection timeout: 3s
+        curl_setopt($ch, CURLOPT_TIMEOUT, 7); // Total timeout: 7s
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         $response = curl_exec($ch);
