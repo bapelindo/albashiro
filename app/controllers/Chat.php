@@ -146,9 +146,13 @@ class Chat extends Controller
             ]);
 
         } catch (Exception $e) {
-            // Minimal error response
+            // Log the error for debugging
+            error_log("Chat Error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+
+            // Return user-friendly error message
             echo json_encode([
-                'success' => true,
+                'success' => false,
                 'response' => "Maaf, terjadi kesalahan sistem. Silakan coba lagi."
             ]);
         }

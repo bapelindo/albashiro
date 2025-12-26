@@ -58,6 +58,13 @@
                 </a>
             </li>
             <li>
+                <a href="<?= base_url('admin/aiPerformance') ?>"
+                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors <?= (isset($activeMenu) && $activeMenu === 'ai-performance') ? 'bg-indigo-50 text-indigo-700' : '' ?>">
+                    <i class="fas fa-tachometer-alt w-5 mr-3"></i>
+                    AI Performance
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('admin/knowledge_suggestions') ?>"
                     class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors <?= (isset($activeMenu) && $activeMenu === 'knowledge') ? 'bg-indigo-50 text-indigo-700' : '' ?>">
                     <i class="fas fa-brain w-5 mr-3"></i>

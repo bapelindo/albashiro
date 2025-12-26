@@ -1,7 +1,7 @@
 <?php
 /**
  * ChatLog Model
- * Handles database operations for chat history
+ * Handles database operations for chat history using chat_conversations table
  */
 class ChatLog
 {
@@ -14,28 +14,64 @@ class ChatLog
 
     /**
      * Save a message to the database
+     * For chat_conversations table, we save pairs (user + AI response)
      */
     public function saveMessage($userId, $role, $message)
     {
-        $this->db->query(
-            "INSERT INTO chat_logs (user_id, role, message, created_at) VALUES (:user_id, :role, :message, NOW())",
-            [
-                'user_id' => $userId,
-                'role' => $role,
-                'message' => $message
-            ]
-        );
+        // For backward compatibility, but chat_conversations uses session_id
+        // We'll store messages temporarily and save as conversation pair
+        if (!isset($_SESSION['pending_user_message']) && $role === 'user') {
+            $_SESSION['pending_user_message'] = $message;
+        } elseif ($role === 'ai' && isset($_SESSION['pending_user_message'])) {
+            // Save the conversation pair
+            $sessionId = session_status() === PHP_SESSION_ACTIVE ? session_id() : 'no-session';
+
+            $this->db->query(
+                "INSERT INTO chat_conversations (session_id, user_message, ai_response, created_at) 
+                 VALUES (:session_id, :user_message, :ai_response, NOW())",
+                [
+                    'session_id' => $sessionId,
+                    'user_message' => $_SESSION['pending_user_message'],
+                    'ai_response' => $message
+                ]
+            );
+
+            unset($_SESSION['pending_user_message']);
+        }
     }
 
     /**
-     * Get full conversation history for a user
+     * Get full conversation history for a user (by session)
      */
     public function getConversationHistory($userId)
     {
-        return $this->db->query(
-            "SELECT role, message, created_at FROM chat_logs WHERE user_id = :user_id ORDER BY created_at ASC",
-            ['user_id' => $userId]
-        )->fetchAll(PDO::FETCH_ASSOC);
+        // Get by session_id instead of user_id
+        $sessionId = session_status() === PHP_SESSION_ACTIVE ? session_id() : 'no-session';
+
+        $conversations = $this->db->query(
+            "SELECT user_message, ai_response, created_at 
+             FROM chat_conversations 
+             WHERE session_id = :session_id 
+             ORDER BY created_at ASC",
+            ['session_id' => $sessionId]
+        )->fetchAll();
+
+        // Convert to role-based format for compatibility
+        $history = [];
+        foreach ($conversations as $conv) {
+            $history[] = (object) [
+                'role' => 'user',
+                'message' => $conv->user_message,
+                'created_at' => $conv->created_at
+            ];
+            $history[] = (object) [
+                'role' => 'ai',
+                'message' => $conv->ai_response,
+                'created_at' => $conv->created_at
+            ];
+        }
+
+        return $history;
     }
 
     /**
@@ -43,16 +79,27 @@ class ChatLog
      */
     public function getRecentContext($userId, $limit = 10)
     {
-        // Fetch last N messages
-        $results = $this->db->query(
-            "SELECT role, message FROM chat_logs WHERE user_id = :user_id ORDER BY created_at DESC LIMIT :limit",
-            [
-                'user_id' => $userId,
-                'limit' => $limit
-            ]
-        )->fetchAll(PDO::FETCH_ASSOC);
+        $sessionId = session_status() === PHP_SESSION_ACTIVE ? session_id() : 'no-session';
 
-        // Reverse to chronological order
-        return array_reverse($results);
+        // Get last N/2 conversation pairs (since each pair = 2 messages)
+        $pairLimit = max(1, (int) ($limit / 2));
+
+        $conversations = $this->db->query(
+            "SELECT user_message, ai_response 
+             FROM chat_conversations 
+             WHERE session_id = :session_id 
+             ORDER BY created_at DESC 
+             LIMIT $pairLimit",
+            ['session_id' => $sessionId]
+        )->fetchAll();
+
+        // Convert to role-based format and reverse to chronological order
+        $history = [];
+        foreach (array_reverse($conversations) as $conv) {
+            $history[] = ['role' => 'user', 'message' => $conv->user_message];
+            $history[] = ['role' => 'ai', 'message' => $conv->ai_response];
+        }
+
+        return $history;
     }
 }
