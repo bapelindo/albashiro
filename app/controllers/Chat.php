@@ -73,13 +73,13 @@ class Chat extends Controller
             // Add user message to conversation history
             $_SESSION['chat_history'][] = [
                 'role' => 'user',
-                'content' => $userMessage
+                'message' => $userMessage
             ];
 
             // Add assistant response to history  
             $_SESSION['chat_history'][] = [
-                'role' => 'model',
-                'content' => $aiResponse
+                'role' => 'ai',
+                'message' => $aiResponse
             ];
 
             // Log conversation for auto-learning
@@ -132,15 +132,19 @@ class Chat extends Controller
      */
     public function welcome()
     {
-        $welcomeMessage = "Assalamu'alaikum! 👋\n\n";
-        $welcomeMessage .= "Selamat datang di Albashiro - Islamic Spiritual Hypnotherapy.\n\n";
-        $welcomeMessage .= "Saya adalah asisten AI yang siap membantu Anda dengan informasi tentang:\n";
-        $welcomeMessage .= "✨ Layanan hipnoterapi kami\n";
-        $welcomeMessage .= "💰 Harga dan paket\n";
-        $welcomeMessage .= "👨‍⚕️ Terapis profesional kami\n";
-        $welcomeMessage .= "📅 Ketersediaan jadwal\n";
-        $welcomeMessage .= "📍 Lokasi dan kontak\n\n";
-        $welcomeMessage .= "Silakan tanyakan apa saja yang ingin Anda ketahui! 😊";
+        $welcomeMessage = "السلام عليكم ورحمة الله وبركاته\n";
+        $welcomeMessage .= "*Assalamu'alaikum Warahmatullahi Wabarakatuh* 🌙\n\n";
+        $welcomeMessage .= "**Selamat datang di Albashiro** - *Islamic Spiritual Hypnotherapy*\n\n";
+        $welcomeMessage .= "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n\n";
+        $welcomeMessage .= "Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan konsultasikan:\n\n";
+        $welcomeMessage .= "✨ **Keluhan & Gejala** - Ceritakan apa yang Anda rasakan\n";
+        $welcomeMessage .= "🕌 **Layanan Hipnoterapi Islami** - Terapi sesuai syariat\n";
+        $welcomeMessage .= "💰 **Harga & Paket** - Informasi investasi kesehatan jiwa\n";
+        $welcomeMessage .= "👨‍⚕️ **Terapis Profesional** - Ustadz/Ustadzah berpengalaman\n";
+        $welcomeMessage .= "📅 **Jadwal Tersedia** - Cek slot real-time\n";
+        $welcomeMessage .= "📍 **Lokasi & Kontak** - Informasi klinik\n\n";
+        $welcomeMessage .= "💬 *Silakan ketik pertanyaan Anda, atau ceritakan keluhan yang Anda alami. Insya Allah saya akan membantu menemukan solusi terbaik.*\n\n";
+        $welcomeMessage .= "جزاك الله خيرا";
 
         header('Content-Type: application/json');
         echo json_encode([

@@ -9,16 +9,18 @@ class GeminiService
     private $apiKey;
     private $apiUrl;
     private $model;
+    private $db;
 
-    // Auto-learning tracking
-    private $lastKnowledgeMatchCount = 0;
-    private $lastSearchKeywords = '';
+    // Auto-learning metadata
+    private $knowledgeMatched = 0;
+    private $keywordsSearched = '';
 
     public function __construct()
     {
-        $this->apiKey = GEMINI_API_KEY;
-        $this->apiUrl = GEMINI_API_URL;
-        $this->model = GEMINI_MODEL;
+        $this->db = Database::getInstance();
+        $this->apiKey = OPENROUTER_API_KEY;
+        $this->apiUrl = OPENROUTER_API_URL;
+        $this->model = OPENROUTER_MODEL;
     }
 
     /**
@@ -37,44 +39,39 @@ class GeminiService
             $systemContext = $this->buildSystemContext($userMessage);
 
             // Prepare conversation contents
-            $contents = [];
+            // Build conversation history for OpenRouter (OpenAI format)
+            $messages = [
+                ['role' => 'system', 'content' => $systemContext]
+            ];
 
-            // Add conversation history if exists
-            foreach ($conversationHistory as $message) {
-                $contents[] = [
-                    'role' => $message['role'],
-                    'parts' => [['text' => $message['content']]]
+            foreach ($conversationHistory as $msg) {
+                $messages[] = [
+                    'role' => $msg['role'] === 'ai' ? 'assistant' : 'user',
+                    'content' => $msg['message']
                 ];
             }
 
             // Add current user message
-            $contents[] = [
+            $messages[] = [
                 'role' => 'user',
-                'parts' => [['text' => $userMessage]]
+                'content' => $userMessage
             ];
 
             // Prepare request body
             $requestBody = [
-                'system_instruction' => [
-                    'parts' => [['text' => $systemContext]]
-                ],
-                'contents' => $contents,
-                'generationConfig' => [
-                    'temperature' => 0.7,
-                    'topK' => 40,
-                    'topP' => 0.95,
-                    'maxOutputTokens' => 4096,
-                ]
+                'model' => $this->model,
+                'messages' => $messages,
+                'temperature' => 0.7,
+                'max_tokens' => 4096,
             ];
 
-            // Make API request with API key in URL
-            $apiUrlWithKey = $this->apiUrl . '?key=' . $this->apiKey;
-
-            $ch = curl_init($apiUrlWithKey);
+            // Make API request with Bearer token
+            $ch = curl_init($this->apiUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json'
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $this->apiKey
             ]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestBody));
             curl_setopt($ch, CURLOPT_TIMEOUT, 60); // 60 second timeout
@@ -90,21 +87,17 @@ class GeminiService
             }
 
             if ($httpCode !== 200) {
-                $errorMsg = "API request failed with code: $httpCode";
-                if ($response) {
-                    error_log("GEMINI API ERROR - Full response: " . $response);
-                    $errorMsg .= " - Response: " . substr($response, 0, 500);
-                }
-                throw new Exception($errorMsg);
+                throw new Exception("API returned HTTP $httpCode: $response");
             }
 
             $result = json_decode($response, true);
 
-            if (!isset($result['candidates'][0]['content']['parts'][0]['text'])) {
-                throw new Exception("Invalid API response format");
+            // Extract AI response from OpenRouter/OpenAI format
+            if (!isset($result['choices'][0]['message']['content'])) {
+                throw new Exception("Invalid API response format. Response: " . substr($response, 0, 500));
             }
 
-            $aiResponse = $result['candidates'][0]['content']['parts'][0]['text'];
+            $aiResponse = $result['choices'][0]['message']['content'];
 
             // Calculate response time
             $responseTime = round((microtime(true) - $startTime) * 1000); // in milliseconds
@@ -124,7 +117,13 @@ class GeminiService
             ];
 
         } catch (Exception $e) {
-            error_log("Gemini API Error: " . $e->getMessage());
+            error_log("=== GEMINI API ERROR ===");
+            error_log("Error Message: " . $e->getMessage());
+            error_log("Error Code: " . $e->getCode());
+            error_log("Stack Trace: " . $e->getTraceAsString());
+            error_log("User Message: " . $userMessage);
+            error_log("========================");
+
             return [
                 'response' => "Maaf, saya mengalami kesulitan teknis. Silakan hubungi admin via WhatsApp: " . ADMIN_WHATSAPP,
                 'metadata' => [
@@ -160,8 +159,11 @@ class GeminiService
             $queryDate = $this->extractDateFromMessage($userMessage);
             $queryDate = $queryDate ?? date('Y-m-d'); // Default to today if no date found
 
-            $scheduleInfo = $this->getAvailableSchedules($queryDate);
-            error_log("Schedule info returned for " . ($queryDate ?? 'today') . ": " . ($scheduleInfo ? "YES (" . strlen($scheduleInfo) . " chars)" : "EMPTY"));
+            // Extract therapist name from message
+            $therapistId = $this->extractTherapistFromMessage($userMessage);
+
+            $scheduleInfo = $this->getAvailableSchedules($queryDate, $therapistId);
+            error_log("Schedule info returned for " . ($queryDate ?? 'today') . " (Therapist ID: " . ($therapistId ?? 'ALL') . "): " . ($scheduleInfo ? "YES (" . strlen($scheduleInfo) . " chars)" : "EMPTY"));
         }
 
         $context = "Anda adalah asisten AI untuk Albashiro - Islamic Spiritual Hypnotherapy.\n\n";
@@ -397,27 +399,39 @@ class GeminiService
             }
 
             // CHECK AVAILABILITY OVERRIDES (e.g. Sick Leave, Holiday)
-            $sqlOverride = "SELECT * FROM availability_overrides 
-                           WHERE override_date = ? AND is_available = 0";
-            $overrideParams = [$date];
-            if ($therapistId) {
-                $sqlOverride .= " AND therapist_id = ?";
-                $overrideParams[] = $therapistId;
-            }
-
-            $overrides = $db->query($sqlOverride, $overrideParams)->fetchAll();
+            // IMPORTANT: Only apply overrides when querying for SPECIFIC therapist
+            // When showing aggregate (all therapists), don't block slots based on individual overrides
             $blockedRanges = [];
-            foreach ($overrides as $ovr) {
-                // If start/end time is null/empty, it means FULL DAY BLOCK
-                if (empty($ovr->start_time) || empty($ovr->end_time)) {
-                    $blockedRanges[] = ['start' => '00:00', 'end' => '23:59', 'reason' => $ovr->reason ?? 'Tidak Tersedia'];
-                } else {
-                    $blockedRanges[] = ['start' => $ovr->start_time, 'end' => $ovr->end_time, 'reason' => $ovr->reason ?? 'Tidak Tersedia'];
+
+            if ($therapistId) {
+                // Specific therapist query - apply their overrides
+                $sqlOverride = "SELECT * FROM availability_overrides 
+                               WHERE override_date = ? AND therapist_id = ? AND is_available = 0";
+                $overrideParams = [$date, $therapistId];
+
+                $overrides = $db->query($sqlOverride, $overrideParams)->fetchAll();
+
+                foreach ($overrides as $ovr) {
+                    // If start/end time is null/empty, it means FULL DAY BLOCK
+                    if (empty($ovr->start_time) || empty($ovr->end_time)) {
+                        $blockedRanges[] = ['start' => '00:00', 'end' => '23:59', 'reason' => $ovr->reason ?? 'Tidak Tersedia'];
+                    } else {
+                        $blockedRanges[] = ['start' => $ovr->start_time, 'end' => $ovr->end_time, 'reason' => $ovr->reason ?? 'Tidak Tersedia'];
+                    }
+                }
+            }
+            // else: No specific therapist = aggregate view, don't apply individual overrides
+
+            // Build schedule information
+            $therapistName = '';
+            if ($therapistId) {
+                $therapistData = $db->query("SELECT name FROM therapists WHERE id = ?", [$therapistId])->fetch();
+                if ($therapistData) {
+                    $therapistName = " - " . $therapistData->name;
                 }
             }
 
-            // Build schedule information
-            $scheduleText = "JADWAL TERSEDIA ($dateFormatted):\n";
+            $scheduleText = "JADWAL TERSEDIA ($dateFormatted$therapistName):\n";
             $scheduleText .= "==========================================\n\n";
 
             $availableCount = 0;
@@ -679,15 +693,18 @@ class GeminiService
     {
         $message = strtolower($message);
 
-        // 1. Keywords: Besok, Lusa
+        // 1. Keywords: Besok, Lusa, Nanti, etc
         if (strpos($message, 'besok') !== false) {
             return date('Y-m-d', strtotime('+1 day'));
         }
         if (strpos($message, 'lusa') !== false) {
             return date('Y-m-d', strtotime('+2 days'));
         }
-        if (strpos($message, 'hari ini') !== false) {
+        if (strpos($message, 'hari ini') !== false || strpos($message, 'nanti') !== false) {
             return date('Y-m-d');
+        }
+        if (strpos($message, 'minggu depan') !== false) {
+            return date('Y-m-d', strtotime('+1 week'));
         }
 
         // 2. Pattern: "27 Desember" (Date + Month) - CHECK FIRST!
@@ -728,5 +745,58 @@ class GeminiService
         }
 
         return null;
+    }
+
+    /**
+     * Extract therapist ID from user message
+     */
+    private function extractTherapistFromMessage($message)
+    {
+        $message = strtolower($message);
+
+        try {
+            $db = Database::getInstance();
+
+            // Get all therapists
+            $therapists = $db->query("SELECT id, name FROM therapists WHERE is_active = 1")->fetchAll();
+
+            // Check if message contains therapist name
+            foreach ($therapists as $therapist) {
+                $name = strtolower($therapist->name);
+
+                // Remove titles for better matching
+                $nameClean = preg_replace('/(hj\.|ustadzah|ustadz|dr\.|prof\.)\s*/i', '', $name);
+
+                // Check for full name match
+                if (strpos($message, $nameClean) !== false) {
+                    return $therapist->id;
+                }
+
+                // Split name into parts
+                $nameParts = explode(' ', $nameClean);
+
+                // Check each name part (not just last name)
+                foreach ($nameParts as $part) {
+                    if (strlen($part) < 3)
+                        continue; // Skip very short parts
+
+                    // Check with common prefixes: "bu dewi", "bunda dewi", "ustadzah fatimah", etc
+                    if (preg_match('/(bu|bunda|ustadzah|ustadz|ibu)\s+' . preg_quote($part, '/') . '/i', $message)) {
+                        return $therapist->id;
+                    }
+
+                    // Also check standalone name part (e.g., just "dewi" or "muzayanah")
+                    if (preg_match('/\b' . preg_quote($part, '/') . '\b/i', $message)) {
+                        return $therapist->id;
+                    }
+                }
+            }
+
+            return null; // No specific therapist mentioned
+
+        } catch (Exception $e) {
+            error_log("Error extracting therapist: " . $e->getMessage());
+            return null;
+        }
     }
 }

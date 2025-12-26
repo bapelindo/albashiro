@@ -126,6 +126,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    <!-- Google Fonts - Amiri for Arabic Text -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+
     <!-- Local Fonts CSS -->
     <link rel="stylesheet" href="<?= base_url('public/css/fonts.css') ?>">
 

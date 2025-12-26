@@ -46,11 +46,11 @@ define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
 define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
 
 // =====================================================
-// GEMINI AI CONFIGURATION
+// AI CONFIGURATION - OpenRouter with Gemini 2.0
 // =====================================================
-define('GEMINI_API_KEY', 'AIzaSyC1AuUr3LvvJwWLHPntfQL8DbMnpe_rHcE');
-define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
-define('GEMINI_MODEL', 'gemini-2.5-flash');
+define('OPENROUTER_API_KEY', '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');
+define('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions');
+define('OPENROUTER_MODEL', 'google/gemini-2.0-flash-exp:free'); // Gemini 2.0 Flash via OpenRouter (free)
 
 // =====================================================
 // THERAPIST WHATSAPP NUMBERS

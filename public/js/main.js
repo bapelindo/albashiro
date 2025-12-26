@@ -361,7 +361,7 @@
         }
     });
 
-    // Append message to chat
+    // Append message to chat with typing effect
     const appendMessage = (sender, text) => {
         // Safety check
         if (!text) {
@@ -374,25 +374,45 @@
 
         const bubble = document.createElement('div');
         bubble.className = `max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg ${sender === 'user'
-            ? 'bg-gradient-to-br from-accent-600 to-accent-700 text-white rounded-br-sm'
-            : 'bg-white text-primary-900 border-2 border-primary-100 rounded-bl-sm'
+            ? 'bg-gradient-to-br from-teal-600 to-emerald-700 text-white rounded-br-sm'
+            : 'bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm'
             }`;
 
-        // Parse markdown for AI messages
-        let formattedText = text;
+        // For AI messages, add gentle typing effect
         if (sender === 'ai') {
-            formattedText = parseMarkdown(text);
+            bubble.innerHTML = ''; // Start empty
+            messageDiv.appendChild(bubble);
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+
+            // Typing effect
+            let index = 0;
+            const typingSpeed = 8; // milliseconds per character (faster, more natural)
+
+            const typeWriter = () => {
+                if (index < text.length) {
+                    // Use parseMarkdown for formatting
+                    const currentText = text.substring(0, index + 1);
+                    bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(currentText)}</p>`;
+                    index++;
+                    setTimeout(typeWriter, typingSpeed);
+                    scrollToBottom();
+                } else {
+                    // Final render with full markdown
+                    bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(text)}</p>`;
+                    scrollToBottom();
+                }
+            };
+
+            typeWriter();
         } else {
-            // Just line breaks for user messages
-            formattedText = text.replace(/\n/g, '<br>');
+            // User messages appear instantly
+            const formattedText = text.replace(/\n/g, '<br>');
+            bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${formattedText}</p>`;
+            messageDiv.appendChild(bubble);
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
         }
-
-        bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${formattedText}</p>`;
-
-        messageDiv.appendChild(bubble);
-        chatMessages.appendChild(messageDiv);
-
-        scrollToBottom();
     };
 
     // Simple markdown parser

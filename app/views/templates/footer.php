@@ -158,24 +158,47 @@
 <div id="ai-chat-widget" class="fixed bottom-6 left-6 z-50">
     <!-- Chat Window -->
     <div id="ai-chat-window"
-        class="hidden fixed inset-0 m-auto w-[95vw] sm:w-[90vw] md:w-[600px] h-[90vh] sm:h-[95vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border-2 border-primary-200/30 flex flex-col backdrop-blur-sm animate-slide-up z-50">
-        <!-- Header -->
+        class="hidden fixed inset-0 m-auto w-[95vw] sm:w-[90vw] md:w-[600px] h-[90vh] sm:h-[95vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border-2 border-emerald-200/30 flex flex-col backdrop-blur-sm animate-slide-up z-50">
+        <!-- Header with Islamic Design -->
         <div
-            class="bg-gradient-to-r from-primary-800 to-primary-900 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-2 sm:space-x-3">
+            class="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 px-4 sm:px-6 py-3 sm:py-3 flex items-center justify-between relative overflow-hidden">
+            <!-- Islamic Pattern Background -->
+            <div class="absolute inset-0 opacity-10">
+                <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <pattern id="islamic-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <circle cx="20" cy="20" r="2" fill="white" />
+                        <circle cx="0" cy="0" r="2" fill="white" />
+                        <circle cx="40" cy="0" r="2" fill="white" />
+                        <circle cx="0" cy="40" r="2" fill="white" />
+                        <circle cx="40" cy="40" r="2" fill="white" />
+                    </pattern>
+                    <rect width="100%" height="100%" fill="url(#islamic-pattern)" />
+                </svg>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-3 relative z-10">
+                <!-- Islamic Crescent Moon Icon -->
                 <div
-                    class="w-9 h-9 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center ring-2 ring-white/20">
-                    <i class="fas fa-robot text-white text-base sm:text-lg"></i>
+                    class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-400 to-yellow-500 backdrop-blur-sm rounded-full flex items-center justify-center ring-2 ring-amber-300/50 shadow-lg">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-900" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M21.64 13a1 1 0 0 0-1.05-.14 8.05 8.05 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.79 9.79 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32z" />
+                    </svg>
                 </div>
                 <div>
+                    <!-- Bismillah -->
+                    <div class="text-amber-300 font-arabic text-sm sm:text-base mb-0.5"
+                        style="font-family: 'Amiri', 'Traditional Arabic', serif; direction: rtl;">
+                        بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                    </div>
                     <h3 class="text-white font-semibold text-xs sm:text-sm">Asisten AI Albashiro</h3>
                     <div class="flex items-center space-x-1 sm:space-x-1.5">
-                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
-                        <p class="text-white/70 text-[10px] sm:text-xs">Online 24/7</p>
+                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                        <p class="text-white/70 text-[10px] sm:text-xs">Siap Melayani 24/7</p>
                     </div>
                 </div>
             </div>
-            <button id="close-chat" class="text-white/60 hover:text-white transition-colors p-1">
+            <button id="close-chat" class="text-white/60 hover:text-white transition-colors p-1 relative z-10">
                 <i class="fas fa-times text-base sm:text-lg"></i>
             </button>
         </div>
@@ -185,15 +208,36 @@
             <!-- Messages will be appended here -->
         </div>
 
-        <!-- Typing Indicator -->
-        <div id="typing-indicator" class="hidden px-3 sm:px-4 py-2 bg-gray-50">
-            <div class="flex items-center space-x-2 text-primary-600">
-                <div class="flex space-x-1">
-                    <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0s"></div>
-                    <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                    <div class="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+        <!-- Typing Indicator with Tasbih Animation -->
+        <div id="typing-indicator" class="hidden px-3 sm:px-4 py-3 bg-gray-50">
+            <div class="flex items-center space-x-3">
+                <!-- Tasbih Beads Animation -->
+                <div class="relative w-12 h-12">
+                    <!-- Rotating Tasbih Circle -->
+                    <div class="absolute inset-0 animate-spin-slow">
+                        <!-- Tasbih Beads (33 beads in circle) -->
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-600 rounded-full"></div>
+                        <div class="absolute top-1 right-2 w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        <div class="absolute top-3 right-1 w-2 h-2 bg-emerald-400 rounded-full"></div>
+                        <div class="absolute top-5 right-0 w-2 h-2 bg-teal-600 rounded-full"></div>
+                        <div class="absolute bottom-3 right-1 w-2 h-2 bg-teal-500 rounded-full"></div>
+                        <div class="absolute bottom-1 right-2 w-2 h-2 bg-teal-400 rounded-full"></div>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-600 rounded-full"></div>
+                        <div class="absolute bottom-1 left-2 w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        <div class="absolute bottom-3 left-1 w-2 h-2 bg-emerald-400 rounded-full"></div>
+                        <div class="absolute top-5 left-0 w-2 h-2 bg-teal-600 rounded-full"></div>
+                        <div class="absolute top-3 left-1 w-2 h-2 bg-teal-500 rounded-full"></div>
+                        <div class="absolute top-1 left-2 w-2 h-2 bg-teal-400 rounded-full"></div>
+                    </div>
+                    <!-- Center Glow -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-3 h-3 bg-amber-400 rounded-full animate-pulse-slow shadow-lg shadow-amber-400/50"></div>
+                    </div>
                 </div>
-                <span class="text-xs">AI sedang mengetik...</span>
+                <div class="flex-1">
+                    <p class="text-emerald-700 text-sm font-medium">بإذن الله</p>
+                    <p class="text-emerald-600/70 text-xs">Sedang memproses dengan penuh perhatian...</p>
+                </div>
             </div>
         </div>
 
@@ -201,23 +245,28 @@
         <div class="p-3 sm:p-4 bg-white border-t border-gray-200">
             <form id="chat-form" class="flex space-x-2">
                 <input type="text" id="chat-input" placeholder="Ketik pesan Anda..."
-                    class="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
+                    class="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-emerald-200 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-xs sm:text-sm"
                     autocomplete="off">
                 <button type="submit"
-                    class="w-10 h-10 sm:w-11 sm:h-11 bg-primary-800 hover:bg-primary-900 text-white rounded-full flex items-center justify-center transition-all shadow-md hover:shadow-lg flex-shrink-0">
+                    class="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-emerald-700 to-teal-700 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full flex items-center justify-center transition-all shadow-md hover:shadow-lg flex-shrink-0">
                     <i class="fas fa-paper-plane text-xs sm:text-sm"></i>
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Chat Toggle Button -->
+    <!-- Chat Toggle Button with Islamic Design -->
     <button id="ai-chat-toggle"
-        class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-800 to-primary-900 hover:from-primary-700 hover:to-primary-800 rounded-full flex items-center justify-center shadow-2xl hover:shadow-primary-500/30 transition-all group relative">
-        <i class="fas fa-robot text-white text-2xl sm:text-3xl group-hover:scale-110 transition-transform"></i>
+        class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-700 via-teal-700 to-emerald-800 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 rounded-full flex items-center justify-center shadow-2xl hover:shadow-emerald-500/30 transition-all group relative ring-2 ring-amber-400/20">
+        <!-- Crescent Moon Icon -->
+        <svg class="w-7 h-7 sm:w-8 sm:h-8 text-amber-300 group-hover:scale-110 transition-transform" fill="currentColor"
+            viewBox="0 0 24 24">
+            <path
+                d="M21.64 13a1 1 0 0 0-1.05-.14 8.05 8.05 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.79 9.79 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32z" />
+        </svg>
         <span
-            class="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-            <span class="w-3 h-3 bg-green-400 rounded-full animate-ping absolute"></span>
+            class="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center ring-2 ring-white">
+            <span class="w-3 h-3 bg-emerald-400 rounded-full animate-ping absolute"></span>
             <span class="w-2 h-2 bg-white rounded-full relative"></span>
         </span>
     </button>
@@ -259,6 +308,92 @@
 
 <!-- Custom Scripts - Local -->
 <script src="<?= base_url('public/js/main.js') ?>"></script>
+
+<!-- Calming Animations Styles -->
+<style>
+    /* Calming Animations for Islamic Chatbot */
+    
+    /* Breathing Animation - Subtle pulse like guided breathing */
+    @keyframes breathe {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.03);
+            opacity: 0.95;
+        }
+    }
+    
+    /* Slow Spin for Tasbih Beads */
+    @keyframes spin-slow {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    /* Slow Pulse for Center Glow */
+    @keyframes pulse-slow {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.6;
+            transform: scale(1.1);
+        }
+    }
+    
+    /* Gentle Fade In with Cubic Bezier */
+    @keyframes gentle-fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Apply Animations */
+    .animate-spin-slow {
+        animation: spin-slow 8s linear infinite;
+    }
+    
+    .animate-pulse-slow {
+        animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .animate-breathe {
+        animation: breathe 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    
+    /* Smooth transitions with calming easing */
+    #chat-messages > div {
+        animation: gentle-fade-in 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Smooth slide up for chat window - FIXED POSITIONING */
+    @keyframes slide-up {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .animate-slide-up {
+        animation: slide-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+</style>
+
 </body>
 
 </html>
