@@ -51,7 +51,7 @@ define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for noti
 // Use environment variable for production (Vercel), fallback to hardcoded for local dev
 define('OPENROUTER_API_KEY', getenv('OPENROUTER_API_KEY') ?: '');
 define('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions');
-define('OPENROUTER_MODEL', getenv('OPENROUTER_MODEL') ?: 'meta-llama/llama-3.2-3b-instruct:free'); // Llama 3.2 3B - truly free, no Google API needed
+define('OPENROUTER_MODEL', getenv('OPENROUTER_MODEL') ?: 'google/gemini-2.0-flash-exp:free'); // Gemini 2.0 Flash via OpenRouter (uses Google API key)
 
 // Google API Key (for future use if switching to Google Gemini)
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');
