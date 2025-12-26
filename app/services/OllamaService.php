@@ -73,23 +73,33 @@ class OllamaService
             'fallback_reason' => null
         ];
 
-        // Build context with timing
+        // 1. Build System Context (Dynamic)
         $contextStart = microtime(true);
         $systemContext = $this->buildSystemContext($userMessage, $perfData);
         $perfData['context_build_time_ms'] = round((microtime(true) - $contextStart) * 1000);
 
-        // Prepare messages for /api/chat
+        // 2. Prepare Messages
         $messages = [];
+
+        // Add System Prompt first
         $messages[] = ['role' => 'system', 'content' => $systemContext];
 
-        foreach ($conversationHistory as $msg) {
-            $role = $msg['role'] === 'ai' ? 'assistant' : 'user';
-            $messages[] = ['role' => $role, 'content' => $msg['message']];
+        // Add Conversation History (Ensure limit, just in case)
+        if (!empty($conversationHistory)) {
+            // Take only last 20 messages if not already limited
+            $historyToUse = array_slice($conversationHistory, -20);
+            foreach ($historyToUse as $msg) {
+                // Map 'ai' role to 'assistant' for Ollama
+                $role = ($msg['role'] === 'ai') ? 'assistant' : $msg['role'];
+                $messages[] = ['role' => $role, 'content' => $msg['message']];
+            }
         }
+
+        // Add Current User Message
         $messages[] = ['role' => 'user', 'content' => $userMessage];
 
         try {
-            // Use streaming API
+            // Call Streaming API
             $apiStart = microtime(true);
             $fullResponse = $this->generateChatStream($messages, $onToken);
             $apiTime = round((microtime(true) - $apiStart) * 1000);
@@ -230,38 +240,29 @@ class OllamaService
      */
     private function buildSystemContext($userMessage = '', &$perfData = null)
     {
-        $servicesInfo = '';
-        $therapistsInfo = '';
+        // Cache services info in session
+        if (!isset($_SESSION['cached_services_info'])) {
+            $_SESSION['cached_services_info'] = $this->getServicesInfo();
+        }
+        $servicesInfo = $_SESSION['cached_services_info'];
+
+        // Cache therapists info in session
+        if (!isset($_SESSION['cached_therapists_info'])) {
+            $_SESSION['cached_therapists_info'] = $this->getTherapistsInfo();
+        }
+        $therapistsInfo = $_SESSION['cached_therapists_info'];
+
+        // Cache testimonials info (new)
+        if (!isset($_SESSION['cached_testimonials_info'])) {
+            $_SESSION['cached_testimonials_info'] = $this->getTestimonialsInfo();
+        }
+        $testimonialsInfo = $_SESSION['cached_testimonials_info'];
+
         $scheduleInfo = '';
         $relevantKnowledge = '';
 
-        // Cache services info in session (static data, rarely changes)
-        try {
-            $dbStart = microtime(true);
-            if (!isset($_SESSION['cached_services_info'])) {
-                $_SESSION['cached_services_info'] = $this->getServicesInfo();
-            }
-            $servicesInfo = $_SESSION['cached_services_info'];
-            if ($perfData)
-                $perfData['db_services_time_ms'] = round((microtime(true) - $dbStart) * 1000);
-        } catch (Exception $e) {
-            $servicesInfo = "⚠️ DB ERROR\n";
-        }
-
-        // Cache therapists info in session (static data, rarely changes)
-        try {
-            $dbStart = microtime(true);
-            if (!isset($_SESSION['cached_therapists_info'])) {
-                $_SESSION['cached_therapists_info'] = $this->getTherapistsInfo();
-            }
-            $therapistsInfo = $_SESSION['cached_therapists_info'];
-            if ($perfData)
-                $perfData['db_therapists_time_ms'] = round((microtime(true) - $dbStart) * 1000);
-        } catch (Exception $e) {
-            $therapistsInfo = "⚠️ DB ERROR\n";
-        }
-        // Knowledge search - only if message is substantial (skip for very short queries)
-        if (strlen(trim($userMessage)) > 10) {
+        // Relevant Knowledge Search (FAQ/Blog)
+        if (!empty($userMessage)) {
             try {
                 $dbStart = microtime(true);
                 $relevantKnowledge = $this->searchRelevantKnowledge($userMessage);
@@ -274,53 +275,83 @@ class OllamaService
             }
         }
 
-        if (preg_match('/(jadwal|tersedia|booking|slot|kosong)/i', $userMessage)) {
+        if (preg_match('/(jadwal|tersedia|booking|slot|kosong|kapan|waktu|jam|reservasi|praktek|janji|bisa)/i', $userMessage)) {
             try {
                 $dbStart = microtime(true);
                 $queryDate = $this->extractDateFromMessage($userMessage) ?? date('Y-m-d');
                 $therapistName = $this->extractTherapistFromMessage($userMessage);
-                $scheduleInfo = $this->getAvailableSchedules($queryDate, $therapistName);
+
+                // If no specific therapist mentioned, show all therapists
+                if ($therapistName === null) {
+                    $scheduleInfo = $this->getAllTherapistsSchedules($queryDate);
+                } else {
+                    $scheduleInfo = $this->getAvailableSchedules($queryDate, $therapistName);
+                }
+
                 if ($perfData)
                     $perfData['db_schedule_time_ms'] = round((microtime(true) - $dbStart) * 1000);
             } catch (Exception $e) {
             }
         }
 
+        // Get Site Settings
+        $settings = $this->getSiteSettings();
+
+        // Build the Context String
         $context = "
 Anda adalah asisten AI Albashiro - Islamic Spiritual Hypnotherapy.
+Tagline: " . SITE_TAGLINE . "
+Waktu Server: " . format_date_id(date('Y-m-d')) . " pukul " . date('H:i') . "
 
 [INSTRUKSI]
 1. Bahasa Indonesia.
 2. Jawab sopan & Islami.
 3. Gunakan data di bawah ini.
+4. PENTING: Jika ditanya jadwal, tampilkan SEMUA waktu yang TERSEDIA. Jangan pilih-pilih atau skip waktu tertentu.
+5. SAFETY: Jika informasi tidak ada di data, katakan tidak tahu & arahkan ke Admin WA. JANGAN MENGARANG.
 
 [KLINIK]
-WA: " . ADMIN_WHATSAPP . "
+Nama: " . SITE_NAME . "
+Alamat: " . ($settings['address'] ?? 'Jl. Imam Bonjol No. 123') . "
+Jam Buka: " . ($settings['operating_hours'] ?? '09:00 - 17:00') . "
+WA Admin: " . ADMIN_WHATSAPP . "
 Email: " . ADMIN_EMAIL . "
+Sosmed: Instagram (" . ($settings['instagram'] ?? '-') . "), TikTok (" . ($settings['tiktok'] ?? '-') . ")
 
 [LAYANAN]
 " . $servicesInfo . "
 
 [TERAPIS]
 " . $therapistsInfo . "
+
+[TESTIMONI]
+" . $testimonialsInfo . "
 ";
 
         if ($scheduleInfo)
-            $context .= "\n[JADWAL]\n$scheduleInfo\n";
+            $context .= "\n[JADWAL]\n$scheduleInfo\nINSTRUKSI KHUSUS:\n1. Tampilkan jadwal dalam SATU BARIS dipisahkan koma.\n2. JANGAN gunakan list/poin ke bawah.\n3. Contoh: '09:00, 10:00, 11:00' (Compact).\n";
         if ($relevantKnowledge)
             $context .= "\n[INFO]\n$relevantKnowledge\n";
 
         return $context;
     }
 
+    private function getSiteSettings()
+    {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->query("SELECT setting_key, setting_value FROM site_settings");
+        $results = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        return $results ?: [];
+    }
+
     private function getServicesInfo()
     {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT name, description, price FROM services ORDER BY sort_order");
+        $stmt = $pdo->query("SELECT name, description, price, duration FROM services ORDER BY sort_order");
         $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $out = "";
         foreach ($services as $s) {
-            $out .= "- {$s['name']} (Rp " . number_format($s['price'], 0, ',', '.') . ")\n";
+            $out .= "- {$s['name']} (Rp " . number_format($s['price'], 0, ',', '.') . ", durasi {$s['duration']})\n  {$s['description']}\n";
         }
         return $out ?: "Data kosong.";
     }
@@ -328,12 +359,31 @@ Email: " . ADMIN_EMAIL . "
     private function getTherapistsInfo()
     {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT name, specialty FROM therapists WHERE is_active=1");
+        $stmt = $pdo->query("SELECT id, name, title, specialty, bio FROM therapists WHERE is_active=1");
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $out = "";
-        foreach ($res as $r)
-            $out .= "- {$r['name']} ({$r['specialty']})\n";
+
+        $wa_config = defined('THERAPIST_WHATSAPP') ? THERAPIST_WHATSAPP : [];
+
+        foreach ($res as $r) {
+            $wa = $wa_config[$r['id']] ?? '-';
+            $out .= "- {$r['name']} {$r['title']} ({$r['specialty']})\n  Bio: {$r['bio']}\n  WA: $wa\n";
+        }
         return $out ?: "Data kosong.";
+    }
+
+    private function getTestimonialsInfo()
+    {
+        $pdo = $this->db->getPdo();
+        // Get 3 random featured testimonials
+        $stmt = $pdo->query("SELECT client_name, content, rating FROM testimonials WHERE is_featured=1 ORDER BY RAND() LIMIT 3");
+        $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $out = "";
+        foreach ($res as $r) {
+            $stars = str_repeat("⭐", $r['rating']);
+            $out .= "- \"{$r['content']}\" - {$r['client_name']} ($stars)\n";
+        }
+        return $out ?: "Belum ada testimoni.";
     }
 
     private function searchRelevantKnowledge($msg)
@@ -349,7 +399,8 @@ Email: " . ADMIN_EMAIL . "
             $p[] = "%$k%";
             $p[] = "%$k%";
         }
-        $sql = "SELECT question, answer FROM ai_knowledge_base WHERE is_active=1 AND (" . implode(" OR ", $q) . ") LIMIT 3";
+        // Also search in FAQs table if ai_knowledge_base is empty or separate
+        $sql = "SELECT question, answer FROM faqs WHERE is_active=1 AND (" . implode(" OR ", $q) . ") LIMIT 3";
         $stmt = $pdo->prepare($sql);
         $stmt->execute($p);
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -365,6 +416,54 @@ Email: " . ADMIN_EMAIL . "
     {
         $s = ['apa', 'yang', 'dan', 'atau', 'saya', 'bisa', 'tidak'];
         return array_filter(explode(' ', strtolower($msg)), fn($w) => strlen($w) > 3 && !in_array($w, $s));
+    }
+
+    private function getAllTherapistsSchedules($date)
+    {
+        $pdo = $this->db->getPdo();
+
+        // Get all active therapists
+        $stmt = $pdo->query("SELECT id, name FROM therapists WHERE is_active=1 ORDER BY id");
+        $therapists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $output = "Jadwal semua terapis tgl $date:\n\n";
+
+        foreach ($therapists as $therapist) {
+            $therapistId = $therapist['id'];
+            $therapistName = $therapist['name'];
+
+            // Get booked slots for this therapist
+            $stmt = $pdo->prepare("SELECT appointment_time FROM bookings WHERE DATE(appointment_date)=? AND therapist_id=? AND status IN ('confirmed','pending')");
+            $stmt->execute([$date, $therapistId]);
+            $booked = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            $slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
+            $available = [];
+            $bookedSlots = [];
+
+            foreach ($slots as $s) {
+                $isBooked = in_array("$s:00", $booked) || in_array($s, $booked);
+                if ($isBooked) {
+                    $bookedSlots[] = $s;
+                } else {
+                    $available[] = $s;
+                }
+            }
+
+            $output .= "[$therapistName]\n";
+
+            if (!empty($available)) {
+                $output .= "TERSEDIA: " . implode(', ', $available) . "\n";
+            } else {
+                $output .= "TERSEDIA: Tidak ada\n";
+            }
+
+            if (!empty($bookedSlots)) {
+                $output .= "PENUH: " . implode(', ', $bookedSlots) . "\n";
+            }
+        }
+
+        return $output;
     }
 
     private function getAvailableSchedules($date, $therapistName = null)
@@ -392,13 +491,34 @@ Email: " . ADMIN_EMAIL . "
         }
 
         $booked = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        $slots = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
+        $slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
 
-        $out = $therapistName ? "Jadwal $therapistName tgl $date:\n" : "Jadwal tgl $date:\n";
+        $available = [];
+        $bookedSlots = [];
+
         foreach ($slots as $s) {
             $isBooked = in_array("$s:00", $booked) || in_array($s, $booked);
-            $out .= $isBooked ? "❌ $s Penuh\n" : "✅ $s Tersedia\n";
+            if ($isBooked) {
+                $bookedSlots[] = $s;
+            } else {
+                $available[] = $s;
+            }
         }
+
+        $out = $therapistName ? "Jadwal $therapistName tgl $date:\n" : "Jadwal tgl $date:\n";
+
+        if (!empty($available)) {
+            $out .= "TERSEDIA: " . implode(', ', $available) . "\n";
+        }
+
+        if (!empty($bookedSlots)) {
+            $out .= "PENUH: " . implode(', ', $bookedSlots) . "\n";
+        }
+
+        if (empty($available) && empty($bookedSlots)) {
+            $out .= "Tidak ada slot tersedia.\n";
+        }
+
         return $out;
     }
 
@@ -408,13 +528,37 @@ Email: " . ADMIN_EMAIL . "
         $stmt = $pdo->query("SELECT name FROM therapists WHERE is_active=1");
         $therapists = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+        $msgLower = strtolower($msg);
+
         // Check if any therapist name is mentioned in the message
         foreach ($therapists as $name) {
-            // Check for full name or partial name (e.g., "Fatimah", "Ustadzah")
+            // Check for full name match first
+            if (stripos($msgLower, strtolower($name)) !== false) {
+                return $name;
+            }
+
+            // Check for partial name (each word in therapist name)
             $nameParts = explode(' ', $name);
             foreach ($nameParts as $part) {
-                if (strlen($part) > 3 && stripos($msg, $part) !== false) {
+                // Skip titles and short words
+                if (strlen($part) <= 2 || in_array(strtolower($part), ['hj', 'dr', 's.psi', 'ch.t', 'ci', 'spd.i'])) {
+                    continue;
+                }
+
+                // Check if this part appears in message
+                if (stripos($msgLower, strtolower($part)) !== false) {
                     return $name;
+                }
+            }
+
+            // Check for nickname/shortened version (e.g., "muza" for "Muzayanah")
+            foreach ($nameParts as $part) {
+                if (strlen($part) > 4) {
+                    // Check if message contains first 4+ characters of name part
+                    $shortName = substr(strtolower($part), 0, 4);
+                    if (stripos($msgLower, $shortName) !== false) {
+                        return $name;
+                    }
                 }
             }
         }

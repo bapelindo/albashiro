@@ -99,7 +99,7 @@ class Chat extends Controller
             if ($isLoggedIn) {
                 // MEMBER: Save to DB & Get Context from DB
                 $this->chatModel->saveMessage($userId, 'user', $message);
-                $history = $this->chatModel->getRecentContext($userId, 5);
+                $history = $this->chatModel->getRecentContext($userId, 20); // Last 10 pairs (20 messages)
             } else {
                 // GUEST: Use Session
                 if (!isset($_SESSION['chat_history'])) {
@@ -109,9 +109,9 @@ class Chat extends Controller
                 // Add current message to session history
                 $_SESSION['chat_history'][] = ['role' => 'user', 'message' => $message];
 
-                // Get context from session (last 5 interactions = 10 messages)
+                // Get context from session (last 10 interactions = 20 messages)
                 $sessionHistory = $_SESSION['chat_history'];
-                $historyLimit = array_slice($sessionHistory, -10);
+                $historyLimit = array_slice($sessionHistory, -20);
 
                 // Format for AI Service
                 $history = [];
