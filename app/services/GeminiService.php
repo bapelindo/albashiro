@@ -74,7 +74,8 @@ class GeminiService
                 'Authorization: Bearer ' . $this->apiKey
             ]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestBody));
-            curl_setopt($ch, CURLOPT_TIMEOUT, 60); // 60 second timeout
+            curl_setopt($ch, CURLOPT_TIMEOUT, 25); // 25 second timeout (Vercel compatible)
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); // 5 second connection timeout
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For local development
 
             $response = curl_exec($ch);
