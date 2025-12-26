@@ -15,10 +15,9 @@ class Chat extends Controller
         ini_set('display_errors', '1');
         error_reporting(E_ALL);
 
-        // Instantiation - Use StrictGeminiService (Forces data validation)
-        require_once SITE_ROOT . '/app/services/GeminiService.php';
-        require_once SITE_ROOT . '/app/services/StrictGeminiService.php';
-        $this->aiService = new StrictGeminiService();
+        // Instantiation - Use LocalAIService (Standalone, No External API)
+        require_once SITE_ROOT . '/app/services/LocalAIService.php';
+        $this->aiService = new LocalAIService();
 
         // Load Chat Model
         $this->chatModel = $this->model('ChatLog'); // Assuming model name is ChatLog or similar, verifying below
