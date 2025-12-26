@@ -3,12 +3,16 @@
 if (file_exists(__DIR__ . '/../.env.local')) {
     $envFile = file(__DIR__ . '/../.env.local', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($envFile as $line) {
-        if (strpos(trim($line), '#') === 0)
-            continue; // Skip comments
+        $line = trim($line);
+        if (empty($line) || strpos($line, '#') === 0)
+            continue; // Skip empty lines and comments
+        if (strpos($line, '=') === false)
+            continue; // Skip lines without =
+
         list($name, $value) = explode('=', $line, 2);
         $name = trim($name);
         $value = trim($value);
-        if (!getenv($name)) {
+        if (!empty($name) && !getenv($name)) {
             putenv("$name=$value");
             $_ENV[$name] = $value;
             $_SERVER[$name] = $value;
