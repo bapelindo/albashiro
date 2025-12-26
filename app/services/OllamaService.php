@@ -93,11 +93,16 @@ class OllamaService
             'messages' => $messages,
             'stream' => false,
             'options' => [
-                'temperature' => 0.7,  // Balanced creativity
-                'top_p' => 0.9,
-                'top_k' => 40,
-                'num_predict' => 500,  // Max tokens
-                'stop' => ["\n\nUser:", "\n\nHuman:"]  // Stop sequences
+                // Optimized for gemma3:4b quality
+                'temperature' => 0.7,  // Balanced creativity (0.0 = deterministic, 1.0 = creative)
+                'top_p' => 0.9,        // Nucleus sampling
+                'top_k' => 40,         // Top-k sampling
+                'num_predict' => 512,  // Max tokens (increased for better responses)
+                'repeat_penalty' => 1.1, // Prevent repetition
+                'stop' => ["\n\nUser:", "\n\nHuman:", "User:", "Human:"],  // Stop sequences
+                // Performance tuning
+                'num_ctx' => 2048,     // Context window
+                'num_thread' => 4,     // CPU threads (adjust based on your CPU)
             ]
         ];
 
