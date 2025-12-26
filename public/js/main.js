@@ -325,7 +325,7 @@
         }
     };
 
-    // Send message
+    // Send message with streaming
     chatForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -340,8 +340,39 @@
         typingIndicator.classList.remove('hidden');
         scrollToBottom();
 
+        // Bubble elements (created when first token arrives)
+        let messageDiv = null;
+        let bubble = null;
+        let textElement = null;
+        let fullResponse = '';
+        let displayedResponse = '';
+
+        // Smooth character-by-character typing animation
+        let typingTimer = null;
+        let isTyping = false;
+        const typingSpeed = 30; // milliseconds per character (smooth like greeting)
+
+        // Character-by-character typing function
+        const typeCharacters = () => {
+            if (displayedResponse.length < fullResponse.length) {
+                isTyping = true;
+                // Type multiple characters at once for smoother feel
+                const charsToAdd = Math.min(2, fullResponse.length - displayedResponse.length);
+                displayedResponse = fullResponse.substring(0, displayedResponse.length + charsToAdd);
+                textElement.innerHTML = parseMarkdown(displayedResponse);
+                scrollToBottom();
+
+                typingTimer = setTimeout(typeCharacters, typingSpeed);
+            } else {
+                isTyping = false;
+                // Final render with full markdown
+                textElement.innerHTML = parseMarkdown(fullResponse);
+                scrollToBottom();
+            }
+        };
+
         try {
-            const response = await fetch(getBaseUrl() + '/chat/send', {
+            const response = await fetch(getBaseUrl() + '/chat/stream', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -352,22 +383,112 @@
                 })
             });
 
-            const responseText = await response.text();
-            const data = JSON.parse(responseText);
-
-            // Hide typing indicator
-            typingIndicator.classList.add('hidden');
-
-            if (data.success && data.response) {
-                appendMessage('ai', data.response);
-            } else {
-                appendMessage('ai', data.message || 'Maaf, terjadi kesalahan. Silakan coba lagi.');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
+
+            // Read the stream
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+
+                if (done) break;
+
+                // Decode chunk
+                buffer += decoder.decode(value, { stream: true });
+
+                // Process complete SSE messages (separated by \n\n)
+                const messages = buffer.split('\n\n');
+                buffer = messages.pop() || ''; // Keep incomplete message in buffer
+
+                for (const msg of messages) {
+                    if (!msg.trim() || !msg.startsWith('data: ')) continue;
+
+                    try {
+                        const jsonStr = msg.substring(6); // Remove 'data: ' prefix
+                        const data = JSON.parse(jsonStr);
+
+                        if (data.error) {
+                            // Hide typing indicator
+                            typingIndicator.classList.add('hidden');
+
+                            // Create bubble for error if not exists
+                            if (!messageDiv) {
+                                messageDiv = document.createElement('div');
+                                messageDiv.className = 'flex justify-start animate-fade-in';
+                                bubble = document.createElement('div');
+                                bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm';
+                                bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
+                                messageDiv.appendChild(bubble);
+                                chatMessages.appendChild(messageDiv);
+                                textElement = bubble.querySelector('p');
+                            }
+
+                            textElement.textContent = data.message || 'Maaf, terjadi kesalahan.';
+                            break;
+                        }
+
+                        if (data.token) {
+                            // Create bubble on first token
+                            if (!messageDiv) {
+                                // Hide typing indicator when first token arrives
+                                typingIndicator.classList.add('hidden');
+
+                                messageDiv = document.createElement('div');
+                                messageDiv.className = 'flex justify-start animate-fade-in';
+
+                                bubble = document.createElement('div');
+                                bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm';
+                                bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
+
+                                messageDiv.appendChild(bubble);
+                                chatMessages.appendChild(messageDiv);
+                                scrollToBottom();
+
+                                textElement = bubble.querySelector('p');
+                            }
+
+                            fullResponse += data.token;
+
+                            // Start typing animation if not already typing
+                            if (!isTyping) {
+                                typeCharacters();
+                            }
+                        }
+
+                        if (data.done && data.metadata) {
+                            // Stream complete - let typing finish naturally
+                            console.log('Stream metadata:', data.metadata);
+                        }
+                    } catch (parseError) {
+                        console.error('Error parsing SSE message:', parseError);
+                    }
+                }
+            }
+
+            // Wait for typing to complete
+            const waitForTyping = setInterval(() => {
+                if (!isTyping && displayedResponse.length === fullResponse.length) {
+                    clearInterval(waitForTyping);
+                    if (textElement && fullResponse) {
+                        textElement.innerHTML = parseMarkdown(fullResponse);
+                        scrollToBottom();
+                    }
+                }
+            }, 100);
+
         } catch (error) {
             console.error('Error sending message:', error);
             typingIndicator.classList.add('hidden');
-            appendMessage('ai', 'Maaf, koneksi terputus. Silakan coba lagi atau hubungi admin via WhatsApp.');
+
+            // Show error in the bubble
+            textElement.textContent = 'Maaf, koneksi terputus. Silakan coba lagi atau hubungi admin via WhatsApp.';
         }
+
+        scrollToBottom();
     });
 
     // Append message to chat with typing effect

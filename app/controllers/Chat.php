@@ -56,14 +56,12 @@ class Chat extends Controller
     }
 
     /**
-     * Handle chat message from user
-     * POST /chat/send
+     * Handle streaming chat message from user
+     * POST /chat/stream
+     * Uses Server-Sent Events (SSE) for real-time streaming
      */
-    public function send()
+    public function stream()
     {
-        // Ensure JSON response even on errors
-        header('Content-Type: application/json');
-
         // Only allow POST requests
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
@@ -82,10 +80,8 @@ class Chat extends Controller
         }
 
         try {
-            // Verify CSRF token (Optional for public chat? strict for now)
+            // Verify CSRF token
             if (!isset($input['csrf_token']) || !verify_csrf($input['csrf_token'])) {
-                // For guest flexibility, maybe relax this? But keeping it secure is better.
-                // If front-end sends token, strict check.
                 if (isset($_SESSION['user_id'])) {
                     http_response_code(403);
                     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
@@ -115,46 +111,86 @@ class Chat extends Controller
 
                 // Get context from session (last 5 interactions = 10 messages)
                 $sessionHistory = $_SESSION['chat_history'];
-                $historyLimit = array_slice($sessionHistory, -10); // Last 10 msgs
+                $historyLimit = array_slice($sessionHistory, -10);
 
                 // Format for AI Service
                 $history = [];
                 foreach ($historyLimit as $h) {
-                    $history[] = ['role' => $h['role'], 'message' => $h['message']]; // standardize keys
+                    $history[] = ['role' => $h['role'], 'message' => $h['message']];
                 }
             }
 
-            // Call AI Service
-            $aiResponse = $this->aiService->chat($message, $history);
+            // CRITICAL: Close session write to prevent blocking other requests
+            // This allows admin pages and other requests to work while streaming
+            session_write_close();
 
-            $responseText = $aiResponse['response'];
-            $metadata = isset($aiResponse['metadata']) ? $aiResponse['metadata'] : [];
+            // Set SSE headers
+            header('Content-Type: text/event-stream');
+            header('Cache-Control: no-cache');
+            header('Connection: keep-alive');
+            header('X-Accel-Buffering: no'); // Disable nginx buffering
+
+            // Disable PHP output buffering
+            if (ob_get_level())
+                ob_end_clean();
+
+            $fullResponse = '';
+
+            // Call AI Service with streaming callback
+            $aiResponse = $this->aiService->chatStream($message, $history, function ($token, $done) use (&$fullResponse) {
+                $fullResponse .= $token;
+
+                // Send SSE event
+                echo "data: " . json_encode([
+                    'token' => $token,
+                    'done' => $done
+                ]) . "\n\n";
+
+                // Flush output immediately
+                if (ob_get_level())
+                    ob_flush();
+                flush();
+            });
+
+            // Send completion event with metadata
+            echo "data: " . json_encode([
+                'done' => true,
+                'metadata' => $aiResponse['metadata'] ?? []
+            ]) . "\n\n";
+
+            if (ob_get_level())
+                ob_flush();
+            flush();
 
             // SAVE RESPONSE
+            $responseText = $aiResponse['response'];
             if ($isLoggedIn) {
-                // DB
+                // DB - no session needed
                 $this->chatModel->saveMessage($userId, 'ai', $responseText);
             } else {
-                // Session
+                // Session - need to re-open session to write
+                session_start();
+                if (!isset($_SESSION['chat_history'])) {
+                    $_SESSION['chat_history'] = [];
+                }
                 $_SESSION['chat_history'][] = ['role' => 'ai', 'message' => $responseText];
+                session_write_close();
             }
 
-            echo json_encode([
-                'success' => true,
-                'response' => $responseText,
-                'metadata' => $metadata
-            ]);
-
         } catch (Exception $e) {
-            // Log the error for debugging
-            error_log("Chat Error: " . $e->getMessage());
+            // Log the error
+            error_log("Chat Streaming Error: " . $e->getMessage());
             error_log("Stack trace: " . $e->getTraceAsString());
 
-            // Return user-friendly error message
-            echo json_encode([
-                'success' => false,
-                'response' => "Maaf, terjadi kesalahan sistem. Silakan coba lagi."
-            ]);
+            // Send error event
+            echo "data: " . json_encode([
+                'error' => true,
+                'message' => "Maaf, terjadi kesalahan sistem. Silakan coba lagi."
+            ]) . "\n\n";
+
+            if (ob_get_level())
+                ob_flush();
+            flush();
         }
     }
 

@@ -37,25 +37,26 @@ class OllamaService
     }
 
     /**
-     * Adapter for Chat Controller
-     * Matches the interface expected by Chat.php: chat($message, $history)
+     * Streaming Chat Adapter for Real-time Response
+     * Sends Server-Sent Events (SSE) to frontend as tokens arrive
+     * @param string $userMessage User's message
+     * @param array $conversationHistory Previous conversation context
+     * @param callable $onToken Callback function to handle each token
+     * @return array Final response with metadata
      */
-    public function chat($userMessage, $conversationHistory = [])
+    public function chatStream($userMessage, $conversationHistory = [], $onToken = null)
     {
-        // Increase execution time for AI processing
-        set_time_limit(60);  // 60 seconds
+        // Increase execution time for streaming
+        set_time_limit(150);
 
         $startTime = microtime(true);
-
-        // Increase PHP execution time for slow AI responses
-        set_time_limit(150); // 2.5 minutes
 
         // Performance tracking
         $perfData = [
             'session_id' => session_id(),
             'user_message' => substr($userMessage, 0, 500),
             'ai_response' => '',
-            'provider' => 'Local Ollama',
+            'provider' => 'Local Ollama (Streaming)',
             'model' => $this->model,
             'total_time_ms' => 0,
             'api_call_time_ms' => null,
@@ -88,33 +89,31 @@ class OllamaService
         $messages[] = ['role' => 'user', 'content' => $userMessage];
 
         try {
-            // Use /api/chat for conversation context
+            // Use streaming API
             $apiStart = microtime(true);
-            $response = $this->generateChat($messages);
+            $fullResponse = $this->generateChatStream($messages, $onToken);
             $apiTime = round((microtime(true) - $apiStart) * 1000);
             $perfData['api_call_time_ms'] = $apiTime;
 
-            $perfData['ai_response'] = substr($response, 0, 1000);
+            $perfData['ai_response'] = substr($fullResponse, 0, 1000);
 
             $responseTime = round((microtime(true) - $startTime) * 1000);
             $perfData['total_time_ms'] = $responseTime;
 
             // Log performance
-            $logStart = microtime(true);
             $this->logPerformance($perfData);
-            $logTime = round((microtime(true) - $logStart) * 1000);
 
             return [
-                'response' => $response,
+                'response' => $fullResponse,
                 'metadata' => [
                     'knowledge_matched' => $this->lastKnowledgeMatchCount,
                     'keywords_searched' => $this->lastSearchKeywords,
                     'response_time_ms' => $responseTime,
-                    'provider' => 'Local Ollama (' . $this->model . ')'
+                    'provider' => 'Local Ollama (' . $this->model . ') - Streaming'
                 ]
             ];
         } catch (Exception $e) {
-            error_log("Ollama Error: " . $e->getMessage());
+            error_log("Ollama Streaming Error: " . $e->getMessage());
 
             $perfData['error_occurred'] = 1;
             $perfData['error_message'] = substr($e->getMessage(), 0, 500);
@@ -132,9 +131,10 @@ class OllamaService
     }
 
     /**
-     * Mengirim chat prompt ke Ollama (api/chat)
+     * Generate streaming chat response from Ollama
+     * Processes NDJSON stream and calls callback for each token
      */
-    private function generateChat(array $messages, array $options = []): string
+    private function generateChatStream(array $messages, $onToken = null): string
     {
         $endpoint = $this->baseUrl . '/api/chat';
 
@@ -144,12 +144,12 @@ class OllamaService
         $payload = [
             'model' => $this->model,
             'messages' => $messages,
-            'stream' => false,
-            'keep_alive' => '5m',  // Keep model in memory for continuous chat
+            'stream' => true,  // Enable streaming!
+            'keep_alive' => '5m',
             'options' => [
                 'temperature' => 0.7,
-                'num_ctx' => 2048,      // Balanced context window
-                'num_predict' => 300,   // Longer responses without truncation
+                'num_ctx' => 2048,
+                'num_predict' => 300,
                 'num_thread' => $cpuThreads,
                 'top_k' => 40,
                 'top_p' => 0.9,
@@ -157,62 +157,71 @@ class OllamaService
             ]
         ];
 
-        if (!empty($options)) {
-            if (isset($options['options'])) {
-                $payload['options'] = array_merge($payload['options'], $options['options']);
-                unset($options['options']);
-            }
-            $payload = array_merge($payload, $options);
-        }
+        $fullResponse = '';
+        $buffer = '';
 
-        $response = $this->sendRequest($endpoint, $payload);
-
-        if (isset($response['message']['content'])) {
-            return $response['message']['content'];
-        }
-
-        throw new Exception("Invalid API Response Structure");
-    }
-
-    /**
-     * Execute cURL request with optimized settings
-     */
-    private function sendRequest(string $url, array $data): array
-    {
-        $ch = curl_init($url);
-        $jsonData = json_encode($data);
+        // cURL streaming handler
+        $ch = curl_init($endpoint);
+        $jsonData = json_encode($payload);
 
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);  // Don't buffer
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);  // 5s connection timeout
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);  // HTTP/1.1 for keep-alive
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Content-Length: ' . strlen($jsonData),
-            'Connection: keep-alive'  // Reuse connection
+            'Connection: keep-alive'
         ]);
+
+        // Write callback - called for each chunk received
+        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($curl, $data) use (&$fullResponse, &$buffer, $onToken) {
+            $buffer .= $data;
+
+            // Process complete lines (NDJSON format)
+            while (($pos = strpos($buffer, "\n")) !== false) {
+                $line = substr($buffer, 0, $pos);
+                $buffer = substr($buffer, $pos + 1);
+
+                $line = trim($line);
+                if (empty($line))
+                    continue;
+
+                // Parse JSON line
+                $chunk = json_decode($line, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    // Extract token from message content
+                    if (isset($chunk['message']['content'])) {
+                        $token = $chunk['message']['content'];
+                        $fullResponse .= $token;
+
+                        // Call callback if provided
+                        if ($onToken && is_callable($onToken)) {
+                            $onToken($token, $chunk['done'] ?? false);
+                        }
+                    }
+                }
+            }
+
+            return strlen($data);
+        });
 
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
+        curl_close($ch);
 
         if ($result === false) {
-            throw new Exception("Ollama Connection Error: $error");
+            throw new Exception("Ollama Streaming Connection Error: $error");
         }
 
         if ($httpCode >= 400) {
-            throw new Exception("Ollama API Error (HTTP $httpCode): $result");
+            throw new Exception("Ollama Streaming API Error (HTTP $httpCode)");
         }
 
-        $decoded = json_decode($result, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception("JSON Decode Error: " . json_last_error_msg());
-        }
-
-        return $decoded;
+        return $fullResponse;
     }
 
     /**
@@ -269,7 +278,8 @@ class OllamaService
             try {
                 $dbStart = microtime(true);
                 $queryDate = $this->extractDateFromMessage($userMessage) ?? date('Y-m-d');
-                $scheduleInfo = $this->getAvailableSchedules($queryDate, null);
+                $therapistName = $this->extractTherapistFromMessage($userMessage);
+                $scheduleInfo = $this->getAvailableSchedules($queryDate, $therapistName);
                 if ($perfData)
                     $perfData['db_schedule_time_ms'] = round((microtime(true) - $dbStart) * 1000);
             } catch (Exception $e) {
@@ -357,17 +367,59 @@ Email: " . ADMIN_EMAIL . "
         return array_filter(explode(' ', strtolower($msg)), fn($w) => strlen($w) > 3 && !in_array($w, $s));
     }
 
-    private function getAvailableSchedules($date, $tid)
+    private function getAvailableSchedules($date, $therapistName = null)
     {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT appointment_time FROM bookings WHERE DATE(appointment_date)=? AND status IN ('confirmed','pending')");
-        $stmt->execute([$date]);
+
+        // Get therapist ID if name is provided
+        $therapistId = null;
+        if ($therapistName) {
+            $stmt = $pdo->prepare("SELECT id FROM therapists WHERE name LIKE ? AND is_active=1 LIMIT 1");
+            $stmt->execute(["%$therapistName%"]);
+            $therapist = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($therapist) {
+                $therapistId = $therapist['id'];
+            }
+        }
+
+        // Get booked slots for this date (and therapist if specified)
+        if ($therapistId) {
+            $stmt = $pdo->prepare("SELECT appointment_time FROM bookings WHERE DATE(appointment_date)=? AND therapist_id=? AND status IN ('confirmed','pending')");
+            $stmt->execute([$date, $therapistId]);
+        } else {
+            $stmt = $pdo->prepare("SELECT appointment_time FROM bookings WHERE DATE(appointment_date)=? AND status IN ('confirmed','pending')");
+            $stmt->execute([$date]);
+        }
+
         $booked = $stmt->fetchAll(PDO::FETCH_COLUMN);
         $slots = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
-        $out = "Tgl $date:\n";
-        foreach ($slots as $s)
-            $out .= (in_array("$s:00", $booked) || in_array($s, $booked)) ? "❌ $s Penuh\n" : "✅ $s Ada\n";
+
+        $out = $therapistName ? "Jadwal $therapistName tgl $date:\n" : "Jadwal tgl $date:\n";
+        foreach ($slots as $s) {
+            $isBooked = in_array("$s:00", $booked) || in_array($s, $booked);
+            $out .= $isBooked ? "❌ $s Penuh\n" : "✅ $s Tersedia\n";
+        }
         return $out;
+    }
+
+    private function extractTherapistFromMessage($msg)
+    {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->query("SELECT name FROM therapists WHERE is_active=1");
+        $therapists = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // Check if any therapist name is mentioned in the message
+        foreach ($therapists as $name) {
+            // Check for full name or partial name (e.g., "Fatimah", "Ustadzah")
+            $nameParts = explode(' ', $name);
+            foreach ($nameParts as $part) {
+                if (strlen($part) > 3 && stripos($msg, $part) !== false) {
+                    return $name;
+                }
+            }
+        }
+
+        return null;
     }
 
     private function extractDateFromMessage($msg)
