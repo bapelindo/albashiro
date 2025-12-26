@@ -12,7 +12,9 @@ if (file_exists(__DIR__ . '/../.env.local')) {
         list($name, $value) = explode('=', $line, 2);
         $name = trim($name);
         $value = trim($value);
-        if (!empty($name) && !getenv($name)) {
+        // Remove surrounding quotes
+        $value = trim($value, '"\'');
+        if (!empty($name)) {
             putenv("$name=$value");
             $_ENV[$name] = $value;
             $_SERVER[$name] = $value;
