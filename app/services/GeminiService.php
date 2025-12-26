@@ -259,6 +259,15 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
 - Jangan pernah menggunakan Bahasa Inggris kecuali untuk istilah teknis yang tidak ada padanannya.
 - Jika user mengetik sembarangan (seperti \"asd\"), tetap jawab dengan sopan dalam Bahasa Indonesia, arahkan kembali ke topik hipnoterapi.
 
+[HIERARKI SUMBER DATA - WAJIB DIIKUTI]
+1. **PRIORITAS UTAMA**: Gunakan data dari [LAYANAN & HARGA RESMI], [TERAPIS], [DATA JADWAL REAL-TIME], dan [KNOWLEDGE BASE] yang disediakan di bawah.
+2. **JANGAN MENGARANG**: Untuk pertanyaan tentang harga, layanan, terapis, atau jadwal → WAJIB pakai data yang tersedia.
+3. **Pengetahuan Umum**: HANYA untuk topik di luar data yang tersedia (misal: penjelasan umum tentang hipnoterapi, psikologi, kesehatan mental) → Boleh pakai pengetahuan AI sendiri.
+4. **Contoh**:
+   - SALAH: Paket Individual 5 sesi Rp 2.500.000 (MENGARANG - tidak ada di data)
+   - BENAR: Hipnoterapi Anak Rp 500.000 (sesuai data LAYANAN & HARGA RESMI)
+   - BENAR: Hipnoterapi adalah metode terapi... (pengetahuan umum, OK)
+
 [INFORMASI PENTING & LOGIKA]
 - Anda adalah KONSULTAN KESEHATAN MENTAL (bukan sekadar bot).
 - Jika user curhat (cemas, takut, sedih), berempati lah. Jangan langsung jual produk. Validasi perasaannya dulu ('Saya mengerti perasaan Anda...').
@@ -282,7 +291,9 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
         $context .= "- Lokasi: [Lokasi Klinik Albashiro]\n";
         $context .= "- Jam Buka: Senin-Jumat 09:00-17:00\n\n";
 
-        $context .= "[LAYANAN]\n" . $servicesInfo . "\n\n";
+        $context .= "[LAYANAN & HARGA RESMI]\n" . $servicesInfo . "\n";
+        $context .= "⚠️ PENTING: HARGA DI ATAS ADALAH DATA RESMI DARI DATABASE. JANGAN MENGARANG ATAU MEMBUAT PAKET FIKTIF.\n\n";
+
         $context .= "[TERAPIS]\n" . $therapistsInfo . "\n\n";
 
         if (!empty($relevantKnowledge)) {
@@ -299,36 +310,48 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
     private function getServicesInfo()
     {
         try {
-            $services = $this->db->query("SELECT name, description, price_range FROM services WHERE is_active = 1")->fetchAll();
-            if (empty($services))
-                return "";
+            // Use PDO directly for better error visibility
+            $pdo = $this->db->getPdo();
+            $stmt = $pdo->query("SELECT name, description, price_range FROM services WHERE is_active = 1");
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($services)) {
+                error_log("WARNING: No active services found in database!");
+                return "(Data layanan tidak tersedia - hubungi admin)\n";
+            }
+
             $output = "";
             foreach ($services as $s) {
-                // Handle object or array (Auto-detect)
-                $s = (array) $s;
-                $output .= "- **{$s['name']}**: {$s['description']} (Range: {$s['price_range']})\n";
+                $output .= "- **{$s['name']}**: {$s['description']} (Harga: {$s['price_range']})\n";
             }
             return $output;
         } catch (Exception $e) {
-            return "";
+            error_log("ERROR getServicesInfo: " . $e->getMessage());
+            return "(Error mengambil data layanan: " . $e->getMessage() . ")\n";
         }
     }
 
     private function getTherapistsInfo()
     {
         try {
-            $therapists = $this->db->query("SELECT name, specialization, availability_status FROM therapists WHERE is_active = 1")->fetchAll();
-            if (empty($therapists))
-                return "";
+            $pdo = $this->db->getPdo();
+            $stmt = $pdo->query("SELECT name, specialization, availability_status FROM therapists WHERE is_active = 1");
+            $therapists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($therapists)) {
+                error_log("WARNING: No active therapists found in database!");
+                return "(Data terapis tidak tersedia - hubungi admin)\n";
+            }
+
             $output = "";
             foreach ($therapists as $t) {
-                $t = (array) $t;
                 $status = $t['availability_status'] == 'available' ? 'Tersedia' : 'Sibuk';
                 $output .= "- **{$t['name']}** ({$t['specialization']}) - Status: $status\n";
             }
             return $output;
         } catch (Exception $e) {
-            return "";
+            error_log("ERROR getTherapistsInfo: " . $e->getMessage());
+            return "(Error mengambil data terapis: " . $e->getMessage() . ")\n";
         }
     }
 
@@ -402,33 +425,28 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
                 '16:00' => '16:00 - 17:00'
             ];
 
+            $pdo = $this->db->getPdo();
             $sql = "SELECT appointment_time FROM bookings WHERE DATE(appointment_date) = ? AND status IN ('confirmed', 'pending', 'paid')";
             $params = [$date];
+
             if ($therapistId) {
                 $sql .= " AND therapist_id = ?";
                 $params[] = $therapistId;
             }
 
-            $stmt = $this->db->query($sql, $params);
-            if (method_exists($stmt, 'fetchAll')) {
-                $bookedRaw = $stmt->fetchAll(PDO::FETCH_OBJ);
-            } else {
-                $bookedRaw = [];
-            }
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $bookedRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $bookedTimes = [];
             foreach ($bookedRaw as $b) {
-                $bookedTimes[] = substr($b->appointment_time, 0, 5);
+                $bookedTimes[] = substr($b['appointment_time'], 0, 5);
             }
 
-            $out = "Status Jadwal Tanggal $dateFormatted:\n";
+            $out = "Status Jadwal Real-time Tanggal $dateFormatted:\n";
             $count = 0;
             foreach ($allSlots as $time => $label) {
-                $isBooked = false;
-                foreach ($bookedTimes as $bt) {
-                    if (substr($bt, 0, 2) == substr($time, 0, 2))
-                        $isBooked = true;
-                }
+                $isBooked = in_array($time, $bookedTimes);
 
                 if ($isBooked) {
                     $out .= "❌ $label: PENUH\n";
@@ -443,7 +461,8 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
             return $out;
 
         } catch (Exception $e) {
-            return "Gagal memuat jadwal: " . $e->getMessage();
+            error_log("ERROR getAvailableSchedules: " . $e->getMessage());
+            return "(Error mengambil jadwal: " . $e->getMessage() . ")\n";
         }
     }
 
