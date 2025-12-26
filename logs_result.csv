@@ -1,0 +1,2178 @@
+TimeUTC,timestampInMs,requestPath,requestMethod,requestQueryString,responseStatusCode,requestId,requestUserAgent,level,environment,branch,vercelCache,type,function,host,deploymentDomain,deploymentId,durationMs,region,maxMemoryUsed,memorySize,message,projectId,traceId,sessionId,invocationId,instanceId,concurrency
+2025-12-26 06:25:58,1766730358073,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,fpc7v-1766730345695-6d9c6bb2a826,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro.vercel.app/chat/send?url=chat%2Fsend
+🐘 Querying /chat/send?url=chat%2Fsend
+🐘STDERR: [Fri Dec 26 06:25:45 2025] 127.0.0.1:34004 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:45 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:45 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => send
+)
+
+[Fri Dec 26 06:25:45 2025] Route: chat
+
+🐘STDERR: [Fri Dec 26 06:25:45 2025] GET params: Array
+(
+    [url] => chat/send
+)
+
+[Fri Dec 26 06:25:45 2025] REQUEST_URI: /chat/send?url=chat%2Fsend
+[Fri Dec 26 06:25:45 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:46 2025] DEBUG getServicesInfo: PDO connection obtained
+
+🐘STDERR: [Fri Dec 26 06:25:46 2025] ERROR getServicesInfo: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'is_active' in 'where clause'
+[Fri Dec 26 06:25:46 2025] ERROR Stack trace: #0 /var/task/user/app/services/GeminiService.php(322): PDO->query('SELECT name, de...')
+#1 /var/task/user/app/services/GeminiService.php(211): GeminiService->getServicesInfo()
+#2 /var/task/user/app/services/GeminiService.php(37): GeminiService->buildSystemContext('berapa harga pa...')
+#3 /var/task/user/app/controllers/Chat.php(128): GeminiService->chat('berapa harga pa...', Array)
+#4 /var/task/user/core/App.php(90): Chat->send()
+#5 /var/task/user/index.php(20): App->__construct()
+#6 /var/task/user/api/index.php(3): require('/var/task/user/...')
+#7 {main}
+
+🐘STDERR: [Fri Dec 26 06:25:47 2025] ERROR getTherapistsInfo: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'specialization' in 'field list'
+
+🐘STDERR: [Fri Dec 26 06:25:57 2025] 127.0.0.1:34004 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:45,1766730345695,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,fpc7v-1766730345695-6d9c6bb2a826,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,12136,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:41,1766730341136,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,qqgd2-1766730339976-227633d9d68f,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro.vercel.app/chat/welcome?url=chat%2Fwelcome
+🐘 Querying /chat/welcome?url=chat%2Fwelcome
+🐘STDERR: [Fri Dec 26 06:25:40 2025] 127.0.0.1:33994 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:40 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:40 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => welcome
+)
+
+[Fri Dec 26 06:25:40 2025] Route: chat
+[Fri Dec 26 06:25:40 2025] GET params: Array
+(
+    [url] => chat/welcome
+)
+
+[Fri Dec 26 06:25:40 2025] REQUEST_URI: /chat/welcome?url=chat%2Fwelcome
+[Fri Dec 26 06:25:40 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:41 2025] 127.0.0.1:33994 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:39,1766730339976,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,qqgd2-1766730339976-227633d9d68f,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,917,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:36,1766730336228,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,5vbfp-1766730333643-993ff9b17d91,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:33 2025] 127.0.0.1:40924 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:33 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:33 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:33 2025] Route: 
+[Fri Dec 26 06:25:33 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:25:33 2025] REQUEST_URI: /?url=
+
+🐘STDERR: [Fri Dec 26 06:25:33 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:36 2025] 127.0.0.1:40924 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:33,1766730333643,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,5vbfp-1766730333643-993ff9b17d91,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2498,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:32,1766730332823,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,4sf4k-1766730330348-bc935190a994,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/favicon.png?url=favicon.png
+🐘 Querying /favicon.png?url=favicon.png
+🐘STDERR: [Fri Dec 26 06:25:30 2025] 127.0.0.1:51782 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:30 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:30 2025] Parsed URL: Array
+(
+    [0] => favicon.png
+)
+
+[Fri Dec 26 06:25:30 2025] Route: favicon.png
+[Fri Dec 26 06:25:30 2025] GET params: Array
+(
+    [url] => favicon.png
+)
+
+[Fri Dec 26 06:25:30 2025] REQUEST_URI: /favicon.png?url=favicon.png
+
+🐘STDERR: [Fri Dec 26 06:25:30 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:32 2025] 127.0.0.1:51782 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:30,1766730330348,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,4sf4k-1766730330348-bc935190a994,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2381,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:32,1766730332615,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,7tlk7-1766730330147-97441a4bb529,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:30 2025] 127.0.0.1:58722 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:30 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:30 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:30 2025] Route: 
+[Fri Dec 26 06:25:30 2025] GET params: Array
+(
+    [url] => 
+)
+
+
+🐘STDERR: [Fri Dec 26 06:25:30 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:30 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:32 2025] 127.0.0.1:58722 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:30,1766730330147,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,7tlk7-1766730330147-97441a4bb529,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2371,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:33,1766730333158,albashiro.vercel.app/,GET,url=,200,sgdqr-1766730329713-1a7beacf9b2c,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:30 2025] 127.0.0.1:40916 Accepted
+[Fri Dec 26 06:25:30 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:30 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:30 2025] Route: 
+[Fri Dec 26 06:25:30 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:25:30 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:30 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:33 2025] 127.0.0.1:40916 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:29,1766730329713,albashiro.vercel.app/,GET,url=,200,sgdqr-1766730329713-1a7beacf9b2c,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2386,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:30,1766730330340,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,4sf4k-1766730327870-a045645b4f49,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/favicon.ico?url=favicon.ico
+🐘 Querying /favicon.ico?url=favicon.ico
+🐘STDERR: [Fri Dec 26 06:25:27 2025] 127.0.0.1:35196 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:27 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:27 2025] Parsed URL: Array
+(
+    [0] => favicon.ico
+)
+
+[Fri Dec 26 06:25:27 2025] Route: favicon.ico
+
+🐘STDERR: [Fri Dec 26 06:25:27 2025] GET params: Array
+(
+    [url] => favicon.ico
+)
+
+[Fri Dec 26 06:25:27 2025] REQUEST_URI: /favicon.ico?url=favicon.ico
+[Fri Dec 26 06:25:27 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:30 2025] 127.0.0.1:35196 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:27,1766730327870,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,4sf4k-1766730327870-a045645b4f49,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2382,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:27,1766730327860,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,b2d6v-1766730325306-3d4366ae1637,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:25 2025] 127.0.0.1:35186 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:25 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:25 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:25 2025] Route: 
+[Fri Dec 26 06:25:25 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:25:25 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:25 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:27 2025] 127.0.0.1:35186 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:25,1766730325306,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,b2d6v-1766730325306-3d4366ae1637,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2466,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:27,1766730327007,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,zcgmm-1766730324425-d9407ec4fe2d,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:24 2025] 127.0.0.1:35512 Accepted
+[Fri Dec 26 06:25:24 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:24 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:24 2025] Route: 
+[Fri Dec 26 06:25:24 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:25:24 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:24 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:26 2025] 127.0.0.1:35512 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:24,1766730324425,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,zcgmm-1766730324425-d9407ec4fe2d,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2482,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:26,1766730326807,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,6dtrh-1766730324246-fd28a0ee6f54,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:24 2025] 127.0.0.1:50446 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:24 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:24 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:24 2025] Route: 
+[Fri Dec 26 06:25:24 2025] GET params: Array
+(
+    [url] => 
+)
+
+
+🐘STDERR: [Fri Dec 26 06:25:24 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:24 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:26 2025] 127.0.0.1:50446 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:24,1766730324246,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,6dtrh-1766730324246-fd28a0ee6f54,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2346,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:25,1766730325230,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,nw8hm-1766730321867-f3b77d04d76b,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:25:22 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:22 2025] 127.0.0.1:53028 Accepted
+[Fri Dec 26 06:25:22 2025] 127.0.0.1:53028 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:25:22 2025] 127.0.0.1:53028 Closing
+
+🐘STDERR: [Fri Dec 26 06:25:22 2025] 127.0.0.1:53030 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:22 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:22 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:22 2025] Route: 
+[Fri Dec 26 06:25:22 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:25:22 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:22 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:25 2025] 127.0.0.1:53030 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:21,1766730321867,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,nw8hm-1766730321867-f3b77d04d76b,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,2899,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:25,1766730325380,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,977lr-1766730321807-77eef9efbfab,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:25:22 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:22 2025] 127.0.0.1:35158 Accepted
+[Fri Dec 26 06:25:22 2025] 127.0.0.1:35158 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:25:22 2025] 127.0.0.1:35158 Closing
+
+🐘STDERR: [Fri Dec 26 06:25:22 2025] 127.0.0.1:35172 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:22 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:22 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:22 2025] Route: 
+[Fri Dec 26 06:25:22 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:25:22 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:22 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:25 2025] 127.0.0.1:35172 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:21,1766730321807,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,977lr-1766730321807-77eef9efbfab,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,3071,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:24,1766730324156,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,2q76g-1766730320498-54ff6398229e,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:25:21 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:21 2025] 127.0.0.1:35488 Accepted
+[Fri Dec 26 06:25:21 2025] 127.0.0.1:35488 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:25:21 2025] 127.0.0.1:35488 Closing
+
+🐘STDERR: [Fri Dec 26 06:25:21 2025] 127.0.0.1:35496 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:21 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:21 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:21 2025] Route: 
+[Fri Dec 26 06:25:21 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:25:21 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:21 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:24 2025] 127.0.0.1:35496 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:20,1766730320498,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,2q76g-1766730320498-54ff6398229e,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,3026,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:25:24,1766730324342,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,zpbbm-1766730320372-6cf1736351e2,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:25:21 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:25:21 2025] 127.0.0.1:50430 Accepted
+[Fri Dec 26 06:25:21 2025] 127.0.0.1:50430 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:25:21 2025] 127.0.0.1:50430 Closing
+
+🐘STDERR: [Fri Dec 26 06:25:21 2025] 127.0.0.1:50440 Accepted
+
+🐘STDERR: [Fri Dec 26 06:25:21 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:25:21 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:25:21 2025] Route: 
+[Fri Dec 26 06:25:21 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:25:21 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:25:21 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:25:24 2025] 127.0.0.1:50440 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:25:20,1766730320372,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,zpbbm-1766730320372-6cf1736351e2,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,albashiro-9oi70ykp0-bapelhacker-7536s-projects.vercel.app,dpl_Djpw1U2951RgDMmFNd2iUse9xu1t,3183,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:24:21,1766730261827,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,jt9mf-1766730257020-3b44b1676b8b,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro.vercel.app/chat/send?url=chat%2Fsend
+🐘 Querying /chat/send?url=chat%2Fsend
+🐘STDERR: [Fri Dec 26 06:24:17 2025] 127.0.0.1:44066 Accepted
+
+🐘STDERR: [Fri Dec 26 06:24:17 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:24:17 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => send
+)
+
+[Fri Dec 26 06:24:17 2025] Route: chat
+[Fri Dec 26 06:24:17 2025] GET params: Array
+(
+    [url] => chat/send
+)
+
+
+🐘STDERR: [Fri Dec 26 06:24:17 2025] REQUEST_URI: /chat/send?url=chat%2Fsend
+[Fri Dec 26 06:24:17 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:24:18 2025] ERROR getServicesInfo: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'is_active' in 'where clause'
+
+🐘STDERR: [Fri Dec 26 06:24:18 2025] ERROR getTherapistsInfo: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'specialization' in 'field list'
+
+🐘STDERR: [Fri Dec 26 06:24:21 2025] 127.0.0.1:44066 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:24:17,1766730257020,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,jt9mf-1766730257020-3b44b1676b8b,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,4583,iad1,152,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:24:15,1766730255767,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,zkbrv-1766730254605-3e9e0a1b6fbc,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro.vercel.app/chat/welcome?url=chat%2Fwelcome
+🐘 Querying /chat/welcome?url=chat%2Fwelcome
+🐘STDERR: [Fri Dec 26 06:24:14 2025] 127.0.0.1:44056 Accepted
+
+🐘STDERR: [Fri Dec 26 06:24:14 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:24:14 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => welcome
+)
+
+[Fri Dec 26 06:24:14 2025] Route: chat
+
+🐘STDERR: [Fri Dec 26 06:24:14 2025] GET params: Array
+(
+    [url] => chat/welcome
+)
+
+[Fri Dec 26 06:24:14 2025] REQUEST_URI: /chat/welcome?url=chat%2Fwelcome
+[Fri Dec 26 06:24:14 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:24:15 2025] 127.0.0.1:44056 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:24:14,1766730254605,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,zkbrv-1766730254605-3e9e0a1b6fbc,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,928,iad1,151,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:24:12,1766730252890,albashiro.vercel.app/,GET,url=,200,gn82f-1766730249997-4875974a91d4,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:24:10 2025] 127.0.0.1:44044 Accepted
+
+🐘STDERR: [Fri Dec 26 06:24:10 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:24:10 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:24:10 2025] Route: 
+[Fri Dec 26 06:24:10 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:24:10 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:24:10 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:24:12 2025] 127.0.0.1:44044 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:24:09,1766730249997,albashiro.vercel.app/,GET,url=,200,gn82f-1766730249997-4875974a91d4,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,2399,iad1,151,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:59,1766730119867,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,hjvqq-1766730108580-cc4f7e0f46eb,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro.vercel.app/chat/send?url=chat%2Fsend
+🐘 Querying /chat/send?url=chat%2Fsend
+🐘STDERR: [Fri Dec 26 06:21:48 2025] 127.0.0.1:39492 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:48 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:48 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => send
+)
+
+[Fri Dec 26 06:21:48 2025] Route: chat
+[Fri Dec 26 06:21:48 2025] GET params: Array
+(
+    [url] => chat/send
+)
+
+[Fri Dec 26 06:21:48 2025] REQUEST_URI: /chat/send?url=chat%2Fsend
+[Fri Dec 26 06:21:48 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:49 2025] ERROR getServicesInfo: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'is_active' in 'where clause'
+
+🐘STDERR: [Fri Dec 26 06:21:50 2025] ERROR getTherapistsInfo: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'specialization' in 'field list'
+
+🐘STDERR: [Fri Dec 26 06:21:59 2025] 127.0.0.1:39492 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:48,1766730108580,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,hjvqq-1766730108580-cc4f7e0f46eb,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,10908,iad1,150,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:46,1766730106866,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,487tb-1766730105470-8ee6ee6158a1,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro.vercel.app/chat/welcome?url=chat%2Fwelcome
+🐘 Querying /chat/welcome?url=chat%2Fwelcome
+🐘STDERR: [Fri Dec 26 06:21:45 2025] 127.0.0.1:39480 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:45 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:45 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => welcome
+)
+
+[Fri Dec 26 06:21:45 2025] Route: chat
+[Fri Dec 26 06:21:45 2025] GET params: Array
+(
+    [url] => chat/welcome
+)
+
+[Fri Dec 26 06:21:45 2025] REQUEST_URI: /chat/welcome?url=chat%2Fwelcome
+[Fri Dec 26 06:21:45 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:46 2025] 127.0.0.1:39480 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:45,1766730105470,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,487tb-1766730105470-8ee6ee6158a1,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,915,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:36,1766730096286,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,pb7f5-1766730093825-3e547b72551f,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:33 2025] 127.0.0.1:42766 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:33 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:33 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:33 2025] Route: 
+[Fri Dec 26 06:21:33 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:33 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:33 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:36 2025] 127.0.0.1:42766 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:33,1766730093825,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,pb7f5-1766730093825-3e547b72551f,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,2372,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:32,1766730092886,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,lxblq-1766730090310-e54698eb0e38,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:30 2025] 127.0.0.1:42756 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:30 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:30 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:30 2025] Route: 
+[Fri Dec 26 06:21:30 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:30 2025] REQUEST_URI: /?url=
+
+🐘STDERR: [Fri Dec 26 06:21:30 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:32 2025] 127.0.0.1:42756 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:30,1766730090310,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,lxblq-1766730090310-e54698eb0e38,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,2484,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:29,1766730089115,albashiro.vercel.app/,GET,url=,200,nlpcf-1766730085332-2e931c7c2e62,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:21:26 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+[Fri Dec 26 06:21:26 2025] 127.0.0.1:55128 Accepted
+
+🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:26 2025] 127.0.0.1:55128 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:21:26 2025] 127.0.0.1:55128 Closing
+
+🐘STDERR: [Fri Dec 26 06:21:26 2025] 127.0.0.1:55138 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:26 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:26 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:26 2025] Route: 
+[Fri Dec 26 06:21:26 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:26 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:26 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:28 2025] 127.0.0.1:55138 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:25,1766730085332,albashiro.vercel.app/,GET,url=,200,nlpcf-1766730085332-2e931c7c2e62,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2992,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:27,1766730087784,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,jwgzl-1766730085194-fdf599c58d09,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:25 2025] 127.0.0.1:36896 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:25 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:25 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:25 2025] Route: 
+[Fri Dec 26 06:21:25 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:25 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:25 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:27 2025] 127.0.0.1:36896 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:25,1766730085194,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,jwgzl-1766730085194-fdf599c58d09,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,2459,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:27,1766730087805,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,dbzz9-1766730085126-37c6c55bd356,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Accessing albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:25 2025] 127.0.0.1:40988 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:25 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:25 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:25 2025] Route: 
+[Fri Dec 26 06:21:25 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:25 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:25 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:27 2025] 127.0.0.1:40988 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:25,1766730085126,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,dbzz9-1766730085126-37c6c55bd356,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,2479,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:27,1766730087755,albashiro.vercel.app/public/css/fonts/fontawesome/webfonts/fa-solid-900.ttf,GET,url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-solid-900.ttf,200,kvdxh-1766730085074-f5734fe50d6d,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro.vercel.app/public/css/fonts/fontawesome/webfonts/fa-solid-900.ttf?url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-solid-900.ttf
+🐘 Querying /public/css/fonts/fontawesome/webfonts/fa-solid-900.ttf?url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-solid-900.ttf
+🐘STDERR: [Fri Dec 26 06:21:25 2025] 127.0.0.1:47944 Accepted
+[Fri Dec 26 06:21:25 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:25 2025] Parsed URL: Array
+(
+    [0] => public
+    [1] => css
+    [2] => fonts
+    [3] => fontawesome
+    [4] => webfonts
+    [5] => fa-solid-900.ttf
+)
+
+[Fri Dec 26 06:21:25 2025] Route: public
+[Fri Dec 26 06:21:25 2025] GET params: Array
+(
+    [url] => public/css/fonts/fontawesome/webfonts/fa-solid-900.ttf
+)
+
+[Fri Dec 26 06:21:25 2025] REQUEST_URI: /public/css/fonts/fontawesome/webfonts/fa-solid-900.ttf?url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-solid-900.ttf
+[Fri Dec 26 06:21:25 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:27 2025] 127.0.0.1:47944 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:25,1766730085074,albashiro.vercel.app/public/css/fonts/fontawesome/webfonts/fa-solid-900.ttf,GET,url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-solid-900.ttf,200,kvdxh-1766730085074-f5734fe50d6d,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2443,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:27,1766730087764,albashiro.vercel.app/public/css/fonts/fontawesome/webfonts/fa-brands-400.ttf,GET,url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-brands-400.ttf,200,c4p4b-1766730085074-f8d5fd63155f,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro.vercel.app/public/css/fonts/fontawesome/webfonts/fa-brands-400.ttf?url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-brands-400.ttf
+🐘 Querying /public/css/fonts/fontawesome/webfonts/fa-brands-400.ttf?url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-brands-400.ttf
+🐘STDERR: [Fri Dec 26 06:21:25 2025] 127.0.0.1:41042 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:25 2025] === APP ROUTING DEBUG ===
+
+🐘STDERR: [Fri Dec 26 06:21:25 2025] Parsed URL: Array
+(
+    [0] => public
+    [1] => css
+    [2] => fonts
+    [3] => fontawesome
+    [4] => webfonts
+    [5] => fa-brands-400.ttf
+)
+
+[Fri Dec 26 06:21:25 2025] Route: public
+[Fri Dec 26 06:21:25 2025] GET params: Array
+(
+    [url] => public/css/fonts/fontawesome/webfonts/fa-brands-400.ttf
+)
+
+[Fri Dec 26 06:21:25 2025] REQUEST_URI: /public/css/fonts/fontawesome/webfonts/fa-brands-400.ttf?url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-brands-400.ttf
+[Fri Dec 26 06:21:25 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:27 2025] 127.0.0.1:41042 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:25,1766730085074,albashiro.vercel.app/public/css/fonts/fontawesome/webfonts/fa-brands-400.ttf,GET,url=public%2Fcss%2Ffonts%2Ffontawesome%2Fwebfonts%2Ffa-brands-400.ttf,200,c4p4b-1766730085074-f8d5fd63155f,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2455,iad1,152,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:26,1766730086051,albashiro.vercel.app/,GET,url=,200,b8dv2-1766730083417-d45f6a6aa0de,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:23 2025] 127.0.0.1:34180 Accepted
+[Fri Dec 26 06:21:23 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:23 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:23 2025] Route: 
+[Fri Dec 26 06:21:23 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:23 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:23 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:25 2025] 127.0.0.1:34180 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:23,1766730083417,albashiro.vercel.app/,GET,url=,200,b8dv2-1766730083417-d45f6a6aa0de,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2402,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:25,1766730085115,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,nmtfv-1766730081241-2be4ada9a07d,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:21:22 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:22 2025] 127.0.0.1:36876 Accepted
+[Fri Dec 26 06:21:22 2025] 127.0.0.1:36876 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:21:22 2025] 127.0.0.1:36876 Closing
+
+🐘STDERR: [Fri Dec 26 06:21:22 2025] 127.0.0.1:36886 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:22 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:22 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:22 2025] Route: 
+[Fri Dec 26 06:21:22 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:22 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:22 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:25 2025] 127.0.0.1:36886 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:21,1766730081241,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,nmtfv-1766730081241-2be4ada9a07d,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,3212,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:25,1766730085042,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,vblxn-1766730081209-b5ab256100bc,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘 Accessing albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:22 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+[Fri Dec 26 06:21:22 2025] 127.0.0.1:40976 Accepted
+[Fri Dec 26 06:21:22 2025] 127.0.0.1:40976 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:21:22 2025] 127.0.0.1:40976 Closing
+
+🐘STDERR: [Fri Dec 26 06:21:22 2025] 127.0.0.1:40986 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:22 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:22 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:22 2025] Route: 
+[Fri Dec 26 06:21:22 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:22 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:22 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:24 2025] 127.0.0.1:40986 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:21,1766730081209,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,vblxn-1766730081209-b5ab256100bc,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,albashiro-hosm38a8s-bapelhacker-7536s-projects.vercel.app,dpl_FJKq9eevRW6J7nBiFavgzCQw7M5D,3076,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:09,1766730069391,albashiro.vercel.app/,GET,url=,200,6p2r2-1766730066695-ca87759d852f,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:06 2025] 127.0.0.1:46560 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:06 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:06 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:06 2025] Route: 
+[Fri Dec 26 06:21:06 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:06 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:06 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:09 2025] 127.0.0.1:46560 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:06,1766730066695,albashiro.vercel.app/,GET,url=,200,6p2r2-1766730066695-ca87759d852f,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2459,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:21:07,1766730067649,albashiro.vercel.app/,GET,url=,200,k5bz2-1766730064939-7bc34e3a8390,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:21:05 2025] 127.0.0.1:37058 Accepted
+
+🐘STDERR: [Fri Dec 26 06:21:05 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:21:05 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:21:05 2025] Route: 
+[Fri Dec 26 06:21:05 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:21:05 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:21:05 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:21:07 2025] 127.0.0.1:37058 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:21:04,1766730064939,albashiro.vercel.app/,GET,url=,200,k5bz2-1766730064939-7bc34e3a8390,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2468,iad1,151,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:19:30,1766729970046,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,cbjps-1766729956217-2ff40977f90c,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro.vercel.app/chat/send?url=chat%2Fsend
+🐘 Querying /chat/send?url=chat%2Fsend
+🐘STDERR: [Fri Dec 26 06:19:16 2025] 127.0.0.1:57704 Accepted
+
+🐘STDERR: [Fri Dec 26 06:19:16 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:19:16 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => send
+)
+
+[Fri Dec 26 06:19:16 2025] Route: chat
+[Fri Dec 26 06:19:16 2025] GET params: Array
+(
+    [url] => chat/send
+)
+
+[Fri Dec 26 06:19:16 2025] REQUEST_URI: /chat/send?url=chat%2Fsend
+[Fri Dec 26 06:19:16 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:19:17 2025] ERROR getServicesInfo: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'is_active' in 'where clause'
+
+🐘STDERR: [Fri Dec 26 06:19:17 2025] ERROR getTherapistsInfo: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'specialization' in 'field list'
+
+🐘STDERR: [Fri Dec 26 06:19:29 2025] 127.0.0.1:57704 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:19:16,1766729956217,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,cbjps-1766729956217-2ff40977f90c,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,13591,iad1,150,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:19:00,1766729940357,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,c4p4b-1766729939177-e345910eb29f,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro.vercel.app/chat/welcome?url=chat%2Fwelcome
+🐘 Querying /chat/welcome?url=chat%2Fwelcome
+🐘STDERR: [Fri Dec 26 06:18:59 2025] 127.0.0.1:50910 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:59 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:59 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => welcome
+)
+
+[Fri Dec 26 06:18:59 2025] Route: chat
+[Fri Dec 26 06:18:59 2025] GET params: Array
+(
+    [url] => chat/welcome
+)
+
+[Fri Dec 26 06:18:59 2025] REQUEST_URI: /chat/welcome?url=chat%2Fwelcome
+
+🐘STDERR: [Fri Dec 26 06:18:59 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:19:00 2025] 127.0.0.1:50910 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:59,1766729939177,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,c4p4b-1766729939177-e345910eb29f,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,942,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:19:01,1766729941563,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,w82db-1766729938995-f2aa153977a4,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/favicon.png?url=favicon.png
+🐘 Querying /favicon.png?url=favicon.png
+🐘STDERR: [Fri Dec 26 06:18:59 2025] 127.0.0.1:56830 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:59 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:59 2025] Parsed URL: Array
+(
+    [0] => favicon.png
+)
+
+[Fri Dec 26 06:18:59 2025] Route: favicon.png
+[Fri Dec 26 06:18:59 2025] GET params: Array
+(
+    [url] => favicon.png
+)
+
+[Fri Dec 26 06:18:59 2025] REQUEST_URI: /favicon.png?url=favicon.png
+
+🐘STDERR: [Fri Dec 26 06:18:59 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:19:01 2025] 127.0.0.1:56830 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:58,1766729938995,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,w82db-1766729938995-f2aa153977a4,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2460,iad1,150,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:58,1766729938987,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,xndzg-1766729936505-8a3490d88a0d,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/favicon.ico?url=favicon.ico
+🐘 Querying /favicon.ico?url=favicon.ico
+🐘STDERR: [Fri Dec 26 06:18:56 2025] 127.0.0.1:56820 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:56 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:56 2025] Parsed URL: Array
+(
+    [0] => favicon.ico
+)
+
+[Fri Dec 26 06:18:56 2025] Route: favicon.ico
+
+🐘STDERR: [Fri Dec 26 06:18:56 2025] GET params: Array
+(
+    [url] => favicon.ico
+)
+
+[Fri Dec 26 06:18:56 2025] REQUEST_URI: /favicon.ico?url=favicon.ico
+[Fri Dec 26 06:18:56 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:58 2025] 127.0.0.1:56820 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:56,1766729936505,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,xndzg-1766729936505-8a3490d88a0d,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2392,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:56,1766729936471,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,529mn-1766729933928-4dd802905d9e,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:18:53 2025] 127.0.0.1:56816 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:53 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:53 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:18:53 2025] Route: 
+[Fri Dec 26 06:18:53 2025] GET params: Array
+(
+    [url] => 
+)
+
+
+🐘STDERR: [Fri Dec 26 06:18:53 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:18:53 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:56 2025] 127.0.0.1:56816 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:53,1766729933928,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,529mn-1766729933928-4dd802905d9e,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2452,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:55,1766729935925,albashiro.vercel.app/,GET,url=,200,b892h-1766729932500-e4e69fed3f3b,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:18:53 2025] 127.0.0.1:50900 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:53 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:53 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:18:53 2025] Route: 
+[Fri Dec 26 06:18:53 2025] GET params: Array
+(
+    [url] => 
+)
+
+
+🐘STDERR: [Fri Dec 26 06:18:53 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:18:53 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:55 2025] 127.0.0.1:50900 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:52,1766729932500,albashiro.vercel.app/,GET,url=,200,b892h-1766729932500-e4e69fed3f3b,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2372,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:53,1766729933113,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,pm6lj-1766729930454-f30219d5e8e0,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:18:50 2025] 127.0.0.1:38282 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:50 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:50 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:18:50 2025] Route: 
+
+🐘STDERR: [Fri Dec 26 06:18:50 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:18:50 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:18:50 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:53 2025] 127.0.0.1:38282 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:50,1766729930454,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,pm6lj-1766729930454-f30219d5e8e0,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2455,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:51,1766729931955,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,5zgr4-1766729929437-66beff85405d,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:18:49 2025] 127.0.0.1:56662 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:49 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:49 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:18:49 2025] Route: 
+[Fri Dec 26 06:18:49 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:18:49 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:18:49 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:51 2025] 127.0.0.1:56662 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:49,1766729929437,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,5zgr4-1766729929437-66beff85405d,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2331,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:51,1766729931992,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,67gcs-1766729929431-5a7d09d456e9,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Accessing albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:18:49 2025] 127.0.0.1:37636 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:49 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:49 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:18:49 2025] Route: 
+[Fri Dec 26 06:18:49 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:18:49 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:18:49 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:51 2025] 127.0.0.1:37636 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:49,1766729929431,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,67gcs-1766729929431-5a7d09d456e9,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,2368,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:49,1766729929293,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,ctb8n-1766729925563-8b435aa62d16,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:18:46 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:18:46 2025] 127.0.0.1:37618 Accepted
+[Fri Dec 26 06:18:46 2025] 127.0.0.1:37618 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:18:46 2025] 127.0.0.1:37618 Closing
+
+🐘STDERR: [Fri Dec 26 06:18:46 2025] 127.0.0.1:37634 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:46 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:46 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:18:46 2025] Route: 
+[Fri Dec 26 06:18:46 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:18:46 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:18:46 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:49 2025] 127.0.0.1:37634 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:45,1766729925563,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,ctb8n-1766729925563-8b435aa62d16,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,3036,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:49,1766729929348,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,vm5nn-1766729925527-73a10ab25b85,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:18:46 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:18:46 2025] 127.0.0.1:56634 Accepted
+[Fri Dec 26 06:18:46 2025] 127.0.0.1:56634 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:18:46 2025] 127.0.0.1:56634 Closing
+
+🐘STDERR: [Fri Dec 26 06:18:46 2025] 127.0.0.1:56648 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:46 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:46 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:18:46 2025] Route: 
+[Fri Dec 26 06:18:46 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:18:46 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:18:46 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:49 2025] 127.0.0.1:56648 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:45,1766729925527,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,vm5nn-1766729925527-73a10ab25b85,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,albashiro-3oomwn1sx-bapelhacker-7536s-projects.vercel.app,dpl_EiWeCt7fdFF36oSJtawgj2PyaGgy,3101,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:18:37,1766729917142,albashiro.vercel.app/,GET,url=,200,b892h-1766729913711-e98b5094dcb8,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:18:33 2025] 127.0.0.1:45270 Accepted
+
+🐘STDERR: [Fri Dec 26 06:18:33 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:18:33 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:18:33 2025] Route: 
+[Fri Dec 26 06:18:33 2025] GET params: Array
+(
+    [url] => 
+)
+
+
+🐘STDERR: [Fri Dec 26 06:18:33 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:18:33 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:18:37 2025] 127.0.0.1:45270 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:18:33,1766729913711,albashiro.vercel.app/,GET,url=,200,b892h-1766729913711-e98b5094dcb8,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,3164,iad1,153,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:10:47,1766729447079,albashiro.vercel.app/layanan,GET,url=layanan,200,skqc5-1766729445328-5c8b95695e71,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro.vercel.app/layanan?url=layanan
+🐘 Querying /layanan?url=layanan
+🐘STDERR: [Fri Dec 26 06:10:45 2025] 127.0.0.1:40224 Accepted
+
+🐘STDERR: [Fri Dec 26 06:10:45 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:10:45 2025] Parsed URL: Array
+(
+    [0] => layanan
+)
+
+[Fri Dec 26 06:10:45 2025] Route: layanan
+[Fri Dec 26 06:10:45 2025] GET params: Array
+(
+    [url] => layanan
+)
+
+[Fri Dec 26 06:10:45 2025] REQUEST_URI: /layanan?url=layanan
+
+🐘STDERR: [Fri Dec 26 06:10:45 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:10:46 2025] 127.0.0.1:40224 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:10:45,1766729445328,albashiro.vercel.app/layanan,GET,url=layanan,200,skqc5-1766729445328-5c8b95695e71,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,1510,iad1,152,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:10:38,1766729438425,albashiro.vercel.app/kontak,GET,url=kontak,200,b892h-1766729437255-f6900d076219,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro.vercel.app/kontak?url=kontak
+🐘 Querying /kontak?url=kontak
+🐘STDERR: [Fri Dec 26 06:10:37 2025] 127.0.0.1:40262 Accepted
+
+🐘STDERR: [Fri Dec 26 06:10:37 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:10:37 2025] Parsed URL: Array
+(
+    [0] => kontak
+)
+
+[Fri Dec 26 06:10:37 2025] Route: kontak
+[Fri Dec 26 06:10:37 2025] GET params: Array
+(
+    [url] => kontak
+)
+
+
+🐘STDERR: [Fri Dec 26 06:10:37 2025] REQUEST_URI: /kontak?url=kontak
+[Fri Dec 26 06:10:37 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:10:38 2025] 127.0.0.1:40262 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:10:37,1766729437255,albashiro.vercel.app/kontak,GET,url=kontak,200,b892h-1766729437255-f6900d076219,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,933,iad1,152,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:46,1766729386398,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,gsp2q-1766729379298-74328e0af8a7,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro.vercel.app/chat/send?url=chat%2Fsend
+🐘 Querying /chat/send?url=chat%2Fsend
+🐘STDERR: [Fri Dec 26 06:09:39 2025] 127.0.0.1:36040 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:39 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:39 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => send
+)
+
+[Fri Dec 26 06:09:39 2025] Route: chat
+[Fri Dec 26 06:09:39 2025] GET params: Array
+(
+    [url] => chat/send
+)
+
+
+🐘STDERR: [Fri Dec 26 06:09:39 2025] REQUEST_URI: /chat/send?url=chat%2Fsend
+[Fri Dec 26 06:09:39 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:46 2025] 127.0.0.1:36040 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:39,1766729379298,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,gsp2q-1766729379298-74328e0af8a7,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,6865,iad1,151,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:38,1766729378157,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,9cvbm-1766729375610-136501e9234b,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:35 2025] 127.0.0.1:46046 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:35 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:35 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:35 2025] Route: 
+[Fri Dec 26 06:09:35 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:35 2025] REQUEST_URI: /?url=
+
+🐘STDERR: [Fri Dec 26 06:09:35 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:38 2025] 127.0.0.1:46046 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:35,1766729375610,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,9cvbm-1766729375610-136501e9234b,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2455,iad1,150,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:34,1766729374832,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,dn42q-1766729372335-3bbcee6089a6,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/favicon.png?url=favicon.png
+🐘 Querying /favicon.png?url=favicon.png
+🐘STDERR: [Fri Dec 26 06:09:32 2025] 127.0.0.1:46038 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:32 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:32 2025] Parsed URL: Array
+(
+    [0] => favicon.png
+)
+
+[Fri Dec 26 06:09:32 2025] Route: favicon.png
+
+🐘STDERR: [Fri Dec 26 06:09:32 2025] GET params: Array
+(
+    [url] => favicon.png
+)
+
+[Fri Dec 26 06:09:32 2025] REQUEST_URI: /favicon.png?url=favicon.png
+[Fri Dec 26 06:09:32 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:34 2025] 127.0.0.1:46038 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:32,1766729372335,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,dn42q-1766729372335-3bbcee6089a6,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2411,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:34,1766729374739,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,q75ng-1766729372149-dd113a100641,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:32 2025] 127.0.0.1:46622 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:32 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:32 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:32 2025] Route: 
+[Fri Dec 26 06:09:32 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:32 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:09:32 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:34 2025] 127.0.0.1:46622 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:32,1766729372149,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,q75ng-1766729372149-dd113a100641,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2489,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:32,1766729372677,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,4nnxp-1766729371517-2a22b42c3be9,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro.vercel.app/chat/welcome?url=chat%2Fwelcome
+🐘 Querying /chat/welcome?url=chat%2Fwelcome
+🐘STDERR: [Fri Dec 26 06:09:31 2025] 127.0.0.1:37166 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:31 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:31 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => welcome
+)
+
+[Fri Dec 26 06:09:31 2025] Route: chat
+[Fri Dec 26 06:09:31 2025] GET params: Array
+(
+    [url] => chat/welcome
+)
+
+
+🐘STDERR: [Fri Dec 26 06:09:31 2025] REQUEST_URI: /chat/welcome?url=chat%2Fwelcome
+[Fri Dec 26 06:09:31 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:32 2025] 127.0.0.1:37166 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:31,1766729371517,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,4nnxp-1766729371517-2a22b42c3be9,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,924,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:32,1766729372328,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,dn42q-1766729369775-7d31f8746f6e,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/favicon.ico?url=favicon.ico
+🐘 Querying /favicon.ico?url=favicon.ico
+🐘STDERR: [Fri Dec 26 06:09:29 2025] 127.0.0.1:46034 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:29 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:29 2025] Parsed URL: Array
+(
+    [0] => favicon.ico
+)
+
+[Fri Dec 26 06:09:29 2025] Route: favicon.ico
+
+🐘STDERR: [Fri Dec 26 06:09:29 2025] GET params: Array
+(
+    [url] => favicon.ico
+)
+
+[Fri Dec 26 06:09:29 2025] REQUEST_URI: /favicon.ico?url=favicon.ico
+[Fri Dec 26 06:09:29 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:32 2025] 127.0.0.1:46034 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:29,1766729369775,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,dn42q-1766729369775-7d31f8746f6e,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2461,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:29,1766729369682,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,qztl7-1766729367162-b1ee17adb9a3,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:27 2025] 127.0.0.1:58552 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:27 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:27 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:27 2025] Route: 
+[Fri Dec 26 06:09:27 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:27 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:09:27 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:29 2025] 127.0.0.1:58552 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:27,1766729367162,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,qztl7-1766729367162-b1ee17adb9a3,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2432,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:27,1766729367810,albashiro.vercel.app/,GET,url=,200,7c5md-1766729364462-6dfa4cc5db39,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:25 2025] 127.0.0.1:34686 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:25 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:25 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:25 2025] Route: 
+[Fri Dec 26 06:09:25 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:25 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:09:25 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:27 2025] 127.0.0.1:34686 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:24,1766729364462,albashiro.vercel.app/,GET,url=,200,7c5md-1766729364462-6dfa4cc5db39,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2373,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:26,1766729366156,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,kpgcr-1766729363662-9cab31202b64,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:23 2025] 127.0.0.1:58536 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:23 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:23 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:23 2025] Route: 
+[Fri Dec 26 06:09:23 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:23 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:09:23 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:26 2025] 127.0.0.1:58536 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:23,1766729363662,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,kpgcr-1766729363662-9cab31202b64,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2406,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:20,1766729360475,albashiro.vercel.app/robots.txt,GET,url=robots.txt,200,t6nls-1766729357889-96ef4ef374e4,"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/600.1.25 (KHTML, like Gecko) Version/8.0 Safari/600.1.25",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘STDERR: [Fri Dec 26 06:09:16 2025] 127.0.0.1:43342 Closing
+
+🐘 Accessing albashiro.vercel.app/robots.txt?url=robots.txt
+🐘 Querying /robots.txt?url=robots.txt
+🐘STDERR: [Fri Dec 26 06:09:17 2025] 127.0.0.1:58526 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:17 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:17 2025] Parsed URL: Array
+(
+    [0] => robots.txt
+)
+
+[Fri Dec 26 06:09:17 2025] Route: robots.txt
+[Fri Dec 26 06:09:17 2025] GET params: Array
+(
+    [url] => robots.txt
+)
+
+[Fri Dec 26 06:09:17 2025] REQUEST_URI: /robots.txt?url=robots.txt
+[Fri Dec 26 06:09:17 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:20 2025] 127.0.0.1:58526 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:17,1766729357889,albashiro.vercel.app/robots.txt,GET,url=robots.txt,200,t6nls-1766729357889-96ef4ef374e4,"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/600.1.25 (KHTML, like Gecko) Version/8.0 Safari/600.1.25",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2478,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:20,1766729360392,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,d6rct-1766729357795-b2f9b684e09c,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:17 2025] 127.0.0.1:51162 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:17 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:17 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:17 2025] Route: 
+[Fri Dec 26 06:09:17 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:17 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:09:17 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:20 2025] 127.0.0.1:51162 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:17,1766729357795,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,d6rct-1766729357795-b2f9b684e09c,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2406,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:20,1766729360459,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,n6n5x-1766729357767-442f5ed33714,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:17 2025] 127.0.0.1:41210 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:17 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:17 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:17 2025] Route: 
+[Fri Dec 26 06:09:17 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:17 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:09:17 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:20 2025] 127.0.0.1:41210 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:17,1766729357767,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,n6n5x-1766729357767-442f5ed33714,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,2479,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:17,1766729357719,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,p2nsd-1766729353969-25a4ee8f38ec,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:09:15 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:15 2025] 127.0.0.1:41192 Accepted
+[Fri Dec 26 06:09:15 2025] 127.0.0.1:41192 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:09:15 2025] 127.0.0.1:41192 Closing
+
+🐘STDERR: [Fri Dec 26 06:09:15 2025] 127.0.0.1:41198 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:15 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:15 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:15 2025] Route: 
+[Fri Dec 26 06:09:15 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:15 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:09:15 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:17 2025] 127.0.0.1:41198 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:13,1766729353969,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,p2nsd-1766729353969-25a4ee8f38ec,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,3075,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:09:17,1766729357683,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,,xndlb-1766729353910-c40c11490505,vercel-screenshot/1.0,info,production,main,,serverless,,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:09:15 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:09:15 2025] 127.0.0.1:38156 Accepted
+[Fri Dec 26 06:09:15 2025] 127.0.0.1:38156 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:09:15 2025] 127.0.0.1:38156 Closing
+
+🐘STDERR: [Fri Dec 26 06:09:15 2025] 127.0.0.1:38166 Accepted
+
+🐘STDERR: [Fri Dec 26 06:09:15 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:09:15 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:09:15 2025] Route: 
+[Fri Dec 26 06:09:15 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:09:15 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:09:15 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:09:17 2025] 127.0.0.1:38166 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:09:13,1766729353910,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app/,GET,url=,,xndlb-1766729353910-c40c11490505,vercel-screenshot/1.0,,production,main,,serverless,/api/index,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,albashiro-cbp0tlyb2-bapelhacker-7536s-projects.vercel.app,dpl_Dt1aQp4PH1b7WQ7k6TabLWoL3WeJ,3041,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:08:30,1766729310037,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,977lr-1766729307475-af65d0942c9f,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/favicon.png?url=favicon.png
+🐘 Querying /favicon.png?url=favicon.png
+🐘STDERR: [Fri Dec 26 06:08:27 2025] 127.0.0.1:54244 Accepted
+[Fri Dec 26 06:08:27 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:08:27 2025] Parsed URL: Array
+(
+    [0] => favicon.png
+)
+
+[Fri Dec 26 06:08:27 2025] Route: favicon.png
+[Fri Dec 26 06:08:27 2025] GET params: Array
+(
+    [url] => favicon.png
+)
+
+[Fri Dec 26 06:08:27 2025] REQUEST_URI: /favicon.png?url=favicon.png
+[Fri Dec 26 06:08:27 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:08:29 2025] 127.0.0.1:54244 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:08:27,1766729307475,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,977lr-1766729307475-af65d0942c9f,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2470,iad1,151,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:08:27,1766729307469,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,977lr-1766729304849-c67d3d88a92c,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/favicon.ico?url=favicon.ico
+🐘 Querying /favicon.ico?url=favicon.ico
+🐘STDERR: [Fri Dec 26 06:08:24 2025] 127.0.0.1:54236 Accepted
+
+🐘STDERR: [Fri Dec 26 06:08:24 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:08:24 2025] Parsed URL: Array
+(
+    [0] => favicon.ico
+)
+
+[Fri Dec 26 06:08:24 2025] Route: favicon.ico
+[Fri Dec 26 06:08:24 2025] GET params: Array
+(
+    [url] => favicon.ico
+)
+
+[Fri Dec 26 06:08:24 2025] REQUEST_URI: /favicon.ico?url=favicon.ico
+[Fri Dec 26 06:08:24 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:08:27 2025] 127.0.0.1:54236 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:08:24,1766729304849,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,977lr-1766729304849-c67d3d88a92c,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2513,iad1,150,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:08:24,1766729304855,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,7mzmx-1766729302264-21ad3c1b8807,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:08:22 2025] 127.0.0.1:54230 Accepted
+[Fri Dec 26 06:08:22 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:08:22 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:08:22 2025] Route: 
+[Fri Dec 26 06:08:22 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:08:22 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:08:22 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:08:24 2025] 127.0.0.1:54230 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:08:22,1766729302264,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,7mzmx-1766729302264-21ad3c1b8807,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2499,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:08:22,1766729302403,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,jjcpn-1766729299705-f4db68f0ef58,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro.vercel.app/public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘 Querying /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘STDERR: [Fri Dec 26 06:08:19 2025] 127.0.0.1:57074 Accepted
+
+🐘STDERR: [Fri Dec 26 06:08:19 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:08:19 2025] Parsed URL: Array
+(
+    [0] => public
+    [1] => js
+    [2] => swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 06:08:19 2025] Route: public
+[Fri Dec 26 06:08:19 2025] GET params: Array
+(
+    [url] => public/js/swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 06:08:19 2025] REQUEST_URI: /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+[Fri Dec 26 06:08:19 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:08:22 2025] 127.0.0.1:57074 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:08:19,1766729299705,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,jjcpn-1766729299705-f4db68f0ef58,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2455,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:08:21,1766729301413,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,qh27s-1766729298858-a050318dac2a,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:08:18 2025] 127.0.0.1:50492 Accepted
+
+🐘STDERR: [Fri Dec 26 06:08:18 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:08:18 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:08:18 2025] Route: 
+[Fri Dec 26 06:08:18 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:08:18 2025] REQUEST_URI: /?url=
+
+🐘STDERR: [Fri Dec 26 06:08:18 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:08:21 2025] 127.0.0.1:50492 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:08:18,1766729298858,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,qh27s-1766729298858-a050318dac2a,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2456,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:08:19,1766729299101,albashiro.vercel.app/,GET,url=,200,jjcpn-1766729296355-1420c35ac627,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:08:16 2025] 127.0.0.1:57064 Accepted
+
+🐘STDERR: [Fri Dec 26 06:08:16 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:08:16 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:08:16 2025] Route: 
+[Fri Dec 26 06:08:16 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:08:16 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:08:16 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:08:18 2025] 127.0.0.1:57064 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:08:16,1766729296355,albashiro.vercel.app/,GET,url=,200,jjcpn-1766729296355-1420c35ac627,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2455,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:07:02,1766729222771,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,kzqh4-1766729208990-4039e6650460,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro.vercel.app/chat/send?url=chat%2Fsend
+🐘 Querying /chat/send?url=chat%2Fsend
+🐘STDERR: [Fri Dec 26 06:06:49 2025] 127.0.0.1:37374 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:49 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:49 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => send
+)
+
+[Fri Dec 26 06:06:49 2025] Route: chat
+[Fri Dec 26 06:06:49 2025] GET params: Array
+(
+    [url] => chat/send
+)
+
+[Fri Dec 26 06:06:49 2025] REQUEST_URI: /chat/send?url=chat%2Fsend
+
+🐘STDERR: [Fri Dec 26 06:06:49 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:07:02 2025] 127.0.0.1:37374 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:48,1766729208990,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,200,kzqh4-1766729208990-4039e6650460,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,13545,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:39,1766729199416,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,882vl-1766729198270-7e05282345e0,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro.vercel.app/chat/welcome?url=chat%2Fwelcome
+🐘 Querying /chat/welcome?url=chat%2Fwelcome
+🐘STDERR: [Fri Dec 26 06:06:38 2025] 127.0.0.1:48430 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:38 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:38 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => welcome
+)
+
+[Fri Dec 26 06:06:38 2025] Route: chat
+[Fri Dec 26 06:06:38 2025] GET params: Array
+(
+    [url] => chat/welcome
+)
+
+[Fri Dec 26 06:06:38 2025] REQUEST_URI: /chat/welcome?url=chat%2Fwelcome
+[Fri Dec 26 06:06:38 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:39 2025] 127.0.0.1:48430 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:38,1766729198270,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,882vl-1766729198270-7e05282345e0,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,913,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:38,1766729198587,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,mw6fx-1766729195911-d5b0d3aa7c49,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro.vercel.app/public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘 Querying /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘STDERR: [Fri Dec 26 06:06:36 2025] 127.0.0.1:43682 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:36 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:36 2025] Parsed URL: Array
+(
+    [0] => public
+    [1] => js
+    [2] => swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 06:06:36 2025] Route: public
+[Fri Dec 26 06:06:36 2025] GET params: Array
+(
+    [url] => public/js/swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 06:06:36 2025] REQUEST_URI: /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+[Fri Dec 26 06:06:36 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:38 2025] 127.0.0.1:43682 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:35,1766729195911,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,mw6fx-1766729195911-d5b0d3aa7c49,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2448,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:35,1766729195241,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,4zb5x-1766729192646-2736971c1981,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘STDERR: [Fri Dec 26 06:06:31 2025] 127.0.0.1:33804 Closing
+
+🐘 Accessing albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:32 2025] 127.0.0.1:48426 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:32 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:32 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:32 2025] Route: 
+[Fri Dec 26 06:06:32 2025] GET params: Array
+(
+    [url] => 
+)
+
+
+🐘STDERR: [Fri Dec 26 06:06:32 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:32 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:35 2025] 127.0.0.1:48426 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:32,1766729192646,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,4zb5x-1766729192646-2736971c1981,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2390,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:35,1766729195267,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,r5phq-1766729192621-3e6f616bbd82,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:32 2025] 127.0.0.1:43670 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:32 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:32 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:32 2025] Route: 
+[Fri Dec 26 06:06:32 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:06:32 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:32 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:35 2025] 127.0.0.1:43670 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:32,1766729192621,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,r5phq-1766729192621-3e6f616bbd82,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2452,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:35,1766729195251,albashiro.vercel.app/,GET,url=,200,7g9g8-1766729191757-e86ccbff3a5b,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:32 2025] 127.0.0.1:55016 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:32 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:32 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:32 2025] Route: 
+[Fri Dec 26 06:06:32 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:06:32 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:32 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:35 2025] 127.0.0.1:55016 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:31,1766729191757,albashiro.vercel.app/,GET,url=,200,7g9g8-1766729191757-e86ccbff3a5b,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,2457,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:32,1766729192543,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,42js6-1766729188801-042281c3dda2,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:06:30 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:30 2025] 127.0.0.1:55006 Accepted
+[Fri Dec 26 06:06:30 2025] 127.0.0.1:55006 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:06:30 2025] 127.0.0.1:55006 Closing
+
+🐘STDERR: [Fri Dec 26 06:06:30 2025] 127.0.0.1:55014 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:30 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:30 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:30 2025] Route: 
+[Fri Dec 26 06:06:30 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:06:30 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:30 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:32 2025] 127.0.0.1:55014 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:28,1766729188801,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,42js6-1766729188801-042281c3dda2,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,3051,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:32,1766729192535,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,h8pmv-1766729188735-cdaf2024cc6f,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:06:30 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:30 2025] 127.0.0.1:43660 Accepted
+[Fri Dec 26 06:06:30 2025] 127.0.0.1:43660 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:06:30 2025] 127.0.0.1:43660 Closing
+
+🐘STDERR: [Fri Dec 26 06:06:30 2025] 127.0.0.1:43668 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:30 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:30 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:30 2025] Route: 
+[Fri Dec 26 06:06:30 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:06:30 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:30 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:32 2025] 127.0.0.1:43668 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:28,1766729188735,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,h8pmv-1766729188735-cdaf2024cc6f,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,albashiro-3f4z5gehs-bapelhacker-7536s-projects.vercel.app,dpl_J7B9aiiEwxp3arwTFaVKUmyZADdr,3047,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:26,1766729186530,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,qrj79-1766729183987-94fec0775565,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:24 2025] 127.0.0.1:47638 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:24 2025] === APP ROUTING DEBUG ===
+
+🐘STDERR: [Fri Dec 26 06:06:24 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:24 2025] Route: 
+[Fri Dec 26 06:06:24 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:06:24 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:24 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:26 2025] 127.0.0.1:47638 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:23,1766729183987,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,qrj79-1766729183987-94fec0775565,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2450,iad1,151,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:23,1766729183441,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,ft5wl-1766729180823-04e602ed075c,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/favicon.png?url=favicon.png
+🐘 Querying /favicon.png?url=favicon.png
+🐘STDERR: [Fri Dec 26 06:06:20 2025] 127.0.0.1:55252 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:20 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:20 2025] Parsed URL: Array
+(
+    [0] => favicon.png
+)
+
+[Fri Dec 26 06:06:20 2025] Route: favicon.png
+[Fri Dec 26 06:06:20 2025] GET params: Array
+(
+    [url] => favicon.png
+)
+
+[Fri Dec 26 06:06:20 2025] REQUEST_URI: /favicon.png?url=favicon.png
+[Fri Dec 26 06:06:20 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:23 2025] 127.0.0.1:55252 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:20,1766729180823,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/favicon.png,GET,url=favicon.png,200,ft5wl-1766729180823-04e602ed075c,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2529,iad1,150,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:23,1766729183076,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,72l5q-1766729180537-fccdca9adedb,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:20 2025] 127.0.0.1:48934 Accepted
+[Fri Dec 26 06:06:20 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:20 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:20 2025] Route: 
+[Fri Dec 26 06:06:20 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:06:20 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:20 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:23 2025] 127.0.0.1:48934 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:20,1766729180537,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,72l5q-1766729180537-fccdca9adedb,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2437,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:20,1766729180815,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,ft5wl-1766729178289-9ec552922c49,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/favicon.ico?url=favicon.ico
+🐘 Querying /favicon.ico?url=favicon.ico
+🐘STDERR: [Fri Dec 26 06:06:18 2025] 127.0.0.1:55244 Accepted
+
+🐘STDERR: [Fri Dec 26 06:06:18 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:18 2025] Parsed URL: Array
+(
+    [0] => favicon.ico
+)
+
+[Fri Dec 26 06:06:18 2025] Route: favicon.ico
+[Fri Dec 26 06:06:18 2025] GET params: Array
+(
+    [url] => favicon.ico
+)
+
+[Fri Dec 26 06:06:18 2025] REQUEST_URI: /favicon.ico?url=favicon.ico
+[Fri Dec 26 06:06:18 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:20 2025] 127.0.0.1:55244 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:18,1766729178289,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/favicon.ico,GET,url=favicon.ico,200,ft5wl-1766729178289-9ec552922c49,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2427,iad1,150,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:18,1766729178216,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,4pjdx-1766729175704-936173d19823,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:15 2025] 127.0.0.1:55240 Accepted
+[Fri Dec 26 06:06:15 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:15 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:15 2025] Route: 
+[Fri Dec 26 06:06:15 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:06:15 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:15 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:18 2025] 127.0.0.1:55240 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:15,1766729175704,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,4pjdx-1766729175704-936173d19823,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2413,iad1,149,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:06:15,1766729175093,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,vs42p-1766729172412-9a5be987b0e4,vercel-favicon/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:06:12 2025] 127.0.0.1:55224 Accepted
+[Fri Dec 26 06:06:12 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:06:12 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:06:12 2025] Route: 
+[Fri Dec 26 06:06:12 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:06:12 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:06:12 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:06:15 2025] 127.0.0.1:55224 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:06:12,1766729172412,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,vs42p-1766729172412-9a5be987b0e4,vercel-favicon/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2574,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:02:28,1766728948754,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,fpc7v-1766728946184-127beee20c94,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro.vercel.app/public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘 Querying /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘STDERR: [Fri Dec 26 06:02:26 2025] 127.0.0.1:39448 Accepted
+
+🐘STDERR: [Fri Dec 26 06:02:26 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:02:26 2025] Parsed URL: Array
+(
+    [0] => public
+    [1] => js
+    [2] => swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 06:02:26 2025] Route: public
+[Fri Dec 26 06:02:26 2025] GET params: Array
+(
+    [url] => public/js/swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 06:02:26 2025] REQUEST_URI: /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+[Fri Dec 26 06:02:26 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:02:28 2025] 127.0.0.1:39448 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:02:26,1766728946184,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,fpc7v-1766728946184-127beee20c94,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2340,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:02:25,1766728945471,albashiro.vercel.app/,GET,url=,200,2tqmr-1766728942384-666261236239,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:02:22 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:02:22 2025] 127.0.0.1:39428 Accepted
+[Fri Dec 26 06:02:22 2025] 127.0.0.1:39428 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:02:22 2025] 127.0.0.1:39428 Closing
+
+🐘STDERR: [Fri Dec 26 06:02:23 2025] 127.0.0.1:39440 Accepted
+
+🐘STDERR: [Fri Dec 26 06:02:23 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:02:23 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:02:23 2025] Route: 
+[Fri Dec 26 06:02:23 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:02:23 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:02:23 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:02:25 2025] 127.0.0.1:39440 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:02:22,1766728942384,albashiro.vercel.app/,GET,url=,200,2tqmr-1766728942384-666261236239,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2818,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:02:00,1766728920515,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,504,f2wjm-1766728885266-6e5aab5eb929,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",error,production,main,MISS,serverless,/chat/send,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro.vercel.app/chat/send?url=chat%2Fsend
+🐘 Querying /chat/send?url=chat%2Fsend
+🐘STDERR: [Fri Dec 26 06:01:25 2025] 127.0.0.1:50334 Accepted
+
+🐘STDERR: [Fri Dec 26 06:01:25 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:01:25 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => send
+)
+
+[Fri Dec 26 06:01:25 2025] Route: chat
+[Fri Dec 26 06:01:25 2025] GET params: Array
+(
+    [url] => chat/send
+)
+
+[Fri Dec 26 06:01:25 2025] REQUEST_URI: /chat/send?url=chat%2Fsend
+[Fri Dec 26 06:01:25 2025] ========================
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:01:25,1766728885266,albashiro.vercel.app/chat/send,POST,url=chat%2Fsend,504,f2wjm-1766728885266-6e5aab5eb929,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,35000,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:01:10,1766728870504,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,mhrs9-1766728869338-e54f6c94c64c,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro.vercel.app/chat/welcome?url=chat%2Fwelcome
+🐘 Querying /chat/welcome?url=chat%2Fwelcome
+🐘STDERR: [Fri Dec 26 06:01:09 2025] 127.0.0.1:60236 Accepted
+
+🐘STDERR: [Fri Dec 26 06:01:09 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:01:09 2025] Parsed URL: Array
+(
+    [0] => chat
+    [1] => welcome
+)
+
+[Fri Dec 26 06:01:09 2025] Route: chat
+[Fri Dec 26 06:01:09 2025] GET params: Array
+(
+    [url] => chat/welcome
+)
+
+[Fri Dec 26 06:01:09 2025] REQUEST_URI: /chat/welcome?url=chat%2Fwelcome
+[Fri Dec 26 06:01:09 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:01:10 2025] 127.0.0.1:60236 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:01:09,1766728869338,albashiro.vercel.app/chat/welcome,GET,url=chat%2Fwelcome,200,mhrs9-1766728869338-e54f6c94c64c,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,920,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:01:09,1766728869948,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,s47b2-1766728867298-e91c1053f07d,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro.vercel.app/public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘 Querying /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘STDERR: [Fri Dec 26 06:01:07 2025] 127.0.0.1:51890 Accepted
+
+🐘STDERR: [Fri Dec 26 06:01:07 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:01:07 2025] Parsed URL: Array
+(
+    [0] => public
+    [1] => js
+    [2] => swiper-bundle.min.js.map
+)
+
+
+🐘STDERR: [Fri Dec 26 06:01:07 2025] Route: public
+[Fri Dec 26 06:01:07 2025] GET params: Array
+(
+    [url] => public/js/swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 06:01:07 2025] REQUEST_URI: /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+[Fri Dec 26 06:01:07 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:01:09 2025] 127.0.0.1:51890 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:01:07,1766728867298,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,s47b2-1766728867298-e91c1053f07d,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2410,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:01:07,1766728867225,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,bp2cp-1766728864583-01cf752cdd83,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:01:04 2025] 127.0.0.1:50708 Accepted
+[Fri Dec 26 06:01:04 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:01:04 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:01:04 2025] Route: 
+[Fri Dec 26 06:01:04 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:01:04 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:01:04 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:01:07 2025] 127.0.0.1:50708 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:01:04,1766728864583,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,bp2cp-1766728864583-01cf752cdd83,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2447,iad1,148,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:01:07,1766728867157,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,csl8j-1766728864568-d8b56d7714de,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:01:04 2025] 127.0.0.1:60234 Accepted
+[Fri Dec 26 06:01:04 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:01:04 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:01:04 2025] Route: 
+[Fri Dec 26 06:01:04 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:01:04 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:01:04 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:01:07 2025] 127.0.0.1:60234 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:01:04,1766728864568,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,csl8j-1766728864568-d8b56d7714de,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,2401,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:01:06,1766728866531,albashiro.vercel.app/,GET,url=,200,b8dv2-1766728862195-c3223e6c7e3a,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘 Accessing albashiro.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:01:03 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+[Fri Dec 26 06:01:03 2025] 127.0.0.1:34602 Accepted
+[Fri Dec 26 06:01:03 2025] 127.0.0.1:34602 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:01:03 2025] 127.0.0.1:34602 Closing
+
+🐘STDERR: [Fri Dec 26 06:01:03 2025] 127.0.0.1:34604 Accepted
+
+🐘STDERR: [Fri Dec 26 06:01:04 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:01:04 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:01:04 2025] Route: 
+[Fri Dec 26 06:01:04 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:01:04 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:01:04 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:01:06 2025] 127.0.0.1:34604 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:01:02,1766728862195,albashiro.vercel.app/,GET,url=,200,b8dv2-1766728862195-c3223e6c7e3a,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,3048,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:01:04,1766728864492,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,spz2b-1766728860826-6958056e1352,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:01:01 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:01:01 2025] 127.0.0.1:60218 Accepted
+[Fri Dec 26 06:01:01 2025] 127.0.0.1:60218 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:01:01 2025] 127.0.0.1:60218 Closing
+
+🐘STDERR: [Fri Dec 26 06:01:01 2025] 127.0.0.1:60224 Accepted
+
+🐘STDERR: [Fri Dec 26 06:01:01 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:01:01 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:01:01 2025] Route: 
+[Fri Dec 26 06:01:01 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:01:01 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:01:01 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:01:04 2025] 127.0.0.1:60224 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:01:00,1766728860826,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,spz2b-1766728860826-6958056e1352,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,3157,iad1,146,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 06:01:04,1766728864482,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,lgrgc-1766728860549-6c7cef846ec6,vercel-screenshot/1.0,info,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,,,,,"🐘 Spawning: PHP Built-In Server at /var/task/user (document root) and /var/task/user/api/index.php (router)
+🐘STDERR: [Fri Dec 26 06:01:01 2025] PHP 8.3.8 Development Server (http://0.0.0.0:3000) started
+
+🐘 Accessing albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/?url=
+🐘 Querying /?url=
+🐘STDERR: [Fri Dec 26 06:01:01 2025] 127.0.0.1:50686 Accepted
+[Fri Dec 26 06:01:01 2025] 127.0.0.1:50686 Closed without sending a request; it was probably just an unused speculative preconnection
+[Fri Dec 26 06:01:01 2025] 127.0.0.1:50686 Closing
+
+🐘STDERR: [Fri Dec 26 06:01:01 2025] 127.0.0.1:50692 Accepted
+
+🐘STDERR: [Fri Dec 26 06:01:01 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 06:01:01 2025] Parsed URL: Array
+(
+    [0] => 
+)
+
+[Fri Dec 26 06:01:01 2025] Route: 
+[Fri Dec 26 06:01:01 2025] GET params: Array
+(
+    [url] => 
+)
+
+[Fri Dec 26 06:01:01 2025] REQUEST_URI: /?url=
+[Fri Dec 26 06:01:01 2025] ========================
+
+🐘STDERR: [Fri Dec 26 06:01:04 2025] 127.0.0.1:50692 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 06:01:00,1766728860549,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app/,GET,url=,200,lgrgc-1766728860549-6c7cef846ec6,vercel-screenshot/1.0,,production,main,MISS,serverless,/api/index,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,albashiro-732mru8ig-bapelhacker-7536s-projects.vercel.app,dpl_sMNF7s61EybMr694dmiPqqaqJMAD,3138,iad1,147,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
+2025-12-26 05:59:01,1766728741266,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,g85dr-1766728738461-654d052eb7f1,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",info,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Hv7nmmcA6X7SUbFFsA6pNxk5FPuq,,,,,"🐘 Accessing albashiro.vercel.app/public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘 Querying /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+🐘STDERR: [Fri Dec 26 05:58:58 2025] 127.0.0.1:43664 Accepted
+
+🐘STDERR: [Fri Dec 26 05:58:58 2025] === APP ROUTING DEBUG ===
+[Fri Dec 26 05:58:58 2025] Parsed URL: Array
+(
+    [0] => public
+    [1] => js
+    [2] => swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 05:58:58 2025] Route: public
+[Fri Dec 26 05:58:58 2025] GET params: Array
+(
+    [url] => public/js/swiper-bundle.min.js.map
+)
+
+[Fri Dec 26 05:58:58 2025] REQUEST_URI: /public/js/swiper-bundle.min.js.map?url=public%2Fjs%2Fswiper-bundle.min.js.map
+[Fri Dec 26 05:58:58 2025] ========================
+
+🐘STDERR: [Fri Dec 26 05:59:01 2025] 127.0.0.1:43664 Closing
+",prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,
+2025-12-26 05:58:58,1766728738461,albashiro.vercel.app/public/js/swiper-bundle.min.js.map,GET,url=public%2Fjs%2Fswiper-bundle.min.js.map,200,g85dr-1766728738461-654d052eb7f1,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",,production,main,MISS,serverless,/api/index,albashiro.vercel.app,albashiro.vercel.app,dpl_Hv7nmmcA6X7SUbFFsA6pNxk5FPuq,2565,iad1,151,2048,,prj_CgqpLhv0gD2GLhjCW0OoGq4Jraq9,,,,,-1
