@@ -211,14 +211,17 @@ class GeminiService
             // Quick timeout for services (500ms max)
             $servicesInfo = $this->getServicesInfo();
         } catch (Exception $e) {
-            // Silently fail - continue without services data
+            // CRITICAL: Tell AI that data failed to load
+            $servicesInfo = "⚠️ ERROR: Database tidak dapat diakses. JANGAN MENGARANG HARGA! Arahkan user ke Admin WA: " . ADMIN_WHATSAPP . "\n";
+            error_log("CRITICAL: getServicesInfo failed - " . $e->getMessage());
         }
 
         try {
             // Quick timeout for therapists (500ms max)
             $therapistsInfo = $this->getTherapistsInfo();
         } catch (Exception $e) {
-            // Silently fail
+            $therapistsInfo = "(Data terapis tidak tersedia - hubungi admin)\n";
+            error_log("WARNING: getTherapistsInfo failed - " . $e->getMessage());
         }
 
         try {
