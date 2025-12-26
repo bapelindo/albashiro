@@ -69,15 +69,17 @@ define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
 define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
 
 // =====================================================
-// AI CONFIGURATION - Multi-Provider (Google + Hugging Face Fallback)
+// AI CONFIGURATION - Local (Ollama Standalone)
 // =====================================================
-// Primary: Google Gemini
-define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');
-define('GOOGLE_MODEL', 'gemini-2.0-flash');
+// Primary: Local Ollama (Standalone)
+define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: 'http://127.0.0.1:11434');
+define('OLLAMA_MODEL', 'gemma3:1b');
 
-// Fallback: Hugging Face (Free, Unlimited)
-define('HUGGINGFACE_API_KEY', getenv('HUGGINGFACE_API_KEY') ?: '');
-define('HUGGINGFACE_API_URL', 'https://router.huggingface.co/v1/chat/completions');
+// Legacy/Cloud APIs (DISABLED)
+// define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');
+// define('GOOGLE_MODEL', 'gemini-2.0-flash');
+// define('HUGGINGFACE_API_KEY', getenv('HUGGINGFACE_API_KEY') ?: '');
+// define('HUGGINGFACE_API_URL', 'https://router.huggingface.co/v1/chat/completions');
 
 // =====================================================
 // THERAPIST WHATSAPP NUMBERS

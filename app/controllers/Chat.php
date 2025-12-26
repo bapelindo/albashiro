@@ -15,9 +15,9 @@ class Chat extends Controller
         ini_set('display_errors', '1');
         error_reporting(E_ALL);
 
-        // Instantiation - Use GeminiService (Google Direct)
-        require_once SITE_ROOT . '/app/services/GeminiService.php';
-        $this->aiService = new GeminiService();
+        // Instantiation - Use OllamaService (Local Standalone)
+        require_once SITE_ROOT . '/app/services/OllamaService.php';
+        $this->aiService = new OllamaService();
 
         // Load Chat Model
         $this->chatModel = $this->model('ChatLog'); // Assuming model name is ChatLog or similar, verifying below
@@ -27,7 +27,7 @@ class Chat extends Controller
     {
         // Check if user is logged in
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/auth/login');
+            header('Location: ' . base_url('/auth/login'));
             exit;
         }
 

@@ -1,6 +1,5 @@
 Options +FollowSymLinks
 RewriteEngine On
-RewriteBase /albashiro/
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
