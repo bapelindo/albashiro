@@ -53,6 +53,9 @@ define('OPENROUTER_API_KEY', getenv('OPENROUTER_API_KEY') ?: '');
 define('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions');
 define('OPENROUTER_MODEL', getenv('OPENROUTER_MODEL') ?: 'meta-llama/llama-3.2-3b-instruct:free'); // Llama 3.2 3B - truly free, no Google API needed
 
+// Google API Key (for future use if switching to Google Gemini)
+define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');
+
 // =====================================================
 // THERAPIST WHATSAPP NUMBERS
 // =====================================================
