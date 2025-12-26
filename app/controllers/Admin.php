@@ -1094,6 +1094,57 @@ class Admin extends Controller
     }
 
     /**
+     * AI Performance Monitoring Dashboard
+     */
+    public function aiPerformance()
+    {
+        $aiLogModel = $this->model('AiLog');
+
+        // Get filter parameters
+        $days = isset($_GET['days']) ? (int) $_GET['days'] : 7;
+        $provider = isset($_GET['provider']) ? $_GET['provider'] : null;
+        $errorOnly = isset($_GET['error_only']) ? true : false;
+        $slowOnly = isset($_GET['slow_only']) ? true : false;
+
+        // Get statistics
+        $avgStats = $aiLogModel->getAverageResponseTime($provider, $days);
+        $errorStats = $aiLogModel->getErrorRate($days);
+        $providerStats = $aiLogModel->getProviderStats($days);
+        $bottleneckAnalysis = $aiLogModel->getBottleneckAnalysis($days);
+        $trends = $aiLogModel->getPerformanceTrends($days);
+
+        // Get recent logs
+        $filters = [
+            'provider' => $provider,
+            'error_only' => $errorOnly,
+            'slow_only' => $slowOnly,
+            'slow_threshold' => 3000
+        ];
+        $recentLogs = $aiLogModel->getRecentLogs($filters, 50);
+
+        // Get slow queries
+        $slowQueries = $aiLogModel->getSlowQueries(3000, 20);
+
+        $data = [
+            'title' => 'AI Performance Monitoring',
+            'user' => $this->getCurrentUser(),
+            'avgStats' => $avgStats,
+            'errorStats' => $errorStats,
+            'providerStats' => $providerStats,
+            'bottleneckAnalysis' => $bottleneckAnalysis,
+            'trends' => $trends,
+            'recentLogs' => $recentLogs,
+            'slowQueries' => $slowQueries,
+            'currentDays' => $days,
+            'currentProvider' => $provider,
+            'errorOnly' => $errorOnly,
+            'slowOnly' => $slowOnly
+        ];
+
+        echo $this->viewAdmin('admin/ai-performance', $data);
+    }
+
+    /**
      * Get current user data
      */
     private function getCurrentUser()

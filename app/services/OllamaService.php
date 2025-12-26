@@ -6,9 +6,9 @@
 
 class OllamaService
 {
-    private string $baseUrl;
-    private string $model;
-    private int $timeout;
+    private $baseUrl;
+    private $model;
+    private $timeout = 45;  // Increased from 30 to 45 seconds
     private $db;
 
     // Auto-learning metadata
@@ -27,7 +27,7 @@ class OllamaService
         int $timeout = 120
     ) {
         $defaultHost = defined('OLLAMA_API_URL') ? OLLAMA_API_URL : 'http://localhost:11434';
-        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'gemma3:1b';
+        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'qwen2.5:0.5b';
 
         $this->baseUrl = rtrim($host ?? $defaultHost, '/');
         $this->model = $model ?? $defaultModel;
@@ -42,8 +42,40 @@ class OllamaService
      */
     public function chat($userMessage, $conversationHistory = [])
     {
+        // Increase execution time for AI processing
+        set_time_limit(60);  // 60 seconds
+
         $startTime = microtime(true);
-        $systemContext = $this->buildSystemContext($userMessage);
+
+        // Increase PHP execution time for slow AI responses
+        set_time_limit(150); // 2.5 minutes
+
+        // Performance tracking
+        $perfData = [
+            'session_id' => session_id(),
+            'user_message' => substr($userMessage, 0, 500),
+            'ai_response' => '',
+            'provider' => 'Local Ollama',
+            'model' => $this->model,
+            'total_time_ms' => 0,
+            'api_call_time_ms' => null,
+            'db_services_time_ms' => null,
+            'db_therapists_time_ms' => null,
+            'db_schedule_time_ms' => null,
+            'db_knowledge_time_ms' => null,
+            'context_build_time_ms' => null,
+            'knowledge_matched' => 0,
+            'keywords_searched' => '',
+            'error_occurred' => 0,
+            'error_message' => null,
+            'fallback_used' => 0,
+            'fallback_reason' => null
+        ];
+
+        // Build context with timing
+        $contextStart = microtime(true);
+        $systemContext = $this->buildSystemContext($userMessage, $perfData);
+        $perfData['context_build_time_ms'] = round((microtime(true) - $contextStart) * 1000);
 
         // Prepare messages for /api/chat
         $messages = [];
@@ -57,8 +89,20 @@ class OllamaService
 
         try {
             // Use /api/chat for conversation context
+            $apiStart = microtime(true);
             $response = $this->generateChat($messages);
+            $apiTime = round((microtime(true) - $apiStart) * 1000);
+            $perfData['api_call_time_ms'] = $apiTime;
+
+            $perfData['ai_response'] = substr($response, 0, 1000);
+
             $responseTime = round((microtime(true) - $startTime) * 1000);
+            $perfData['total_time_ms'] = $responseTime;
+
+            // Log performance
+            $logStart = microtime(true);
+            $this->logPerformance($perfData);
+            $logTime = round((microtime(true) - $logStart) * 1000);
 
             return [
                 'response' => $response,
@@ -70,9 +114,18 @@ class OllamaService
                 ]
             ];
         } catch (Exception $e) {
-            error_log("Ollama Failed: " . $e->getMessage());
+            error_log("Ollama Error: " . $e->getMessage());
+
+            $perfData['error_occurred'] = 1;
+            $perfData['error_message'] = substr($e->getMessage(), 0, 500);
+            $perfData['ai_response'] = 'Error: ' . substr($e->getMessage(), 0, 100);
+            $perfData['total_time_ms'] = round((microtime(true) - $startTime) * 1000);
+
+            // Log failure
+            $this->logPerformance($perfData);
+
             return [
-                'response' => "Maaf, sistem sedang sibuk. " . $e->getMessage(),
+                'response' => "Maaf, koneksi terputus. Silakan coba lagi atau hubungi admin via WhatsApp.",
                 'metadata' => ['error' => true, 'debug_last_error' => $e->getMessage()]
             ];
         }
@@ -81,25 +134,26 @@ class OllamaService
     /**
      * Mengirim chat prompt ke Ollama (api/chat)
      */
-    public function generateChat(array $messages, array $options = []): string
+    private function generateChat(array $messages, array $options = []): string
     {
         $endpoint = $this->baseUrl . '/api/chat';
 
-        // Optimized for Speed: Use 4 threads, keep_alive 30m
-        $cpuThreads = 4;
+        // Optimized for Speed: Use 8 threads, keep_alive 5m
+        $cpuThreads = 8;
 
         $payload = [
             'model' => $this->model,
             'messages' => $messages,
             'stream' => false,
-            'keep_alive' => '30m',
+            'keep_alive' => '5m',  // Keep model in memory for continuous chat
             'options' => [
-                'temperature' => 0.6,
-                'num_ctx' => 2048,
-                'num_predict' => 200,
+                'temperature' => 0.7,
+                'num_ctx' => 2048,      // Balanced context window
+                'num_predict' => 300,   // Longer responses without truncation
                 'num_thread' => $cpuThreads,
                 'top_k' => 40,
                 'top_p' => 0.9,
+                'repeat_penalty' => 1.1
             ]
         ];
 
@@ -121,21 +175,23 @@ class OllamaService
     }
 
     /**
-     * Fungsi internal untuk mengeksekusi cURL.
+     * Execute cURL request with optimized settings
      */
     private function sendRequest(string $url, array $data): array
     {
         $ch = curl_init($url);
-
         $jsonData = json_encode($data);
 
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);  // 5s connection timeout
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);  // HTTP/1.1 for keep-alive
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Content-Length: ' . strlen($jsonData)
+            'Content-Length: ' . strlen($jsonData),
+            'Connection: keep-alive'  // Reuse connection
         ]);
 
         $result = curl_exec($ch);
@@ -161,33 +217,61 @@ class OllamaService
 
     /**
      * Build system context with Albashiro information
+     * Uses session caching for static data (services, therapists)
      */
-    private function buildSystemContext($userMessage = '')
+    private function buildSystemContext($userMessage = '', &$perfData = null)
     {
         $servicesInfo = '';
         $therapistsInfo = '';
         $scheduleInfo = '';
         $relevantKnowledge = '';
 
+        // Cache services info in session (static data, rarely changes)
         try {
-            $servicesInfo = $this->getServicesInfo();
+            $dbStart = microtime(true);
+            if (!isset($_SESSION['cached_services_info'])) {
+                $_SESSION['cached_services_info'] = $this->getServicesInfo();
+            }
+            $servicesInfo = $_SESSION['cached_services_info'];
+            if ($perfData)
+                $perfData['db_services_time_ms'] = round((microtime(true) - $dbStart) * 1000);
         } catch (Exception $e) {
             $servicesInfo = "⚠️ DB ERROR\n";
         }
+
+        // Cache therapists info in session (static data, rarely changes)
         try {
-            $therapistsInfo = $this->getTherapistsInfo();
+            $dbStart = microtime(true);
+            if (!isset($_SESSION['cached_therapists_info'])) {
+                $_SESSION['cached_therapists_info'] = $this->getTherapistsInfo();
+            }
+            $therapistsInfo = $_SESSION['cached_therapists_info'];
+            if ($perfData)
+                $perfData['db_therapists_time_ms'] = round((microtime(true) - $dbStart) * 1000);
         } catch (Exception $e) {
             $therapistsInfo = "⚠️ DB ERROR\n";
         }
-        try {
-            $relevantKnowledge = $this->searchRelevantKnowledge($userMessage);
-        } catch (Exception $e) {
+        // Knowledge search - only if message is substantial (skip for very short queries)
+        if (strlen(trim($userMessage)) > 10) {
+            try {
+                $dbStart = microtime(true);
+                $relevantKnowledge = $this->searchRelevantKnowledge($userMessage);
+                if ($perfData) {
+                    $perfData['db_knowledge_time_ms'] = round((microtime(true) - $dbStart) * 1000);
+                    $perfData['knowledge_matched'] = $this->lastKnowledgeMatchCount;
+                    $perfData['keywords_searched'] = $this->lastSearchKeywords;
+                }
+            } catch (Exception $e) {
+            }
         }
 
         if (preg_match('/(jadwal|tersedia|booking|slot|kosong)/i', $userMessage)) {
             try {
+                $dbStart = microtime(true);
                 $queryDate = $this->extractDateFromMessage($userMessage) ?? date('Y-m-d');
                 $scheduleInfo = $this->getAvailableSchedules($queryDate, null);
+                if ($perfData)
+                    $perfData['db_schedule_time_ms'] = round((microtime(true) - $dbStart) * 1000);
             } catch (Exception $e) {
             }
         }
@@ -293,5 +377,20 @@ Email: " . ADMIN_EMAIL . "
         if (strpos($msg, 'hari ini') !== false)
             return date('Y-m-d');
         return null;
+    }
+
+    /**
+     * Log performance data to database
+     */
+    private function logPerformance($perfData)
+    {
+        try {
+            require_once __DIR__ . '/../models/AiLog.php';
+            $aiLog = new AiLog();
+            $aiLog->logPerformance($perfData);
+        } catch (Exception $e) {
+            // Silent fail - don't break chat if logging fails
+            error_log("Performance logging failed: " . $e->getMessage());
+        }
     }
 }
