@@ -15,10 +15,9 @@ class Chat extends Controller
         ini_set('display_errors', '1');
         error_reporting(E_ALL);
 
-        // Instantiation - Use LocalAI (Standalone, Fast, Reliable)
-        // TODO: Switch to OllamaService after Ollama setup complete
-        require_once SITE_ROOT . '/app/services/LocalAIService.php';
-        $this->aiService = new LocalAIService();
+        // Instantiation - Use OllamaService (Ollama via Cloudflare Tunnel)
+        require_once SITE_ROOT . '/app/services/OllamaService.php';
+        $this->aiService = new OllamaService();
 
         // Load Chat Model
         $this->chatModel = $this->model('ChatLog'); // Assuming model name is ChatLog or similar, verifying below
