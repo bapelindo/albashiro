@@ -1,20 +1,20 @@
 <?php
-// Test OllamaService locally
+// Test Ollama with gemma3:4b
 require_once 'config/config.php';
 require_once 'core/Database.php';
 require_once 'app/services/OllamaService.php';
 
-echo "=== OLLAMA SERVICE TEST ===\n\n";
+echo "=== OLLAMA GEMMA3:4B TEST ===\n\n";
 
-// Set Ollama URL (use localhost for testing before Cloud Run deployment)
+// Set Ollama URL
 putenv('OLLAMA_API_URL=http://localhost:11434');
 
 $ollama = new OllamaService();
 
 $testMessages = [
     "assalamualaikum",
-    "berapa harga paket?",
-    "saya cemas dan susah tidur",
+    "berapa harga paket hipnoterapi?",
+    "saya cemas dan susah tidur, apa yang harus saya lakukan?",
 ];
 
 foreach ($testMessages as $message) {
@@ -29,7 +29,7 @@ foreach ($testMessages as $message) {
         echo "TIME: {$result['metadata']['response_time_ms']}ms\n";
 
         if (isset($result['metadata']['fallback'])) {
-            echo "⚠️  FALLBACK USED: {$result['metadata']['ollama_error']}\n";
+            echo "⚠️  FALLBACK: {$result['metadata']['ollama_error']}\n";
         }
 
         echo "\nRESPONSE:\n{$result['response']}\n";
@@ -42,5 +42,7 @@ foreach ($testMessages as $message) {
 }
 
 echo "✅ TEST COMPLETED\n";
-echo "\nNOTE: If Ollama is not running locally, it will fallback to LocalAI.\n";
-echo "To test with Cloud Run, set OLLAMA_API_URL to your Cloud Run URL.\n";
+echo "\nNOTE:\n";
+echo "- If using Ollama: Response time ~1-3 seconds\n";
+echo "- If fallback to LocalAI: Response time ~0-2ms\n";
+echo "- gemma3:4b provides better quality than gemma2:2b\n";

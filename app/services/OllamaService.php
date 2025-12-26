@@ -18,8 +18,8 @@ class OllamaService
     {
         // Cloud Run URL (set via environment variable)
         $this->apiUrl = getenv('OLLAMA_API_URL') ?: 'http://localhost:11434';
-        $this->model = 'gemma2:2b';
-        $this->timeout = 10; // 10 seconds max
+        $this->model = 'gemma3:4b';  // Using gemma3:4b for better quality
+        $this->timeout = 15; // 15 seconds max (gemma3 is slower but better)
 
         // Database for context
         $this->db = Database::getInstance();
@@ -65,10 +65,9 @@ class OllamaService
             return [
                 'response' => $response,
                 'metadata' => [
-                    'provider' => 'Ollama (Cloud Run)',
+                    'provider' => 'Ollama (Localhost)',
                     'model' => $this->model,
-                    'response_time_ms' => $responseTime,
-                    'api_url' => $this->apiUrl
+                    'response_time_ms' => $responseTime
                 ]
             ];
 
