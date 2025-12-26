@@ -14,8 +14,12 @@
             "handle": "filesystem"
         },
         {
+            "src": "/chat/(.*)",
+            "dest": "/api/index.php?url=chat/$1"
+        },
+        {
             "src": "/(.*)",
-            "dest": "/api/index.php"
+            "dest": "/api/index.php?url=$1"
         }
     ]
 }
