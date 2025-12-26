@@ -17,18 +17,20 @@ class OllamaService
 
     /**
      * Constructor
-     * @param string $host Url host Ollama (default: http://localhost:11434)
-     * @param string $model Nama model (default: gemma3:1b)
+     * @param string|null $host Url host Ollama (default: Config OLLAMA_API_URL or local)
+     * @param string|null $model Nama model (default: Config OLLAMA_MODEL or gemma3:1b)
      * @param int $timeout Timeout dalam detik (default: 120)
      */
     public function __construct(
-        string $host = 'http://localhost:11434',
-        string $model = 'gemma3:1b',
+        ?string $host = null,
+        ?string $model = null,
         int $timeout = 120
     ) {
-        // Allow overriding via Config/Env if defined, otherwise use defaults/args
-        $this->baseUrl = defined('OLLAMA_API_URL') ? rtrim(OLLAMA_API_URL, '/') : rtrim($host, '/');
-        $this->model = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : $model;
+        $defaultHost = defined('OLLAMA_API_URL') ? OLLAMA_API_URL : 'http://localhost:11434';
+        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'gemma3:1b';
+
+        $this->baseUrl = rtrim($host ?? $defaultHost, '/');
+        $this->model = $model ?? $defaultModel;
         $this->timeout = $timeout;
 
         $this->db = Database::getInstance();

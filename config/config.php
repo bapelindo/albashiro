@@ -69,10 +69,8 @@ define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
 define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
 
 // =====================================================
-// AI CONFIGURATION - Local (Ollama Standalone)
-// =====================================================
 // Primary: Local Ollama (Standalone)
-define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: 'http://127.0.0.1:11434');
+define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: 'http://localhost:11434');
 define('OLLAMA_MODEL', 'gemma3:1b');
 
 // Legacy/Cloud APIs (DISABLED)
