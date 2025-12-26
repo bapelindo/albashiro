@@ -301,7 +301,14 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
         $context .= "- Jam Buka: Senin-Jumat 09:00-17:00\n\n";
 
         $context .= "[LAYANAN & HARGA RESMI]\n" . $servicesInfo . "\n";
-        $context .= "⚠️ PENTING: HARGA DI ATAS ADALAH DATA RESMI DARI DATABASE. JANGAN MENGARANG ATAU MEMBUAT PAKET FIKTIF.\n\n";
+        $context .= "⚠️⚠️⚠️ CRITICAL WARNING ⚠️⚠️⚠️\n";
+        $context .= "HARGA DI ATAS ADALAH SATU-SATUNYA DATA RESMI DARI DATABASE.\n";
+        $context .= "DILARANG KERAS:\n";
+        $context .= "❌ Membuat paket fiktif (Paket Premium, Paket Keluarga, Paket Corporate, dll)\n";
+        $context .= "❌ Mengarang harga (Rp 1.200.000, Rp 2.500.000, Rp 5.000.000, dll)\n";
+        $context .= "❌ Menambahkan layanan yang tidak ada di daftar\n";
+        $context .= "✅ HANYA sebutkan layanan & harga yang PERSIS seperti di atas\n";
+        $context .= "✅ Jika user tanya paket yang tidak ada, jawab: 'Untuk paket khusus, silakan hubungi Admin WA'\n\n";
 
         $context .= "[TERAPIS]\n" . $therapistsInfo . "\n\n";
 
