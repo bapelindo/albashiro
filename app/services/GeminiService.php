@@ -319,22 +319,25 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
             $pdo = $this->db->getPdo();
             error_log("DEBUG getServicesInfo: PDO connection obtained");
 
-            $stmt = $pdo->query("SELECT name, description, price_range FROM services WHERE is_active = 1");
+            // Query all services (no is_active column in services table)
+            $stmt = $pdo->query("SELECT name, description, price FROM services ORDER BY sort_order");
             error_log("DEBUG getServicesInfo: Query executed");
 
             $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
             error_log("DEBUG getServicesInfo: Fetched " . count($services) . " services");
 
             if (empty($services)) {
-                error_log("WARNING: No active services found in database!");
+                error_log("WARNING: No services found in database!");
                 // Return explicit message so AI knows data is missing
                 return "⚠️ DATA LAYANAN KOSONG DI DATABASE - JANGAN MENGARANG HARGA!\n";
             }
 
             $output = "";
             foreach ($services as $s) {
-                $output .= "- **{$s['name']}**: {$s['description']} (Harga: {$s['price_range']})\n";
-                error_log("DEBUG: Service added: {$s['name']} - {$s['price_range']}");
+                // Format price as range
+                $price = number_format($s['price'], 0, ',', '.');
+                $output .= "- **{$s['name']}**: {$s['description']} (Harga: Rp $price)\n";
+                error_log("DEBUG: Service added: {$s['name']} - Rp $price");
             }
             error_log("DEBUG getServicesInfo: Returning " . strlen($output) . " chars");
             return $output;
@@ -349,18 +352,18 @@ Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan kons
     {
         try {
             $pdo = $this->db->getPdo();
-            $stmt = $pdo->query("SELECT name, specialization, availability_status FROM therapists WHERE is_active = 1");
+            // Use correct column name: specialty (not specialization)
+            $stmt = $pdo->query("SELECT name, specialty FROM therapists WHERE is_active = 1");
             $therapists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if (empty($therapists)) {
-                error_log("WARNING: No active therapists found in database!");
+                error_log("WARNING: No therapists found in database!");
                 return "(Data terapis tidak tersedia - hubungi admin)\n";
             }
 
             $output = "";
             foreach ($therapists as $t) {
-                $status = $t['availability_status'] == 'available' ? 'Tersedia' : 'Sibuk';
-                $output .= "- **{$t['name']}** ({$t['specialization']}) - Status: $status\n";
+                $output .= "- **{$t['name']}** (Spesialisasi: {$t['specialty']})\n";
             }
             return $output;
         } catch (Exception $e) {
