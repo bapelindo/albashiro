@@ -67,15 +67,15 @@ define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
 define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
 
 // =====================================================
-// AI CONFIGURATION - OpenRouter with Gemini 2.0
+// AI CONFIGURATION - Multi-Provider (Google + Hugging Face Fallback)
 // =====================================================
-// Use environment variable for production (Vercel), fallback to hardcoded for local dev
-define('OPENROUTER_API_KEY', getenv('OPENROUTER_API_KEY') ?: '');
-define('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions');
-define('OPENROUTER_MODEL', getenv('OPENROUTER_MODEL') ?: 'google/gemini-2.0-flash-exp:free'); // Gemini 2.0 Flash via OpenRouter (uses Google API key)
-
-// Google API Key (for future use if switching to Google Gemini)
+// Primary: Google Gemini
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');
+define('GOOGLE_MODEL', 'gemini-2.5-flash');
+
+// Fallback: Hugging Face (Free, Unlimited)
+define('HUGGINGFACE_API_KEY', getenv('HUGGINGFACE_API_KEY') ?: '');
+define('HUGGINGFACE_API_URL', 'https://router.huggingface.co/v1/chat/completions');
 
 // =====================================================
 // THERAPIST WHATSAPP NUMBERS

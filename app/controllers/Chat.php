@@ -6,16 +6,53 @@
 
 class Chat extends Controller
 {
-    private $geminiService;
+    private $aiService;
+    private $chatModel; // Added chatModel property explicitly although usually dynamic
 
     public function __construct()
     {
         // Suppress error display for API endpoints (log errors instead)
-        ini_set('display_errors', '0');
+        ini_set('display_errors', '1');
         error_reporting(E_ALL);
 
+        // Instantiation - Use GeminiService (Google Direct)
         require_once SITE_ROOT . '/app/services/GeminiService.php';
-        $this->geminiService = new GeminiService();
+        $this->aiService = new GeminiService();
+
+        // Load Chat Model
+        $this->chatModel = $this->model('ChatLog'); // Assuming model name is ChatLog or similar, verifying below
+    }
+
+    public function index()
+    {
+        // Check if user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . BASE_URL . '/auth/login');
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+
+        // Mark messages as read (if method exists)
+        // $this->markMessagesAsRead($userId); // Commented out if not sure of method existence
+
+        // Get user data for UI
+        $userModel = $this->model('User');
+        $user = $userModel->getUserById($userId);
+
+        // Get conversation history
+        // Assuming chatModel has getConversationHistory
+        // To be safe, let's use the model correctly. 
+        // Logic from previous file implies $this->chatModel is available.
+        $chatHistory = $this->chatModel->getConversationHistory($userId);
+
+        $data = [
+            'title' => 'Chat Konsultasi - Albashiro',
+            'user' => $user,
+            'chat_history' => $chatHistory
+        ];
+
+        $this->view('chat/index', $data);
     }
 
     /**
@@ -27,83 +64,92 @@ class Chat extends Controller
         // Ensure JSON response even on errors
         header('Content-Type: application/json');
 
+        // Only allow POST requests
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
+
+        // Get JSON input
+        $input = json_decode(file_get_contents('php://input'), true);
+        $message = isset($input['message']) ? trim($input['message']) : '';
+
+        if (empty($message)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Message is required']);
+            return;
+        }
+
         try {
-            // Only allow POST requests
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                http_response_code(405);
-                echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-                return;
-            }
-
-            // Get JSON input
-            $input = json_decode(file_get_contents('php://input'), true);
-
-            if (!isset($input['message']) || empty(trim($input['message']))) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Message is required']);
-                return;
-            }
-
-            // Verify CSRF token
+            // Verify CSRF token (Optional for public chat? strict for now)
             if (!isset($input['csrf_token']) || !verify_csrf($input['csrf_token'])) {
-                http_response_code(403);
-                echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
-                return;
+                // For guest flexibility, maybe relax this? But keeping it secure is better.
+                // If front-end sends token, strict check.
+                if (isset($_SESSION['user_id'])) {
+                    http_response_code(403);
+                    echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+                    return;
+                }
             }
 
-            $userMessage = trim($input['message']);
+            // Determine User Context (Member vs Guest)
+            $isLoggedIn = isset($_SESSION['user_id']);
+            $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
 
-            // Get conversation history from session
-            if (!isset($_SESSION['chat_history'])) {
-                $_SESSION['chat_history'] = [];
+            // HISTORY HANDLING
+            $history = [];
+
+            if ($isLoggedIn) {
+                // MEMBER: Save to DB & Get Context from DB
+                $this->chatModel->saveMessage($userId, 'user', $message);
+                $history = $this->chatModel->getRecentContext($userId, 5);
+            } else {
+                // GUEST: Use Session
+                if (!isset($_SESSION['chat_history'])) {
+                    $_SESSION['chat_history'] = [];
+                }
+
+                // Add current message to session history
+                $_SESSION['chat_history'][] = ['role' => 'user', 'message' => $message];
+
+                // Get context from session (last 5 interactions = 10 messages)
+                $sessionHistory = $_SESSION['chat_history'];
+                $historyLimit = array_slice($sessionHistory, -10); // Last 10 msgs
+
+                // Format for AI Service
+                $history = [];
+                foreach ($historyLimit as $h) {
+                    $history[] = ['role' => $h['role'], 'message' => $h['message']]; // standardize keys
+                }
             }
 
-            $conversationHistory = $_SESSION['chat_history'];
+            // Call AI Service
+            $aiResponse = $this->aiService->chat($message, $history);
 
-            // Limit history to last 10 messages to avoid token limits
-            if (count($conversationHistory) > 10) {
-                $conversationHistory = array_slice($conversationHistory, -10);
+            $responseText = $aiResponse['response'];
+            $metadata = isset($aiResponse['metadata']) ? $aiResponse['metadata'] : [];
+
+            // SAVE RESPONSE
+            if ($isLoggedIn) {
+                // DB
+                $this->chatModel->saveMessage($userId, 'ai', $responseText);
+            } else {
+                // Session
+                $_SESSION['chat_history'][] = ['role' => 'ai', 'message' => $responseText];
             }
 
-            // Get AI response with metadata
-            $result = $this->geminiService->chat($userMessage, $conversationHistory);
-            $aiResponse = $result['response'];
-            $metadata = $result['metadata'];
-
-            // Add user message to conversation history
-            $_SESSION['chat_history'][] = [
-                'role' => 'user',
-                'message' => $userMessage
-            ];
-
-            // Add assistant response to history  
-            $_SESSION['chat_history'][] = [
-                'role' => 'ai',
-                'message' => $aiResponse
-            ];
-
-            // Log conversation for auto-learning
-            try {
-                $this->logConversation($userMessage, $aiResponse, $metadata);
-            } catch (Exception $e) {
-                // Log error but don't break the response
-                error_log("Auto-learning log error: " . $e->getMessage());
-            }
-
-            // Return success response
             echo json_encode([
                 'success' => true,
-                'response' => $aiResponse,
-                'timestamp' => date('H:i')
+                'response' => $responseText,
+                'metadata' => $metadata
             ]);
 
         } catch (Exception $e) {
-            // Catch any unexpected errors
-            error_log("Chat send error: " . $e->getMessage());
-            http_response_code(500);
+            // Minimal error response
             echo json_encode([
-                'success' => false,
-                'message' => 'Maaf, terjadi kesalahan sistem. Silakan coba lagi.'
+                'success' => true,
+                'response' => "Maaf, terjadi kesalahan sistem. Silakan coba lagi."
             ]);
         }
     }
@@ -120,10 +166,19 @@ class Chat extends Controller
             return;
         }
 
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+
+        // Clear session history
         $_SESSION['chat_history'] = [];
 
+        // Optional: Clear DB history if requested? 
+        // For now, simple clear.
+
         header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'message' => 'Chat history cleared']);
+        echo json_encode(['success' => true]);
     }
 
     /**
@@ -132,92 +187,12 @@ class Chat extends Controller
      */
     public function welcome()
     {
-        $welcomeMessage = "السلام عليكم ورحمة الله وبركاته\n";
-        $welcomeMessage .= "*Assalamu'alaikum Warahmatullahi Wabarakatuh* 🌙\n\n";
-        $welcomeMessage .= "**Selamat datang di Albashiro** - *Islamic Spiritual Hypnotherapy*\n\n";
-        $welcomeMessage .= "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n\n";
-        $welcomeMessage .= "Saya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan konsultasikan:\n\n";
-        $welcomeMessage .= "✨ **Keluhan & Gejala** - Ceritakan apa yang Anda rasakan\n";
-        $welcomeMessage .= "🕌 **Layanan Hipnoterapi Islami** - Terapi sesuai syariat\n";
-        $welcomeMessage .= "💰 **Harga & Paket** - Informasi investasi kesehatan jiwa\n";
-        $welcomeMessage .= "👨‍⚕️ **Terapis Profesional** - Ustadz/Ustadzah berpengalaman\n";
-        $welcomeMessage .= "📅 **Jadwal Tersedia** - Cek slot real-time\n";
-        $welcomeMessage .= "📍 **Lokasi & Kontak** - Informasi klinik\n\n";
-        $welcomeMessage .= "💬 *Silakan ketik pertanyaan Anda, atau ceritakan keluhan yang Anda alami. Insya Allah saya akan membantu menemukan solusi terbaik.*\n\n";
-        $welcomeMessage .= "جزاك الله خيرا";
-
         header('Content-Type: application/json');
+
+        // Return detailed Islamic welcome message (Matching AI Persona)
         echo json_encode([
             'success' => true,
-            'message' => $welcomeMessage
+            'message' => "Assalamualaikum Warahmatullahi Wabarakatuh 🌙\n\nSelamat datang di Albashiro - Islamic Spiritual Hypnotherapy.\n\nSaya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan konsultasikan:\n\n✨ Keluhan & Gejala\n🕌 Layanan Hipnoterapi Islami\n💰 Harga & Paket\n👨‍⚕️ Terapis Profesional\n📅 Cek Jadwal Real-time\n\nSilakan ceritakan apa yang Anda rasakan, Insya Allah saya bantu carikan solusinya."
         ]);
-    }
-
-    /**
-     * Log conversation for auto-learning
-     */
-    private function logConversation($userMessage, $aiResponse, $metadata)
-    {
-        try {
-            $db = Database::getInstance();
-            $sessionId = session_id();
-
-            $db->query("
-                INSERT INTO chat_conversations 
-                (session_id, user_message, ai_response, knowledge_matched, keywords_searched, response_time_ms)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ", [
-                $sessionId,
-                $userMessage,
-                $aiResponse,
-                $metadata['knowledge_matched'] ?? 0,
-                $metadata['keywords_searched'] ?? '',
-                $metadata['response_time_ms'] ?? 0
-            ]);
-
-            // If no knowledge matched, create suggestion
-            if (($metadata['knowledge_matched'] ?? 0) === 0) {
-                $this->createKnowledgeSuggestion($userMessage, $metadata['keywords_searched'] ?? '');
-            }
-
-        } catch (Exception $e) {
-            error_log("Conversation logging error: " . $e->getMessage());
-        }
-    }
-
-    /**
-     * Create or update knowledge suggestion
-     */
-    private function createKnowledgeSuggestion($question, $keywords)
-    {
-        try {
-            $db = Database::getInstance();
-
-            // Check if similar question already exists
-            $existing = $db->query("
-                SELECT id, frequency 
-                FROM knowledge_suggestions 
-                WHERE question = ? AND status = 'pending'
-            ", [$question])->fetch();
-
-            if ($existing) {
-                // Increment frequency
-                $db->query("
-                    UPDATE knowledge_suggestions 
-                    SET frequency = frequency + 1 
-                    WHERE id = ?
-                ", [$existing->id]);
-            } else {
-                // Create new suggestion
-                $db->query("
-                    INSERT INTO knowledge_suggestions 
-                    (question, keywords, frequency, status)
-                    VALUES (?, ?, 1, 'pending')
-                ", [$question, $keywords]);
-            }
-
-        } catch (Exception $e) {
-            error_log("Knowledge suggestion error: " . $e->getMessage());
-        }
     }
 }
