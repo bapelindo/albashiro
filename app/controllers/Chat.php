@@ -137,6 +137,7 @@ class Chat extends Controller
             $fullResponse = '';
 
             // Call AI Service with streaming callback
+            // Call AI Service with streaming callback
             $aiResponse = $this->aiService->chatStream($message, $history, function ($token, $done) use (&$fullResponse) {
                 $fullResponse .= $token;
 
@@ -147,6 +148,15 @@ class Chat extends Controller
                 ]) . "\n\n";
 
                 // Flush output immediately
+                if (ob_get_level())
+                    ob_flush();
+                flush();
+            }, function ($status) {
+                // Send Status Event (Thinking Process)
+                echo "data: " . json_encode([
+                    'status' => $status
+                ]) . "\n\n";
+
                 if (ob_get_level())
                     ob_flush();
                 flush();

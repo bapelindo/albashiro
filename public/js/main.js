@@ -431,6 +431,16 @@
                             break;
                         }
 
+                        if (data.status) {
+                            // UPDATE EXISTING INDICATOR TEXT
+                            // Instead of creating a duplicate pill, update the footer indicator
+                            const thinkingText = document.getElementById('ai-thinking-text');
+                            if (thinkingText) {
+                                thinkingText.textContent = data.status;
+                            }
+                            continue; // Skip processing other data types
+                        }
+
                         if (data.token) {
                             // Create bubble on first token
                             if (!messageDiv) {
@@ -475,6 +485,21 @@
                     clearInterval(waitForTyping);
                     if (textElement && fullResponse) {
                         textElement.innerHTML = parseMarkdown(fullResponse);
+
+                        // VOICE BUTTON (Safe Layout: Inside bubble at bottom right)
+                        const voiceBtn = document.createElement('button');
+                        voiceBtn.className = 'float-right ml-2 mt-1 text-emerald-400 hover:text-emerald-600 transition-colors p-1';
+                        voiceBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
+                        voiceBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            window.speakText(fullResponse, voiceBtn);
+                        };
+
+                        // Append icon to the bubble content (last paragraph)
+                        const lastP = textElement.querySelector('p:last-child');
+                        if (lastP) lastP.appendChild(voiceBtn);
+                        else textElement.appendChild(voiceBtn);
+
                         scrollToBottom();
                     }
                 }
@@ -510,6 +535,22 @@
 
         // For AI messages, add gentle typing effect
         if (sender === 'ai') {
+            // DETECT ENGAGEMENT BLOCK (Quick Replies)
+            let contentPart = text;
+            let quickReplies = [];
+
+            if (text.includes('[ENGAGEMENT]')) {
+                const parts = text.split('[ENGAGEMENT]');
+                contentPart = parts[0].trim(); // Actual message content
+                const engagementPart = parts[1]; // Questions block
+
+                // Parse questions (e.g., "1. Question ...")
+                const matches = engagementPart.match(/\d\.\s+(.+)/g);
+                if (matches) {
+                    quickReplies = matches.map(m => m.replace(/^\d\.\s+/, '').trim());
+                }
+            }
+
             bubble.innerHTML = ''; // Start empty
             messageDiv.appendChild(bubble);
             chatMessages.appendChild(messageDiv);
@@ -517,19 +558,57 @@
 
             // Typing effect
             let index = 0;
-            const typingSpeed = 8; // milliseconds per character (faster, more natural)
+            const typingSpeed = 8; // milliseconds per character
 
             const typeWriter = () => {
-                if (index < text.length) {
+                if (index < contentPart.length) {
                     // Use parseMarkdown for formatting
-                    const currentText = text.substring(0, index + 1);
+                    const currentText = contentPart.substring(0, index + 1);
                     bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(currentText)}</p>`;
                     index++;
                     setTimeout(typeWriter, typingSpeed);
                     scrollToBottom();
                 } else {
                     // Final render with full markdown
-                    bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(text)}</p>`;
+                    bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(contentPart)}</p>`;
+
+                    // RENDER QUICK REPLY BUTTONS
+                    if (quickReplies.length > 0) {
+                        const btnContainer = document.createElement('div');
+                        btnContainer.className = 'mt-3 flex flex-wrap gap-2 animate-fade-in pl-1';
+
+                        quickReplies.forEach(q => {
+                            const btn = document.createElement('button');
+                            btn.className = 'px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 text-xs rounded-full shadow-sm hover:bg-emerald-50 hover:shadow-md transition-all cursor-pointer whitespace-nowrap';
+                            btn.textContent = q;
+                            btn.onclick = () => {
+                                chatInput.value = q;
+                                chatForm.dispatchEvent(new Event('submit'));
+                                btnContainer.remove(); // Click once
+                            };
+                            btnContainer.appendChild(btn);
+                        });
+
+                        // Append container OUTSIDE bubble, inside messageDiv
+                        messageDiv.appendChild(btnContainer);
+                        // Also auto smooth scroll to buttons
+                    }
+
+                    // VOICE BUTTON
+                    // VOICE BUTTON (Safe Layout: Inside bubble at bottom right)
+                    const voiceBtn = document.createElement('button');
+                    voiceBtn.className = 'float-right ml-2 mt-1 text-emerald-400 hover:text-emerald-600 transition-colors p-1';
+                    voiceBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
+                    voiceBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        window.speakText(contentPart, voiceBtn);
+                    };
+
+                    // Append icon to the bubble content (last paragraph)
+                    const lastP = bubble.querySelector('p:last-child');
+                    if (lastP) lastP.appendChild(voiceBtn);
+                    else bubble.appendChild(voiceBtn);
+
                     scrollToBottom();
                 }
             };
@@ -568,6 +647,10 @@
         // Line breaks
         text = text.replace(/\n/g, '<br>');
 
+        // TRUST BADGES (Sumber: ...)
+        // Pattern: (Sumber: Alodokter - Anxiety)
+        text = text.replace(/(\(Sumber: .+?\))/g, '<span class="inline-block px-2 py-0.5 mx-1 bg-teal-50 text-teal-700 text-[10px] font-medium uppercase tracking-wide rounded-full border border-teal-100">$1</span>');
+
         return text;
     };
 
@@ -576,6 +659,68 @@
         setTimeout(() => {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }, 100);
+    };
+
+    // VOICE SYNTHESIS (BETA)
+    let speechSynth = window.speechSynthesis;
+    let speaking = false;
+
+    window.speakText = (text, btnElement) => {
+        // SVG Icons
+        const iconSpeaker = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
+        const iconStop = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg>';
+
+        if (speaking) {
+            speechSynth.cancel();
+            speaking = false;
+            // Reset all buttons
+            document.querySelectorAll('.voice-active').forEach(btn => {
+                btn.innerHTML = iconSpeaker;
+                btn.classList.remove('text-amber-500', 'voice-active');
+                btn.classList.add('text-emerald-400');
+            });
+            return;
+        }
+
+        // Clean text for speech
+        let cleanText = text.replace(/\[ENGAGEMENT\][\s\S]*/, '');
+        cleanText = cleanText.replace(/\(Sumber: .+?\)/g, '');
+        cleanText = cleanText.replace(/[*_#`]/g, '');
+        cleanText = cleanText.replace(/<[^>]*>/g, '');
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'id-ID';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
+        utterance.onstart = () => {
+            speaking = true;
+            if (btnElement) {
+                btnElement.innerHTML = iconStop;
+                btnElement.classList.remove('text-emerald-400');
+                btnElement.classList.add('text-amber-500', 'voice-active');
+            }
+        };
+
+        utterance.onend = () => {
+            speaking = false;
+            if (btnElement) {
+                btnElement.innerHTML = iconSpeaker;
+                btnElement.classList.remove('text-amber-500', 'voice-active');
+                btnElement.classList.add('text-emerald-400');
+            }
+        };
+
+        utterance.onerror = () => {
+            speaking = false;
+            if (btnElement) {
+                btnElement.innerHTML = iconSpeaker;
+                btnElement.classList.remove('text-amber-500', 'voice-active');
+                btnElement.classList.add('text-emerald-400');
+            }
+        };
+
+        speechSynth.speak(utterance);
     };
 })();
 

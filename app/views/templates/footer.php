@@ -222,7 +222,8 @@
                         <div class="absolute top-5 right-0 w-2 h-2 bg-teal-600 rounded-full"></div>
                         <div class="absolute bottom-3 right-1 w-2 h-2 bg-teal-500 rounded-full"></div>
                         <div class="absolute bottom-1 right-2 w-2 h-2 bg-teal-400 rounded-full"></div>
-                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-600 rounded-full"></div>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-600 rounded-full">
+                        </div>
                         <div class="absolute bottom-1 left-2 w-2 h-2 bg-emerald-500 rounded-full"></div>
                         <div class="absolute bottom-3 left-1 w-2 h-2 bg-emerald-400 rounded-full"></div>
                         <div class="absolute top-5 left-0 w-2 h-2 bg-teal-600 rounded-full"></div>
@@ -231,12 +232,14 @@
                     </div>
                     <!-- Center Glow -->
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="w-3 h-3 bg-amber-400 rounded-full animate-pulse-slow shadow-lg shadow-amber-400/50"></div>
+                        <div class="w-3 h-3 bg-amber-400 rounded-full animate-pulse-slow shadow-lg shadow-amber-400/50">
+                        </div>
                     </div>
                 </div>
                 <div class="flex-1">
                     <p class="text-emerald-700 text-sm font-medium">بإذن الله</p>
-                    <p class="text-emerald-600/70 text-xs">Sedang memproses dengan penuh perhatian...</p>
+                    <p id="ai-thinking-text" class="text-emerald-600/70 text-xs">Sedang memproses dengan penuh
+                        perhatian...</p>
                 </div>
             </div>
         </div>
@@ -312,83 +315,92 @@
 <!-- Calming Animations Styles -->
 <style>
     /* Calming Animations for Islamic Chatbot */
-    
+
     /* Breathing Animation - Subtle pulse like guided breathing */
     @keyframes breathe {
-        0%, 100% {
+
+        0%,
+        100% {
             transform: scale(1);
             opacity: 1;
         }
+
         50% {
             transform: scale(1.03);
             opacity: 0.95;
         }
     }
-    
+
     /* Slow Spin for Tasbih Beads */
     @keyframes spin-slow {
         from {
             transform: rotate(0deg);
         }
+
         to {
             transform: rotate(360deg);
         }
     }
-    
+
     /* Slow Pulse for Center Glow */
     @keyframes pulse-slow {
-        0%, 100% {
+
+        0%,
+        100% {
             opacity: 1;
             transform: scale(1);
         }
+
         50% {
             opacity: 0.6;
             transform: scale(1.1);
         }
     }
-    
+
     /* Gentle Fade In with Cubic Bezier */
     @keyframes gentle-fade-in {
         from {
             opacity: 0;
             transform: translateY(10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
-    
+
     /* Apply Animations */
     .animate-spin-slow {
         animation: spin-slow 8s linear infinite;
     }
-    
+
     .animate-pulse-slow {
         animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-    
+
     .animate-breathe {
         animation: breathe 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
-    
+
     /* Smooth transitions with calming easing */
-    #chat-messages > div {
+    #chat-messages>div {
         animation: gentle-fade-in 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
+
     /* Smooth slide up for chat window - FIXED POSITIONING */
     @keyframes slide-up {
         from {
             opacity: 0;
             transform: scale(0.95);
         }
+
         to {
             opacity: 1;
             transform: scale(1);
         }
     }
-    
+
     .animate-slide-up {
         animation: slide-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }

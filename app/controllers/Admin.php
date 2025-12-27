@@ -19,6 +19,57 @@ class Admin extends Controller
 
         $this->blogModel = $this->model('BlogPost');
         $this->bookingModel = $this->model('Booking');
+
+        // Load Ollama Service for RAG Sync
+        require_once SITE_ROOT . '/app/services/OllamaService.php';
+    }
+
+    /**
+     * Helper: Sync Blog Post to Vector DB (Auto-Sync)
+     * Supports Chunking logic compatible with setup_rag_massive.php
+     */
+    private function syncBlogToVector($id, $data)
+    {
+        try {
+            $ollama = new OllamaService();
+            // 1. Delete existing vectors (chunks) for this post
+            // Assumption: Chunks are stored as ID * 1000 + ChunkID
+            // We delete broadly to be safe, or we loop.
+            // Better strategy: Delete where source_id between ID*1000 and ID*1000+999
+            $pdo = $ollama->getDb()->getPdo(); // Access DB via Service
+            $stmt = $pdo->prepare("DELETE FROM knowledge_vectors WHERE source_table='blog_posts' AND source_id >= ? AND source_id <= ?");
+            $stmt->execute([$id * 1000, ($id * 1000) + 999]);
+
+            // 2. Generate New Chunks
+            $text = strip_tags($data['content']);
+            $sentences = explode('.', $text);
+            $chunk = "";
+            $chunkId = 1;
+
+            foreach ($sentences as $s) {
+                $cleanS = trim($s);
+                if (empty($cleanS))
+                    continue;
+
+                $chunk .= $cleanS . ". ";
+
+                if (strlen($chunk) > 300) {
+                    $vectorId = ($id * 1000) + $chunkId;
+                    $content = "Artikel: {$data['title']} (Part $chunkId)\nIsi: $chunk";
+                    $ollama->upsertVector('blog_posts', $vectorId, $content);
+                    $chunk = "";
+                    $chunkId++;
+                }
+            }
+            if (!empty($chunk)) {
+                $vectorId = ($id * 1000) + $chunkId;
+                $content = "Artikel: {$data['title']} (Final)\nIsi: $chunk";
+                $ollama->upsertVector('blog_posts', $vectorId, $content);
+            }
+        } catch (Exception $e) {
+            // Silently fail RAG sync to not break Admin flow
+            error_log("RAG Sync Failed: " . $e->getMessage());
+        }
     }
 
     /**
@@ -202,7 +253,13 @@ class Admin extends Controller
             redirect('admin/create');
         }
 
-        $this->blogModel->create($data);
+        $newId = $this->blogModel->create($data); // Note: Model needs to return ID
+
+        // Auto-Sync to RAG
+        if ($newId) {
+            $this->syncBlogToVector($newId, $data);
+        }
+
         $this->setFlash('success', 'Artikel berhasil dibuat.');
         redirect('admin/blog');
     }
@@ -274,6 +331,10 @@ class Admin extends Controller
         }
 
         $this->blogModel->update($id, $data);
+
+        // Auto-Sync to RAG
+        $this->syncBlogToVector($id, $data);
+
         $this->setFlash('success', 'Artikel berhasil diperbarui.');
         redirect('admin/blog');
     }
@@ -288,6 +349,17 @@ class Admin extends Controller
         }
 
         $this->blogModel->delete($id);
+
+        // Remove vectors
+        try {
+            $ollama = new OllamaService(); // Re-instantiate locally
+            // Delete chunk range
+            $pdo = $ollama->getDb()->getPdo();
+            $stmt = $pdo->prepare("DELETE FROM knowledge_vectors WHERE source_table='blog_posts' AND source_id >= ? AND source_id <= ?");
+            $stmt->execute([$id * 1000, ($id * 1000) + 999]);
+        } catch (Exception $e) {
+        }
+
         $this->setFlash('success', 'Artikel berhasil dihapus.');
         redirect('admin/blog');
     }

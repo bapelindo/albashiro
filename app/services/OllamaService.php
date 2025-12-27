@@ -44,7 +44,7 @@ class OllamaService
      * @param callable $onToken Callback function to handle each token
      * @return array Final response with metadata
      */
-    public function chatStream($userMessage, $conversationHistory = [], $onToken = null)
+    public function chatStream($userMessage, $conversationHistory = [], $onToken = null, $onStatus = null)
     {
         // Increase execution time for streaming
         set_time_limit(150);
@@ -58,6 +58,7 @@ class OllamaService
             'ai_response' => '',
             'provider' => 'Local Ollama (Streaming)',
             'model' => $this->model,
+
             'total_time_ms' => 0,
             'api_call_time_ms' => null,
             'db_services_time_ms' => null,
@@ -73,9 +74,13 @@ class OllamaService
             'fallback_reason' => null
         ];
 
+        // 1. Send Thinking Status
+        if ($onStatus && is_callable($onStatus))
+            $onStatus("Sedang memproses dengan penuh perhatian...");
+
         // 1. Build System Context (Dynamic)
         $contextStart = microtime(true);
-        $systemContext = $this->buildSystemContext($userMessage, $perfData);
+        $systemContext = $this->buildSystemContext($userMessage, $perfData, $onStatus);
         $perfData['context_build_time_ms'] = round((microtime(true) - $contextStart) * 1000);
 
         // 2. Prepare Messages
@@ -235,10 +240,147 @@ class OllamaService
     }
 
     /**
+     * Generate Vector Embeddings using Ollama
+     * Model required: nomic-embed-text
+     */
+    public function generateEmbedding($text)
+    {
+        $endpoint = $this->baseUrl . '/api/embeddings';
+
+        $payload = [
+            'model' => 'nomic-embed-text', // Specialized embedding model
+            'prompt' => $text
+        ];
+
+        $ch = curl_init($endpoint);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            error_log("Ollama Embedding Error: " . curl_error($ch));
+            curl_close($ch);
+            return null;
+        }
+
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+        return $data['embedding'] ?? null;
+    }
+
+    /**
+     * Vector Search (Semantic Search)
+     * Finds most similar knowledge using TiDB Native Vector Search
+     */
+    private function vectorSearch($queryText, $limit = 3)
+    {
+        // 1. Generate Embedding for Query
+        $queryVector = $this->generateEmbedding($queryText);
+        if (!$queryVector)
+            return [];
+
+        // Convert array to string '[0.1, 0.2, ...]' for SQL
+        $vectorStr = json_encode($queryVector);
+
+        // 2. Perform Native Vector Search in TiDB
+        $pdo = $this->db->getPdo();
+
+        // Use VEC_COSINE_DISTANCE function (TiDB Specific)
+        // Ensure your TiDB cluster has Vector Search enabled
+        $sql = "SELECT content_text, 1 - VEC_COSINE_DISTANCE(embedding, ?) AS score 
+                FROM knowledge_vectors 
+                ORDER BY score DESC 
+                LIMIT ?";
+
+        $stmt = $pdo->prepare($sql);
+
+        // Bind parameters. Note: Limit must be integer in PDO emulation sometimes, strict binding
+        $stmt->bindParam(1, $vectorStr);
+        $stmt->bindValue(2, (int) $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Filter by relevance threshold (e.g., > 0.4)
+        return array_filter($results, fn($r) => $r['score'] > 0.4);
+    }
+
+    /**
+     * Update/Insert Vector for a specific source
+     * Used for Real-time RAG Sync (Auto-Sync)
+     */
+    public function upsertVector($table, $id, $text)
+    {
+        $vector = $this->generateEmbedding($text);
+        if (!$vector)
+            return false;
+
+        $vectorStr = json_encode($vector);
+        $pdo = $this->db->getPdo();
+
+        // TiDB Upsert
+        $sql = "INSERT INTO knowledge_vectors (source_table, source_id, content_text, embedding) 
+                VALUES (?, ?, ?, ?) 
+                ON DUPLICATE KEY UPDATE content_text=?, embedding=?";
+
+        $stmt = $pdo->prepare($sql);
+        return $stmt->execute([
+            $table,
+            $id,
+            $text,
+            $vectorStr,
+            $text,
+            $vectorStr
+        ]);
+    }
+
+    /**
+     * Delete Vector
+     */
+    public function deleteVector($table, $id)
+    {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->prepare("DELETE FROM knowledge_vectors WHERE source_table = ? AND source_id = ?");
+        return $stmt->execute([$table, $id]);
+    }
+
+    /**
+     * Test Retrieval for Debugging
+     */
+    public function testRetrieval($query)
+    {
+        echo "🔍 Testing RAG for query: '$query'\n";
+
+        // 1. Check Embedding
+        $vec = $this->generateEmbedding($query);
+        if (!$vec) {
+            echo "❌ Embedding Generation Failed.\n";
+            return;
+        }
+        echo "✅ Embedding Generated (Dim: " . count($vec) . ")\n";
+
+        // 2. Check Vector Search
+        $results = $this->vectorSearch($query);
+        echo "📊 Vector Search Results: " . count($results) . " matches.\n";
+        foreach ($results as $r) {
+            echo "   - Score: " . number_format($r['score'], 4) . " | Content: " . substr($r['content_text'], 0, 50) . "...\n";
+        }
+
+        // 3. Check Keyword Fallback (Just to see)
+        $kws = $this->extractKeywords($query);
+        echo "🔑 Keywords extracted: " . implode(', ', $kws) . "\n";
+    }
+
+    /**
      * Build system context with Albashiro information
      * Uses session caching for static data (services, therapists)
      */
-    private function buildSystemContext($userMessage = '', &$perfData = null)
+    private function buildSystemContext($userMessage = '', &$perfData = null, $onStatus = null)
     {
         // Cache services info in session
         if (!isset($_SESSION['cached_services_info'])) {
@@ -265,7 +407,8 @@ class OllamaService
         if (!empty($userMessage)) {
             try {
                 $dbStart = microtime(true);
-                $relevantKnowledge = $this->searchRelevantKnowledge($userMessage);
+                // Pass status callback to search
+                $relevantKnowledge = $this->searchRelevantKnowledge($userMessage, $onStatus);
                 if ($perfData) {
                     $perfData['db_knowledge_time_ms'] = round((microtime(true) - $dbStart) * 1000);
                     $perfData['knowledge_matched'] = $this->lastKnowledgeMatchCount;
@@ -297,35 +440,86 @@ class OllamaService
         // Get Site Settings
         $settings = $this->getSiteSettings();
 
-        // Build the Context String
+        // ANALYZE SENTIMENT (EQ Engine)
+        $mood = $this->analyzeSentiment($userMessage);
+        $emotionalDirective = "";
+
+        switch ($mood) {
+            case 'ANXIETY':
+                $emotionalDirective = "MODE: PENENANG (CALMING). Fokus pada validasi ketakutan user. Gunakan kalimat yang sangat lembut. Yakinkan bahwa kondisi ini bisa disembuhkan. Kurangi terminologi teknis yang menakutkan.";
+                break;
+            case 'SADNESS':
+                $emotionalDirective = "MODE: EMPATI MENDALAM. User sedang sedih/lelah. Berikan harapan (Hope). Gunakan pendekatan spiritual yang menyentuh hati. Jangan terlalu 'pushy' jualan.";
+                break;
+            case 'ANGER':
+                $emotionalDirective = "MODE: DE-ESKALASI. User sedang kesal. Jangan defensif. Minta maaf secara profesional jika ada ketidaknyamanan. Tawarkan solusi cepat.";
+                break;
+            case 'CURIOUS':
+                $emotionalDirective = "MODE: SALES ASSISTANT. User tertarik membeli. Jelaskan value for money. Arahkan untuk booking segera. Gunakan teknik closing yang sopan.";
+                break;
+            case 'URGENT':
+                $emotionalDirective = "MODE: DARURAT. Berikan respon singkat dan padat. Arahkan segera ke WhatsApp atau UGD jika membahayakan fisik. Jangan bertele-tele.";
+                break;
+            default:
+                $emotionalDirective = "MODE: STANDARD. Seimbang antara empati dan edukasi.";
+        }
+
+        // TIME AWARENESS ENGINE (Chronobiology)
+        $hour = (int) date('H');
+        $timeDirective = "";
+
+        if ($hour >= 22 || $hour < 4) {
+            $timeDirective = "WAKTU: LARUT MALAM (Jam $hour). User mungkin mengalami INSOMNIA atau Overthinking. Gunakan nada suara 'berbisik' (sangat tenang). Prioritaskan saran relaksasi tidur/dzikir malam.";
+        } elseif ($hour >= 4 && $hour < 10) {
+            $timeDirective = "WAKTU: PAGI HARI. Berikan afirmasi positif untuk memulai hari. Semangat dan optimis.";
+        } elseif ($hour >= 11 && $hour < 15) {
+            $timeDirective = "WAKTU: SIANG HARI. Keep it professional & energic.";
+        } else {
+            $timeDirective = "WAKTU: SORE/MALAM. Mode santai dan reflektif.";
+        }
+
+        // Build the Context String (Persona Upgrade: The Empathetic Expert)
         $context = "
-Anda adalah asisten AI Albashiro - Islamic Spiritual Hypnotherapy.
-Tagline: " . SITE_TAGLINE . "
-Waktu Server: " . format_date_id(date('Y-m-d')) . " pukul " . date('H:i') . "
+PERAN ANDA:
+Anda adalah 'Albashiro Intelligence', Konsultan Digital Profesional & Empatik untuk Klinik Albashiro (Islamic Spiritual Hypnotherapy).
+Misi Anda: Memberikan ketenangan (Sakinah), edukasi ilmiah, dan solusi praktis berbasis Islam kepada setiap penanya.
 
-[INSTRUKSI]
-1. Bahasa Indonesia.
-2. Jawab sopan & Islami.
-3. Gunakan data di bawah ini.
-4. PENTING: Jika ditanya jadwal, tampilkan SEMUA waktu yang TERSEDIA. Jangan pilih-pilih atau skip waktu tertentu.
-5. SAFETY: Jika informasi tidak ada di data, katakan tidak tahu & arahkan ke Admin WA. JANGAN MENGARANG.
+KONTEKS REAL-TIME:
+[EMOTIONAL_STATE]: $emotionalDirective
+[TIME_CONTEXT]: $timeDirective
 
-[KLINIK]
+INSTRUKSI KECERDASAN BUATAN (ADVANCED):
+1. **NLP Pacing & Leading**: Samakan frekuensi/kata-kata dengan user dulu (Pacing), baru arahkan ke solusi (Leading). Jangan langsung menasehati beda frekuensi.
+2. **Hipnotik Language User**: Gunakan pola bahasa persuasif halus (e.g., 'Dan saat Anda mulai merasa lebih tenang, Anda bisa menyadari bahwa...').
+3. **Fact Checking**: Pastikan setiap saran medis/hukum Islam sesuai dengan [SOURCES]. Jangan berhalusinasi.
+
+CORE VALUES (4 Pilar):
+1. TASAMUH (Empati): Validasi perasaan user terlebih dahulu. Jangan langsung menasehati.
+2. HIKMAH (Bijaksana): Gabungkan logika medis/psikologis dengan dalil agama yang menenangkan.
+3. SOLUTIF: Berikan langkah konkret, bukan teori abstrak.
+4. PROFESIONAL: Gunakan bahasa Indonesia yang sopan, hangat, dan berwibawa.
+
+STRUKTUR JAWABAN (ALUR BERPIKIR):
+Gunakan alur ini, tapi **JANGAN TULIS LABELNYA** (seperti [EMPATHY]) di dalam chat. Tulislah mengalir natural seperti manusia.
+
+1. (Validasi Emosi): 'Saya mengerti perasaan Anda...', 'Tentu berat mengalami hal itu...'
+2. (Penjelasan): Jelaskan fenomena tersebut dari sisi Psikologi & Islam.
+3. (Solusi): Berikan 1-2 tips terapi mandiri ringan.
+4. (Action): Ajak konsultasi jika masalah berat.
+5. (Referensi): Wajib cantumkan sumber jika ada. Format: *(Sumber: Alodokter - Anxiety)*.
+6. (Engagement): Akhiri dengan 1 pertanyaan ringan untuk menjaga diskusi.
+
+DATA KLINIK:
 Nama: " . SITE_NAME . "
+Tagline: " . SITE_TAGLINE . "
 Alamat: " . ($settings['address'] ?? 'Jl. Imam Bonjol No. 123') . "
-Jam Buka: " . ($settings['operating_hours'] ?? '09:00 - 17:00') . "
-WA Admin: " . ADMIN_WHATSAPP . "
-Email: " . ADMIN_EMAIL . "
-Sosmed: Instagram (" . ($settings['instagram'] ?? '-') . "), TikTok (" . ($settings['tiktok'] ?? '-') . ")
+Buka: " . ($settings['operating_hours'] ?? '09:00 - 17:00') . "
+Kontak: " . ADMIN_WHATSAPP . "
 
-[LAYANAN]
-" . $servicesInfo . "
-
-[TERAPIS]
-" . $therapistsInfo . "
-
-[TESTIMONI]
-" . $testimonialsInfo . "
+DATA PENDUKUNG:
+[SERVICES]: " . $servicesInfo . "
+[THERAPISTS]: " . $therapistsInfo . "
+[TESTIMONIALS]: " . $testimonialsInfo . "
 ";
 
         if ($scheduleInfo)
@@ -386,36 +580,117 @@ Sosmed: Instagram (" . ($settings['instagram'] ?? '-') . "), TikTok (" . ($setti
         return $out ?: "Belum ada testimoni.";
     }
 
-    private function searchRelevantKnowledge($msg)
+    private function searchRelevantKnowledge($msg, $onStatus = null)
     {
-        $pdo = $this->db->getPdo();
-        $kws = $this->extractKeywords($msg);
-        if (!$kws)
-            return "";
-        $q = [];
-        $p = [];
-        foreach ($kws as $k) {
-            $q[] = "question LIKE ? OR answer LIKE ?";
-            $p[] = "%$k%";
-            $p[] = "%$k%";
+        $contextMatches = [];
+        $seenContent = [];
+
+        // 1. Vector Search (Semantic) - Limit 5
+        // 1. Vector Search (Semantic) - Limit 5
+        try {
+            $vectorResults = $this->vectorSearch($msg, 5);
+            foreach ($vectorResults as $r) {
+                // Deduplicate by content hash or direct string
+                $hash = md5($r['content_text']);
+                if (!isset($seenContent[$hash])) {
+                    $contextMatches[] = $r['content_text']; // Vector returns 'content_text'
+                    $seenContent[$hash] = true;
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Vector Search Error: " . $e->getMessage());
         }
-        // Also search in FAQs table if ai_knowledge_base is empty or separate
-        $sql = "SELECT question, answer FROM faqs WHERE is_active=1 AND (" . implode(" OR ", $q) . ") LIMIT 3";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($p);
-        $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $this->lastKnowledgeMatchCount = count($res);
-        $this->lastSearchKeywords = implode(',', $kws);
-        $out = "";
-        foreach ($res as $r)
-            $out .= "Q: {$r['question']}\nA: {$r['answer']}\n";
-        return $out;
+
+        // 2. Keyword Search (Literal) - Limit 3
+        $kws = $this->extractKeywords($msg);
+        if ($kws) {
+            $pdo = $this->db->getPdo();
+            $p = [];
+            foreach ($kws as $k) {
+                // Prepare params for FAQ search
+                $p[] = "%$k%";
+                $p[] = "%$k%";
+            }
+
+            // 2a. Search FAQs
+            $q_faq = array_fill(0, count($kws), "question LIKE ? OR answer LIKE ?");
+            $sql_faq = "SELECT question, answer FROM faqs WHERE is_active=1 AND (" . implode(" OR ", $q_faq) . ") LIMIT 3";
+            $stmt = $pdo->prepare($sql_faq);
+            $stmt->execute($p); // Execute with duplicate params for Q and A
+
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                $content = "Q: {$r['question']}\nA: {$r['answer']}";
+                $hash = md5($content);
+                if (!isset($seenContent[$hash])) {
+                    $contextMatches[] = $content;
+                    $seenContent[$hash] = true;
+                }
+            }
+
+            // 2b. Search RAG Vectors (Text Match) - Hybrid Boost
+            // Improved: Also search the massive knowledge base for exact keyword matches
+            $q_vec = array_fill(0, count($kws), "content_text LIKE ?");
+            $p_vec = array_map(fn($k) => "%$k%", $kws);
+
+            $sql_vec = "SELECT content_text FROM knowledge_vectors WHERE " . implode(" OR ", $q_vec) . " LIMIT 3";
+            $stmt_vec = $pdo->prepare($sql_vec);
+            $stmt_vec->execute($p_vec);
+
+            foreach ($stmt_vec->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                $content = $r['content_text'];
+                $hash = md5($content);
+                if (!isset($seenContent[$hash])) {
+                    $contextMatches[] = $content; // Add text match result
+                    $seenContent[$hash] = true;
+                }
+            }
+        }
+
+        // 3. Format Combined Result
+        $this->lastKnowledgeMatchCount = count($contextMatches);
+        $this->lastSearchKeywords = "HYBRID: " . count($contextMatches) . " items";
+
+        if (empty($contextMatches))
+            return "";
+
+        return implode("\n---\n", array_slice($contextMatches, 0, 8)); // Return max 8 unique items
     }
 
     private function extractKeywords($msg)
     {
         $s = ['apa', 'yang', 'dan', 'atau', 'saya', 'bisa', 'tidak'];
         return array_filter(explode(' ', strtolower($msg)), fn($w) => strlen($w) > 3 && !in_array($w, $s));
+    }
+
+    /**
+     * Analyze User Sentiment (EQ Engine)
+     * Detects emotional state to adjust system persona
+     */
+    private function analyzeSentiment($msg)
+    {
+        $msg = strtolower($msg);
+
+        // Anxiety / Fear
+        if (preg_match('/(cemas|takut|panik|khawatir|gelisah|deg-degan|mati|bahaya)/', $msg))
+            return 'ANXIETY';
+
+        // Sadness / Depression
+        if (preg_match('/(sedih|nangis|putus asa|lelah|capek|sendiri|sepi|hampa)/', $msg))
+            return 'SADNESS';
+
+        // Anger / Frustration
+        if (preg_match('/(marah|kesal|benci|dendam|kecewa|bohong|penipu)/', $msg))
+            return 'ANGER';
+
+        // Curiosity / Buying Intent
+        if (preg_match('/(harga|biaya|lokasi|alamat|jadwal|pesan|booking|daftar)/', $msg))
+            return 'CURIOUS';
+
+        // Critical / Urgent
+        if (preg_match('/(darurat|bantu|tolong|sakit|parah)/', $msg))
+            return 'URGENT';
+
+        return 'NEUTRAL';
     }
 
     private function getAllTherapistsSchedules($date)
@@ -575,6 +850,13 @@ Sosmed: Instagram (" . ($settings['instagram'] ?? '-') . "), TikTok (" . ($setti
         return null;
     }
 
+    /**
+     * Get statistics of last knowledge search
+     */
+    public function getLastKnowledgeMatchCount()
+    {
+        return $this->lastKnowledgeMatchCount;
+    }
     /**
      * Log performance data to database
      */
