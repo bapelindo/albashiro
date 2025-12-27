@@ -65,23 +65,6 @@
 })();
 
 // ============================================
-// Back to Top Button
-// ============================================
-(function () {
-    const backToTop = document.getElementById('back-to-top');
-
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 500) {
-            backToTop.classList.remove('opacity-0', 'pointer-events-none');
-            backToTop.classList.add('opacity-100');
-        } else {
-            backToTop.classList.add('opacity-0', 'pointer-events-none');
-            backToTop.classList.remove('opacity-100');
-        }
-    });
-})();
-
-// ============================================
 // Animated Counter
 // ============================================
 (function () {
