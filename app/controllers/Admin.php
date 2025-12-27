@@ -67,8 +67,7 @@ class Admin extends Controller
                 $ollama->upsertVector('blog_posts', $vectorId, $content);
             }
         } catch (Exception $e) {
-            // Silently fail RAG sync to not break Admin flow
-            error_log("RAG Sync Failed: " . $e->getMessage());
+            // Sync failure ignored
         }
     }
 
@@ -1073,31 +1072,21 @@ class Admin extends Controller
      */
     public function knowledge_suggestions()
     {
-        $db = Database::getInstance();
+        require_once SITE_ROOT . '/app/services/AutoLearningService.php';
+        $autoLearning = new AutoLearningService();
 
-        // Get knowledge suggestions
-        $suggestions = $db->query("
-            SELECT * FROM knowledge_suggestions 
-            WHERE status = 'pending' 
-            ORDER BY frequency DESC, created_at DESC
-            LIMIT 50
-        ")->fetchAll();
+        $status = $this->input('status') ?? 'pending';
+        $suggestions = $autoLearning->getTopSuggestions(50, $status);
 
-        // Get conversation stats
-        $stats = $db->query("
-            SELECT 
-                COUNT(*) as total_conversations,
-                SUM(CASE WHEN knowledge_matched = 0 THEN 1 ELSE 0 END) as no_match_count,
-                AVG(knowledge_matched) as avg_matches,
-                AVG(response_time_ms) as avg_response_time
-            FROM chat_conversations
-            WHERE DATE(created_at) = CURDATE()
-        ")->fetch();
+        // Get analytics for context
+        $analytics = $autoLearning->getAnalytics(1);
+        $stats = $analytics['daily_stats'][0] ?? null;
 
         $data = [
             'title' => 'Auto-Learning Dashboard',
             'suggestions' => $suggestions,
             'stats' => $stats,
+            'status' => $status,
             'user' => $this->getCurrentUser()
         ];
 
@@ -1120,10 +1109,14 @@ class Admin extends Controller
         }
 
         try {
-            $db = Database::getInstance();
-            $db->query("UPDATE knowledge_suggestions SET status = 'approved' WHERE id = ?", [$id]);
+            require_once SITE_ROOT . '/app/services/AutoLearningService.php';
+            $autoLearning = new AutoLearningService();
 
-            echo json_encode(['success' => true, 'message' => 'Suggestion approved successfully']);
+            if ($autoLearning->approveSuggestion($id)) {
+                echo json_encode(['success' => true, 'message' => 'Suggestion approved successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to approve suggestion']);
+            }
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -1146,10 +1139,42 @@ class Admin extends Controller
         }
 
         try {
-            $db = Database::getInstance();
-            $db->query("UPDATE knowledge_suggestions SET status = 'rejected' WHERE id = ?", [$id]);
+            require_once SITE_ROOT . '/app/services/AutoLearningService.php';
+            $autoLearning = new AutoLearningService();
 
-            echo json_encode(['success' => true, 'message' => 'Suggestion rejected']);
+            if ($autoLearning->rejectSuggestion($id)) {
+                echo json_encode(['success' => true, 'message' => 'Suggestion rejected']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to reject suggestion']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /**
+     * Generate AI answer for suggestion (AJAX)
+     */
+    public function generateAnswer()
+    {
+        header('Content-Type: application/json');
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = $input['id'] ?? 0;
+
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid ID']);
+            exit;
+        }
+
+        try {
+            require_once SITE_ROOT . '/app/services/AutoLearningService.php';
+            $autoLearning = new AutoLearningService();
+
+            $result = $autoLearning->generateSuggestedAnswer($id);
+            echo json_encode($result);
+
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -1246,3 +1271,4 @@ class Admin extends Controller
         throw new Exception("View {$view} not found");
     }
 }
+

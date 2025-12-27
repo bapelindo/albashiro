@@ -313,14 +313,19 @@
                 }
             });
 
-            const responseText = await response.text();
-            const data = JSON.parse(responseText);
+            // Check if response is OK and is JSON
+            if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+                throw new Error('Invalid response from server');
+            }
+
+            const data = await response.json();
 
             if (data.success) {
                 appendMessage('ai', data.message);
             }
         } catch (error) {
             console.error('Error fetching welcome message:', error);
+            // Fallback to default welcome message
             appendMessage('ai', 'Assalamu\'alaikum! Selamat datang di Albashiro. Ada yang bisa saya bantu?');
         }
     };
@@ -404,11 +409,16 @@
                 const messages = buffer.split('\n\n');
                 buffer = messages.pop() || ''; // Keep incomplete message in buffer
 
-                for (const msg of messages) {
-                    if (!msg.trim() || !msg.startsWith('data: ')) continue;
+                for (let msg of messages) {
+                    msg = msg.trim();
+                    if (!msg) continue;
+
+                    // Robust parsing: Find 'data: ' anywhere (handles prepended warnings/whitespace)
+                    const dataIndex = msg.indexOf('data: ');
+                    if (dataIndex === -1) continue;
 
                     try {
-                        const jsonStr = msg.substring(6); // Remove 'data: ' prefix
+                        const jsonStr = msg.substring(dataIndex + 6); // Extract JSON after 'data: '
                         const data = JSON.parse(jsonStr);
 
                         if (data.error) {
@@ -471,10 +481,8 @@
 
                         if (data.done && data.metadata) {
                             // Stream complete - let typing finish naturally
-                            console.log('Stream metadata:', data.metadata);
                         }
                     } catch (parseError) {
-                        console.error('Error parsing SSE message:', parseError);
                     }
                 }
             }

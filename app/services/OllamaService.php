@@ -14,6 +14,18 @@ class OllamaService
     // Auto-learning metadata
     private $lastKnowledgeMatchCount = 0;
     private $lastSearchKeywords = '';
+    private $autoLearning;
+
+    // Performance: Context caching
+    private $contextCache = null;
+    private $cacheExpiry = 0;
+    private $cacheTTL = 300; // 5 minutes
+
+    // Performance: Schedule caching
+    private $scheduleCache = [];
+
+    // Performance: Embedding caching
+    private $embeddingCache = [];
 
     /**
      * Constructor
@@ -31,9 +43,21 @@ class OllamaService
 
         $this->baseUrl = rtrim($host ?? $defaultHost, '/');
         $this->model = $model ?? $defaultModel;
-        $this->timeout = $timeout;
+        $this->timeout = $timeout === 120 ? 30 : $timeout; // EMERGENCY: Reduce default timeout to 30s
 
         $this->db = Database::getInstance();
+
+        // Load AutoLearningService
+        require_once __DIR__ . '/AutoLearningService.php';
+        $this->autoLearning = new AutoLearningService();
+    }
+
+    /**
+     * Get Database instance
+     */
+    public function getDb()
+    {
+        return $this->db;
     }
 
     /**
@@ -42,9 +66,11 @@ class OllamaService
      * @param string $userMessage User's message
      * @param array $conversationHistory Previous conversation context
      * @param callable $onToken Callback function to handle each token
+     * @param callable $onStatus Callback function for status updates
+     * @param bool $skipAutoLearning Skip auto-learning logging (for internal AI calls)
      * @return array Final response with metadata
      */
-    public function chatStream($userMessage, $conversationHistory = [], $onToken = null, $onStatus = null)
+    public function chatStream($userMessage, $conversationHistory = [], $onToken = null, $onStatus = null, $skipAutoLearning = false)
     {
         // Increase execution time for streaming
         set_time_limit(150);
@@ -89,19 +115,33 @@ class OllamaService
         // Add System Prompt first
         $messages[] = ['role' => 'system', 'content' => $systemContext];
 
-        // Add Conversation History (Ensure limit, just in case)
+        // Add Conversation History
         if (!empty($conversationHistory)) {
-            // Take only last 20 messages if not already limited
-            $historyToUse = array_slice($conversationHistory, -20);
+            $historyToUse = array_slice($conversationHistory, -4);
             foreach ($historyToUse as $msg) {
-                // Map 'ai' role to 'assistant' for Ollama
-                $role = ($msg['role'] === 'ai') ? 'assistant' : $msg['role'];
-                $messages[] = ['role' => $role, 'content' => $msg['message']];
+                // Map 'ai' role to 'assistant'
+                $role = (($msg['role'] ?? '') === 'ai') ? 'assistant' : ($msg['role'] ?? 'user');
+                $content = $msg['message'] ?? ($msg['content'] ?? '');
+
+                // Pastikan history bersih
+                if ($role === 'assistant') {
+                    // Hapus artifacts dari history masa lalu agar tidak menular
+                    $content = ltrim($content, "!?. \t\n\r");
+                }
+
+                $messages[] = ['role' => $role, 'content' => $content];
             }
         }
 
-        // Add Current User Message
-        $messages[] = ['role' => 'user', 'content' => $userMessage];
+        // --- PERBAIKAN PENTING: CEK DUPLIKASI ---
+        // Cek apakah pesan terakhir di history SAMA PERSIS dengan pesan user sekarang?
+        // Jika ya, JANGAN ditambahkan lagi.
+        $lastMsg = end($messages);
+        $isDuplicate = ($lastMsg && $lastMsg['role'] === 'user' && trim($lastMsg['content']) === trim($userMessage));
+
+        if (!$isDuplicate) {
+            $messages[] = ['role' => 'user', 'content' => $userMessage];
+        }
 
         try {
             // Call Streaming API
@@ -118,6 +158,34 @@ class OllamaService
             // Log performance
             $this->logPerformance($perfData);
 
+            // AUTO-LEARNING: Log conversation and detect knowledge gaps (skip for internal AI calls)
+            if (!$skipAutoLearning) {
+                try {
+                    // Log conversation for analytics
+                    $this->autoLearning->logConversation(
+                        session_id(),
+                        $userMessage,
+                        $fullResponse,
+                        [
+                            'knowledge_matched' => $this->lastKnowledgeMatchCount,
+                            'keywords_searched' => $this->lastSearchKeywords,
+                            'response_time_ms' => $responseTime
+                        ]
+                    );
+
+                    // Detect knowledge gap if low match
+                    if ($this->lastKnowledgeMatchCount < 2) {
+                        $this->autoLearning->detectKnowledgeGap(
+                            $userMessage,
+                            $this->lastKnowledgeMatchCount,
+                            $this->extractKeywords($userMessage)
+                        );
+                    }
+                } catch (Exception $e) {
+                    // Ignore
+                }
+            }
+
             return [
                 'response' => $fullResponse,
                 'metadata' => [
@@ -128,8 +196,6 @@ class OllamaService
                 ]
             ];
         } catch (Exception $e) {
-            error_log("Ollama Streaming Error: " . $e->getMessage());
-
             $perfData['error_occurred'] = 1;
             $perfData['error_message'] = substr($e->getMessage(), 0, 500);
             $perfData['ai_response'] = 'Error: ' . substr($e->getMessage(), 0, 100);
@@ -137,11 +203,7 @@ class OllamaService
 
             // Log failure
             $this->logPerformance($perfData);
-
-            return [
-                'response' => "Maaf, koneksi terputus. Silakan coba lagi atau hubungi admin via WhatsApp.",
-                'metadata' => ['error' => true, 'debug_last_error' => $e->getMessage()]
-            ];
+            throw $e; // Rethrow for controller
         }
     }
 
@@ -162,18 +224,21 @@ class OllamaService
             'stream' => true,  // Enable streaming!
             'keep_alive' => '5m',
             'options' => [
-                'temperature' => 0.7,
+                'temperature' => 0.3,
                 'num_ctx' => 2048,
-                'num_predict' => 300,
+                'num_predict' => 1500,   // Increased to 1500 to fix long response truncation
                 'num_thread' => $cpuThreads,
+                'num_batch' => 256,
                 'top_k' => 40,
-                'top_p' => 0.9,
-                'repeat_penalty' => 1.1
+                'top_p' => 0.6,
+                'repeat_penalty' => 1.05
             ]
         ];
 
         $fullResponse = '';
         $buffer = '';
+
+        // DEBUG: Log the full payload to catch "!" injection
 
         // cURL streaming handler
         $ch = curl_init($endpoint);
@@ -191,6 +256,9 @@ class OllamaService
             'Connection: keep-alive'
         ]);
 
+        // State for Clean Start Filter
+        $isResponseStarted = false;
+
         // Write callback - called for each chunk received
         curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($curl, $data) use (&$fullResponse, &$buffer, $onToken) {
             $buffer .= $data;
@@ -207,15 +275,20 @@ class OllamaService
                 // Parse JSON line
                 $chunk = json_decode($line, true);
                 if (json_last_error() === JSON_ERROR_NONE) {
-                    // Extract token from message content
                     if (isset($chunk['message']['content'])) {
                         $token = $chunk['message']['content'];
+
+                        // --- PERBAIKAN: HAPUS SEMUA FILTER! ---
+                        // Karena Prompt sudah benar, kita tidak butuh ltrim/filter lagi.
+                        // Biarkan token mengalir apa adanya agar "Assalamualaikum" tidak hilang.
+
                         $fullResponse .= $token;
 
                         // Call callback if provided
                         if ($onToken && is_callable($onToken)) {
                             $onToken($token, $chunk['done'] ?? false);
                         }
+                        // --------------------------------------
                     }
                 }
             }
@@ -226,7 +299,8 @@ class OllamaService
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-        curl_close($ch);
+
+        // No curl_close() needed in PHP 8.0+ (and deprecated in 8.4+)
 
         if ($result === false) {
             throw new Exception("Ollama Streaming Connection Error: $error");
@@ -235,6 +309,7 @@ class OllamaService
         if ($httpCode >= 400) {
             throw new Exception("Ollama Streaming API Error (HTTP $httpCode)");
         }
+
 
         return $fullResponse;
     }
@@ -245,6 +320,12 @@ class OllamaService
      */
     public function generateEmbedding($text)
     {
+        // Check cache first (Phase 3 optimization)
+        $cacheKey = md5($text);
+        if (isset($this->embeddingCache[$cacheKey])) {
+            return $this->embeddingCache[$cacheKey];
+        }
+
         $endpoint = $this->baseUrl . '/api/embeddings';
 
         $payload = [
@@ -262,15 +343,20 @@ class OllamaService
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            error_log("Ollama Embedding Error: " . curl_error($ch));
-            curl_close($ch);
+            // Embedding error ignored
             return null;
         }
 
-        curl_close($ch);
 
         $data = json_decode($response, true);
-        return $data['embedding'] ?? null;
+        $embedding = $data['embedding'] ?? null;
+
+        // Cache the result
+        if ($embedding) {
+            $this->embeddingCache[$cacheKey] = $embedding;
+        }
+
+        return $embedding;
     }
 
     /**
@@ -378,36 +464,54 @@ class OllamaService
 
     /**
      * Build system context with Albashiro information
-     * Uses session caching for static data (services, therapists)
+     * SMART INJECTION: Only include relevant data based on user's question
      */
     private function buildSystemContext($userMessage = '', &$perfData = null, $onStatus = null)
     {
-        // Cache services info in session
-        if (!isset($_SESSION['cached_services_info'])) {
-            $_SESSION['cached_services_info'] = $this->getServicesInfo();
-        }
-        $servicesInfo = $_SESSION['cached_services_info'];
+        // Safety: Ensure perfData is an array if passed as null
+        if ($perfData === null)
+            $perfData = [];
 
-        // Cache therapists info in session
-        if (!isset($_SESSION['cached_therapists_info'])) {
-            $_SESSION['cached_therapists_info'] = $this->getTherapistsInfo();
-        }
-        $therapistsInfo = $_SESSION['cached_therapists_info'];
+        $needsServices = preg_match('/(layanan|service|terapi|paket|harga|biaya|price|berapa)/i', $userMessage);
+        $needsTherapists = preg_match('/(terapis|therapist|dokter|bunda|ustadzah|siapa|profil)/i', $userMessage);
+        $needsSchedule = preg_match('/(jadwal|tersedia|booking|slot|kosong|kapan|waktu|jam|reservasi|praktek|janji|bisa)/i', $userMessage);
+        $needsTestimonials = preg_match('/(testimoni|review|pengalaman|hasil|berhasil)/i', $userMessage);
 
-        // Cache testimonials info (new)
-        if (!isset($_SESSION['cached_testimonials_info'])) {
-            $_SESSION['cached_testimonials_info'] = $this->getTestimonialsInfo();
-        }
-        $testimonialsInfo = $_SESSION['cached_testimonials_info'];
-
+        // Only fetch what's needed
+        $servicesInfo = '';
+        $therapistsInfo = '';
+        $testimonialsInfo = '';
         $scheduleInfo = '';
         $relevantKnowledge = '';
 
-        // Relevant Knowledge Search (FAQ/Blog)
+        // Services (only if asking about services/pricing)
+        if ($needsServices) {
+            if (!isset($_SESSION['cached_services_info'])) {
+                $_SESSION['cached_services_info'] = $this->getServicesInfo();
+            }
+            $servicesInfo = $_SESSION['cached_services_info'];
+        }
+
+        // Therapists (only if asking about therapists)
+        if ($needsTherapists) {
+            if (!isset($_SESSION['cached_therapists_info'])) {
+                $_SESSION['cached_therapists_info'] = $this->getTherapistsInfo();
+            }
+            $therapistsInfo = $_SESSION['cached_therapists_info'];
+        }
+
+        // Testimonials (only if explicitly asked)
+        if ($needsTestimonials) {
+            if (!isset($_SESSION['cached_testimonials_info'])) {
+                $_SESSION['cached_testimonials_info'] = $this->getTestimonialsInfo();
+            }
+            $testimonialsInfo = $_SESSION['cached_testimonials_info'];
+        }
+
+        // Relevant Knowledge Search (FAQ/Blog) - UNCONDITIONAL
         if (!empty($userMessage)) {
             try {
                 $dbStart = microtime(true);
-                // Pass status callback to search
                 $relevantKnowledge = $this->searchRelevantKnowledge($userMessage, $onStatus);
                 if ($perfData) {
                     $perfData['db_knowledge_time_ms'] = round((microtime(true) - $dbStart) * 1000);
@@ -418,13 +522,13 @@ class OllamaService
             }
         }
 
-        if (preg_match('/(jadwal|tersedia|booking|slot|kosong|kapan|waktu|jam|reservasi|praktek|janji|bisa)/i', $userMessage)) {
+        // Schedule (only if asking about schedule)
+        if ($needsSchedule) {
             try {
                 $dbStart = microtime(true);
                 $queryDate = $this->extractDateFromMessage($userMessage) ?? date('Y-m-d');
                 $therapistName = $this->extractTherapistFromMessage($userMessage);
 
-                // If no specific therapist mentioned, show all therapists
                 if ($therapistName === null) {
                     $scheduleInfo = $this->getAllTherapistsSchedules($queryDate);
                 } else {
@@ -437,95 +541,136 @@ class OllamaService
             }
         }
 
-        // Get Site Settings
+        // Get Site Settings (always needed - minimal)
         $settings = $this->getSiteSettings();
 
-        // ANALYZE SENTIMENT (EQ Engine)
+        // ANALYZE SENTIMENT (EQ Engine) - Simplified
         $mood = $this->analyzeSentiment($userMessage);
         $emotionalDirective = "";
 
         switch ($mood) {
             case 'ANXIETY':
-                $emotionalDirective = "MODE: PENENANG (CALMING). Fokus pada validasi ketakutan user. Gunakan kalimat yang sangat lembut. Yakinkan bahwa kondisi ini bisa disembuhkan. Kurangi terminologi teknis yang menakutkan.";
+                $emotionalDirective = "MODE: CALMING. Fokus validasi ketakutan. Sangat lembut.";
                 break;
             case 'SADNESS':
-                $emotionalDirective = "MODE: EMPATI MENDALAM. User sedang sedih/lelah. Berikan harapan (Hope). Gunakan pendekatan spiritual yang menyentuh hati. Jangan terlalu 'pushy' jualan.";
+                $emotionalDirective = "MODE: EMPATI. Berikan harapan. Pendekatan spiritual.";
                 break;
             case 'ANGER':
-                $emotionalDirective = "MODE: DE-ESKALASI. User sedang kesal. Jangan defensif. Minta maaf secara profesional jika ada ketidaknyamanan. Tawarkan solusi cepat.";
+                $emotionalDirective = "MODE: DE-ESKALASI. Jangan defensif. Tawarkan solusi.";
                 break;
             case 'CURIOUS':
-                $emotionalDirective = "MODE: SALES ASSISTANT. User tertarik membeli. Jelaskan value for money. Arahkan untuk booking segera. Gunakan teknik closing yang sopan.";
+                $emotionalDirective = "MODE: SALES. Jelaskan value. Arahkan booking.";
                 break;
             case 'URGENT':
-                $emotionalDirective = "MODE: DARURAT. Berikan respon singkat dan padat. Arahkan segera ke WhatsApp atau UGD jika membahayakan fisik. Jangan bertele-tele.";
+                $emotionalDirective = "MODE: DARURAT. Singkat padat. Arahkan WhatsApp.";
                 break;
             default:
-                $emotionalDirective = "MODE: STANDARD. Seimbang antara empati dan edukasi.";
+                $emotionalDirective = "MODE: STANDARD. Seimbang empati & edukasi.";
         }
 
-        // TIME AWARENESS ENGINE (Chronobiology)
+        // TIME AWARENESS - Simplified
         $hour = (int) date('H');
         $timeDirective = "";
 
         if ($hour >= 22 || $hour < 4) {
-            $timeDirective = "WAKTU: LARUT MALAM (Jam $hour). User mungkin mengalami INSOMNIA atau Overthinking. Gunakan nada suara 'berbisik' (sangat tenang). Prioritaskan saran relaksasi tidur/dzikir malam.";
+            $timeDirective = "WAKTU: LARUT MALAM. User mungkin insomnia. Nada tenang.";
         } elseif ($hour >= 4 && $hour < 10) {
-            $timeDirective = "WAKTU: PAGI HARI. Berikan afirmasi positif untuk memulai hari. Semangat dan optimis.";
+            $timeDirective = "WAKTU: PAGI. Afirmasi positif.";
         } elseif ($hour >= 11 && $hour < 15) {
-            $timeDirective = "WAKTU: SIANG HARI. Keep it professional & energic.";
+            $timeDirective = "WAKTU: SIANG. Professional & energic.";
         } else {
-            $timeDirective = "WAKTU: SORE/MALAM. Mode santai dan reflektif.";
+            $timeDirective = "WAKTU: SORE/MALAM. Santai & reflektif.";
         }
 
-        // Build the Context String (Persona Upgrade: The Empathetic Expert)
-        $context = "
-PERAN ANDA:
-Anda adalah 'Albashiro Intelligence', Konsultan Digital Profesional & Empatik untuk Klinik Albashiro (Islamic Spiritual Hypnotherapy).
-Misi Anda: Memberikan ketenangan (Sakinah), edukasi ilmiah, dan solusi praktis berbasis Islam kepada setiap penanya.
+        // KEUNGGULAN (USPs)
+        $usps = "KEUNGGULAN KLINIK:
+- Pendekatan Syar'i: Terapi berdasarkan Al-Quran & Sunnah (Bebas klenik/syirik).
+- Terapis Bersertifikasi: Profesional, berpengalaman, dan amanah.
+- Privasi Terjaga: Kerahasiaan klien adalah prioritas mutlak.
+- Metode Modern: Menggabungkan Client-Centered Therapy dengan Spiritual Hypnotherapy.";
 
-KONTEKS REAL-TIME:
-[EMOTIONAL_STATE]: $emotionalDirective
-[TIME_CONTEXT]: $timeDirective
+        // TONE OF VOICE & STYLE
+        $toneOfVoice = "TONE OF VOICE (GAYA BAHASA):
+- Islami & Sejuk: Gunakan salam (Assalamualaikum) dan istilah yang santun.
+- Empati Tinggi: Tunjukkan kepedulian pada masalah klien (Validasi perasaan mereka).
+- Profesional & Solutif: Berikan jawaban yang jelas, terstruktur, dan mengarah ke solusi (Reservasi).
+- Persuasif Lembut: Ajak klien untuk berubah dengan bahasa yang santun.
 
-INSTRUKSI KECERDASAN BUATAN (ADVANCED):
-1. **NLP Pacing & Leading**: Samakan frekuensi/kata-kata dengan user dulu (Pacing), baru arahkan ke solusi (Leading). Jangan langsung menasehati beda frekuensi.
-2. **Hipnotik Language User**: Gunakan pola bahasa persuasif halus (e.g., 'Dan saat Anda mulai merasa lebih tenang, Anda bisa menyadari bahwa...').
-3. **Fact Checking**: Pastikan setiap saran medis/hukum Islam sesuai dengan [SOURCES]. Jangan berhalusinasi.
+ATURAN RESPON:
+- Fokus hanya pada jawaban inti yang relevan.
+- Awali respon langsung dengan kata atau kalimat.
+- Gunakan bahasa teks standar. HINDARI penggunaan simbol grafis, ikon, atau emoji.
+- Pastikan nada bicara sesuai dengan TONE OF VOICE di atas.";
 
-CORE VALUES (4 Pilar):
-1. TASAMUH (Empati): Validasi perasaan user terlebih dahulu. Jangan langsung menasehati.
-2. HIKMAH (Bijaksana): Gabungkan logika medis/psikologis dengan dalil agama yang menenangkan.
-3. SOLUTIF: Berikan langkah konkret, bukan teori abstrak.
-4. PROFESIONAL: Gunakan bahasa Indonesia yang sopan, hangat, dan berwibawa.
+        // TARGET AUDIENCE
+        $targetAudience = "TARGET AUDIENCE:
+- Individu dengan masalah mental/emosional (Cemas, Depresi, Trauma, LGBT, Narkoba).
+- Pasangan suami istri (Konflik rumah tangga, perselingkuhan).
+- Orang tua (Masalah pengasuhan/parenting).";
 
-STRUKTUR JAWABAN (ALUR BERPIKIR):
-Gunakan alur ini, tapi **JANGAN TULIS LABELNYA** (seperti [EMPATHY]) di dalam chat. Tulislah mengalir natural seperti manusia.
+        // SITE IDENTITY - Fallback to constants if DB keys missing
+        $siteName = $settings['site_name'] ?? $settings['name'] ?? SITE_NAME;
+        $siteTagline = $settings['site_tagline'] ?? $settings['tagline'] ?? SITE_TAGLINE;
+        $whatsappAdmin = $settings['admin_whatsapp'] ?? ADMIN_WHATSAPP;
+        $definition = $settings['description'] ?? "Albashiro adalah pusat layanan Islamic Spiritual Hypnotherapy terpercaya yang menggabungkan metode hipnoterapi klinis modern dengan pendekatan Al-Quran dan Sunnah. Kami membantu Anda mengatasi masalah mental, emosional, dan psikosomatis secara syar'i, aman, dan menenangkan.";
 
-1. (Validasi Emosi): 'Saya mengerti perasaan Anda...', 'Tentu berat mengalami hal itu...'
-2. (Penjelasan): Jelaskan fenomena tersebut dari sisi Psikologi & Islam.
-3. (Solusi): Berikan 1-2 tips terapi mandiri ringan.
-4. (Action): Ajak konsultasi jika masalah berat.
-5. (Referensi): Wajib cantumkan sumber jika ada. Format: *(Sumber: Alodokter - Anxiety)*.
-6. (Engagement): Akhiri dengan 1 pertanyaan ringan untuk menjaga diskusi.
+        // Build COMPACT Context - TRIMMED & UNIFIED
+        $context = "PERAN: AI Assistant - $siteName ($siteTagline).
+Misi: Memberikan ketenangan, edukasi, dan solusi praktis berbasis psikologi Islam.
 
-DATA KLINIK:
-Nama: " . SITE_NAME . "
-Tagline: " . SITE_TAGLINE . "
-Alamat: " . ($settings['address'] ?? 'Jl. Imam Bonjol No. 123') . "
-Buka: " . ($settings['operating_hours'] ?? '09:00 - 17:00') . "
-Kontak: " . ADMIN_WHATSAPP . "
+$emotionalDirective
+$timeDirective
 
-DATA PENDUKUNG:
-[SERVICES]: " . $servicesInfo . "
-[THERAPISTS]: " . $therapistsInfo . "
-[TESTIMONIALS]: " . $testimonialsInfo . "
-";
+SITE INFO:
+- Nama: AI $siteName
+- Tagline: $siteTagline
+- WhatsApp Admin: $whatsappAdmin
+- Definisi: $definition
 
-        if ($scheduleInfo)
-            $context .= "\n[JADWAL]\n$scheduleInfo\nINSTRUKSI KHUSUS:\n1. Tampilkan jadwal dalam SATU BARIS dipisahkan koma.\n2. JANGAN gunakan list/poin ke bawah.\n3. Contoh: '09:00, 10:00, 11:00' (Compact).\n";
-        if ($relevantKnowledge)
-            $context .= "\n[INFO]\n$relevantKnowledge\n";
+$usps
+
+$targetAudience
+
+$toneOfVoice";
+
+        // Inject only relevant sections
+        if (!empty($servicesInfo)) {
+            $context .= "\nLAYANAN:\n$servicesInfo\n";
+        }
+
+        if (!empty($therapistsInfo)) {
+            $context .= "\nTERAPIS:\n$therapistsInfo\n";
+        }
+
+        if (!empty($testimonialsInfo)) {
+            $context .= "\nTESTIMONI:\n$testimonialsInfo\n";
+        }
+
+        if (!empty($scheduleInfo)) {
+            $context .= "\nJADWAL:\n$scheduleInfo\n";
+        }
+
+        if (!empty($relevantKnowledge)) {
+            $context .= "\nKNOWLEDGE BASE:\n$relevantKnowledge\n";
+        }
+
+        $context .= "
+ATURAN:
+1. Jawab dalam Bahasa Indonesia yang hangat & profesional
+2. Jika tidak tahu, arahkan ke WhatsApp: {$settings['admin_whatsapp']}
+3. Untuk booking, arahkan ke WhatsApp terapis
+4. Maksimal 3 paragraf singkat
+5. Jika user menanyakan harga, sebutkan harga lengkap dari data layanan
+6. Jika user menanyakan jadwal, berikan info jadwal yang tersedia
+7. Jika user membutuhkan terapis tertentu, sebutkan nama dan WhatsApp-nya
+
+TONE OF VOICE:
+- Empati tinggi (validasi perasaan user)
+- Profesional tapi tidak kaku
+- Spiritual (Islam) tapi tidak menggurui
+- Fokus pada solusi praktis
+
+Jawablah dengan ramah, natural, dan solutif. Anda boleh mengawali dengan sapaan singkat jika perlu.";
 
         return $context;
     }
@@ -541,13 +686,18 @@ DATA PENDUKUNG:
     private function getServicesInfo()
     {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT name, description, price, duration FROM services ORDER BY sort_order");
+        $stmt = $pdo->query("SELECT name, description, price, duration, target_audience FROM services ORDER BY sort_order");
         $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $out = "";
         foreach ($services as $s) {
-            $out .= "- {$s['name']} (Rp " . number_format($s['price'], 0, ',', '.') . ", durasi {$s['duration']})\n  {$s['description']}\n";
+            $formattedPrice = number_format($s['price'], 0, ',', '.');
+            $out .= "- LAYANAN: {$s['name']}\n";
+            $out .= "  Harga: Rp {$formattedPrice}\n";
+            $out .= "  Durasi: {$s['duration']} menit\n";
+            $out .= "  Target: {$s['target_audience']}\n";
+            $out .= "  Deskripsi: {$s['description']}\n\n";
         }
-        return $out ?: "Data kosong.";
+        return $out ?: "Data layanan belum tersedia.";
     }
 
     private function getTherapistsInfo()
@@ -569,8 +719,8 @@ DATA PENDUKUNG:
     private function getTestimonialsInfo()
     {
         $pdo = $this->db->getPdo();
-        // Get 3 random featured testimonials
-        $stmt = $pdo->query("SELECT client_name, content, rating FROM testimonials WHERE is_featured=1 ORDER BY RAND() LIMIT 3");
+        // Get 3 featured testimonials (removed RAND() for performance)
+        $stmt = $pdo->query("SELECT client_name, content, rating FROM testimonials WHERE is_featured=1 LIMIT 3");
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $out = "";
         foreach ($res as $r) {
@@ -585,8 +735,7 @@ DATA PENDUKUNG:
         $contextMatches = [];
         $seenContent = [];
 
-        // 1. Vector Search (Semantic) - Limit 5
-        // 1. Vector Search (Semantic) - Limit 5
+        // 1. Vector Search (Semantic) - Limit 5 (Restored)
         try {
             $vectorResults = $this->vectorSearch($msg, 5);
             foreach ($vectorResults as $r) {
@@ -598,10 +747,10 @@ DATA PENDUKUNG:
                 }
             }
         } catch (Exception $e) {
-            error_log("Vector Search Error: " . $e->getMessage());
+            return [];
         }
 
-        // 2. Keyword Search (Literal) - Limit 3
+        // 2. Keyword Search (Literal) - Limit 3 (Restored)
         $kws = $this->extractKeywords($msg);
         if ($kws) {
             $pdo = $this->db->getPdo();
@@ -658,8 +807,65 @@ DATA PENDUKUNG:
 
     private function extractKeywords($msg)
     {
-        $s = ['apa', 'yang', 'dan', 'atau', 'saya', 'bisa', 'tidak'];
-        return array_filter(explode(' ', strtolower($msg)), fn($w) => strlen($w) > 3 && !in_array($w, $s));
+        // Expanded Indonesian stopwords (Phase 3 optimization)
+        $stopwords = [
+            'apa',
+            'yang',
+            'dan',
+            'atau',
+            'saya',
+            'bisa',
+            'tidak',
+            'ini',
+            'itu',
+            'untuk',
+            'dari',
+            'dengan',
+            'pada',
+            'adalah',
+            'akan',
+            'ada',
+            'juga',
+            'sudah',
+            'belum',
+            'kalau',
+            'kalo',
+            'jika',
+            'bila',
+            'mau',
+            'ingin',
+            'bisa',
+            'dapat',
+            'harus',
+            'perlu',
+            'maka',
+            'jadi',
+            'lalu',
+            'kemudian',
+            'sangat',
+            'sekali',
+            'lebih',
+            'paling',
+            'sama',
+            'lain',
+            'semua',
+            'setiap'
+        ];
+
+        $words = explode(' ', strtolower($msg));
+        $keywords = [];
+
+        foreach ($words as $word) {
+            // Remove punctuation
+            $word = preg_replace('/[^\p{L}\p{N}]/u', '', $word);
+
+            // Filter: length > 3 and not stopword
+            if (strlen($word) > 3 && !in_array($word, $stopwords)) {
+                $keywords[] = $word;
+            }
+        }
+
+        return array_unique($keywords);
     }
 
     /**
@@ -743,6 +949,12 @@ DATA PENDUKUNG:
 
     private function getAvailableSchedules($date, $therapistName = null)
     {
+        // Check cache first (Phase 2 optimization)
+        $cacheKey = $date . '_' . ($therapistName ?? 'all');
+        if (isset($this->scheduleCache[$cacheKey])) {
+            return $this->scheduleCache[$cacheKey];
+        }
+
         $pdo = $this->db->getPdo();
 
         // Get therapist ID if name is provided
@@ -794,6 +1006,9 @@ DATA PENDUKUNG:
             $out .= "Tidak ada slot tersedia.\n";
         }
 
+        // Cache the result
+        $this->scheduleCache[$cacheKey] = $out;
+
         return $out;
     }
 
@@ -843,6 +1058,8 @@ DATA PENDUKUNG:
 
     private function extractDateFromMessage($msg)
     {
+        if (empty($msg))
+            return null;
         if (strpos($msg, 'besok') !== false)
             return date('Y-m-d', strtotime('+1 day'));
         if (strpos($msg, 'hari ini') !== false)
@@ -867,8 +1084,7 @@ DATA PENDUKUNG:
             $aiLog = new AiLog();
             $aiLog->logPerformance($perfData);
         } catch (Exception $e) {
-            // Silent fail - don't break chat if logging fails
-            error_log("Performance logging failed: " . $e->getMessage());
+            // Ignore
         }
     }
 }

@@ -55,17 +55,10 @@ function sendReminderToTherapist($bookingData)
         // Send to therapist
         $result = $fonnte->sendMessage($therapistWhatsApp, $message);
 
-        // Log result
-        if ($result['success']) {
-            error_log("Therapist reminder sent to {$therapistWhatsApp} for booking: {$bookingCode}");
-        } else {
-            error_log("Failed to send therapist reminder to {$therapistWhatsApp}: " . ($result['message'] ?? 'Unknown error'));
-        }
 
         return $result;
 
     } catch (Exception $e) {
-        error_log("Exception in sendReminderToTherapist: " . $e->getMessage());
         return [
             'success' => false,
             'message' => $e->getMessage()

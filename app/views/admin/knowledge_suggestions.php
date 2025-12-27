@@ -10,9 +10,9 @@
 </head>
 
 <body class="bg-gray-50">
-    
+
     <?php include __DIR__ . '/../admin/includes/sidebar.php'; ?>
-    
+
     <div class="ml-64 p-8">
         <h1 class="text-3xl font-bold mb-6">Auto-Learning Dashboard</h1>
 
@@ -20,19 +20,19 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div class="bg-white p-6 rounded-lg shadow">
                 <h3 class="text-gray-600 text-sm">Total Conversations Today</h3>
-                <p class="text-3xl font-bold text-indigo-600"><?= $stats->total_conversations ?? 0 ?></p>
+                <p class="text-3xl font-bold text-indigo-600"><?= $stats['total_conversations'] ?? 0 ?></p>
             </div>
             <div class="bg-white p-6 rounded-lg shadow">
                 <h3 class="text-gray-600 text-sm">No Knowledge Match</h3>
-                <p class="text-3xl font-bold text-red-600"><?= $stats->no_match_count ?? 0 ?></p>
+                <p class="text-3xl font-bold text-red-600"><?= $stats['knowledge_not_matched'] ?? 0 ?></p>
             </div>
             <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-gray-600 text-sm">Avg Matches</h3>
-                <p class="text-3xl font-bold text-green-600"><?= number_format($stats->avg_matches ?? 0, 1) ?></p>
+                <h3 class="text-gray-600 text-sm">Match Rate</h3>
+                <p class="text-3xl font-bold text-green-600"><?= $stats['match_rate'] ?? 0 ?>%</p>
             </div>
             <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-gray-600 text-sm">Avg Response Time</h3>
-                <p class="text-3xl font-bold text-blue-600"><?= round($stats->avg_response_time ?? 0) ?>ms</p>
+                <h3 class="text-gray-600 text-sm">New Suggestions</h3>
+                <p class="text-3xl font-bold text-blue-600"><?= $stats['new_suggestions'] ?? 0 ?></p>
             </div>
         </div>
 
@@ -53,23 +53,29 @@
                             <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
-                                        <h3 class="font-semibold text-lg mb-2"><?= htmlspecialchars($suggestion->question) ?>
+                                        <h3 class="font-semibold text-lg mb-2"><?= htmlspecialchars($suggestion['question']) ?>
                                         </h3>
                                         <div class="flex gap-4 text-sm text-gray-600">
                                             <span class="flex items-center">
-                                                <i class="fas fa-eye mr-1"></i>
-                                                Asked <?= $suggestion->frequency ?>x
+                                                <i class="fas fa-fire mr-1 text-orange-500"></i>
+                                                Asked <?= $suggestion['frequency'] ?>x
                                             </span>
-                                            <span>Keywords: <?= htmlspecialchars($suggestion->keywords) ?></span>
-                                            <span><?= date('d M Y', strtotime($suggestion->created_at)) ?></span>
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                                                <?= $suggestion['category'] ?? 'General' ?>
+                                            </span>
+                                            <span>Priority: <?= $suggestion['priority'] ?></span>
+                                            <span><?= $suggestion['days_pending'] ?> days pending</span>
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-500">
+                                            Keywords: <?= htmlspecialchars($suggestion['keywords']) ?>
                                         </div>
                                     </div>
                                     <div class="flex gap-2">
-                                        <button onclick="approveSuggestion(<?= $suggestion->id ?>)"
+                                        <button onclick="approveSuggestion(<?= $suggestion['id'] ?>)"
                                             class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
                                             ✓ Add to KB
                                         </button>
-                                        <button onclick="rejectSuggestion(<?= $suggestion->id ?>)"
+                                        <button onclick="rejectSuggestion(<?= $suggestion['id'] ?>)"
                                             class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
                                             ✗ Reject
                                         </button>

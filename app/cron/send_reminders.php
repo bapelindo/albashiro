@@ -22,10 +22,8 @@ if (!is_dir(dirname($logFile))) {
 
 function logMessage($message)
 {
-    global $logFile;
     $timestamp = date('Y-m-d H:i:s');
     $logEntry = "[{$timestamp}] {$message}\n";
-    file_put_contents($logFile, $logEntry, FILE_APPEND);
     echo $logEntry;
 }
 

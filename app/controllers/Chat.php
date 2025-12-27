@@ -101,13 +101,14 @@ class Chat extends Controller
                 $this->chatModel->saveMessage($userId, 'user', $message);
                 $history = $this->chatModel->getRecentContext($userId, 20); // Last 10 pairs (20 messages)
             } else {
-                // GUEST: Use Session
+                // Add current message to session history (while session is still writable)
                 if (!isset($_SESSION['chat_history'])) {
                     $_SESSION['chat_history'] = [];
                 }
-
-                // Add current message to session history
                 $_SESSION['chat_history'][] = ['role' => 'user', 'message' => $message];
+
+                // Backup for AI response saving later (since session will be closed)
+                $pendingUserMessage = $message;
 
                 // Get context from session (last 10 interactions = 20 messages)
                 $sessionHistory = $_SESSION['chat_history'];
@@ -120,23 +121,30 @@ class Chat extends Controller
                 }
             }
 
-            // CRITICAL: Close session write to prevent blocking other requests
-            // This allows admin pages and other requests to work while streaming
-            session_write_close();
+            ini_set('output_buffering', 'off');
+            ini_set('zlib.output_compression', false);
 
-            // Set SSE headers
+            // CRITICAL: Clear ANY accidental output (warnings, spaces, BOMs)
+            while (ob_get_level() > 0) {
+                @ob_end_clean();
+            }
+
+            // UNLOCK SESSION early to prevent blocking
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+
+            // SSE headers
             header('Content-Type: text/event-stream');
             header('Cache-Control: no-cache');
             header('Connection: keep-alive');
-            header('X-Accel-Buffering: no'); // Disable nginx buffering
+            header('X-Accel-Buffering: no');
+            header('Content-Encoding: none');
 
-            // Disable PHP output buffering
-            if (ob_get_level())
-                ob_end_clean();
+            ob_implicit_flush(true);
 
             $fullResponse = '';
 
-            // Call AI Service with streaming callback
             // Call AI Service with streaming callback
             $aiResponse = $this->aiService->chatStream($message, $history, function ($token, $done) use (&$fullResponse) {
                 $fullResponse .= $token;
@@ -172,26 +180,17 @@ class Chat extends Controller
                 ob_flush();
             flush();
 
-            // SAVE RESPONSE
-            $responseText = $aiResponse['response'];
-            if ($isLoggedIn) {
-                // DB - no session needed
-                $this->chatModel->saveMessage($userId, 'ai', $responseText);
-            } else {
-                // Session - need to re-open session to write
-                session_start();
-                if (!isset($_SESSION['chat_history'])) {
-                    $_SESSION['chat_history'] = [];
-                }
-                $_SESSION['chat_history'][] = ['role' => 'ai', 'message' => $responseText];
-                session_write_close();
-            }
+            // SAVE RESPONSE (Always to DB via ChatLog model)
+            $responseText = $aiResponse['response'] ?? '';
+
+            // Note: ChatLog handles the pair (User + AI) saving to DB using session_id
+            $this->chatModel->saveMessage($userId, 'ai', $responseText);
+
+            // History for Guests is mainly for context in the current stream.
+            // Persistence across requests for guests is handled by ChatLog DB.
 
         } catch (Exception $e) {
-            // Log the error
-            error_log("Chat Streaming Error: " . $e->getMessage());
-            error_log("Stack trace: " . $e->getTraceAsString());
-
+            // Error handling removed for production
             // Send error event
             echo "data: " . json_encode([
                 'error' => true,
@@ -237,6 +236,16 @@ class Chat extends Controller
      */
     public function welcome()
     {
+        // RESET SESSION HISTORY on Welcome Call (New Session / Refresh)
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Clear history for guests (using session)
+        if (isset($_SESSION['chat_history'])) {
+            $_SESSION['chat_history'] = [];
+        }
+
         header('Content-Type: application/json');
 
         // Return detailed Islamic welcome message (Matching AI Persona)

@@ -26,7 +26,7 @@
 
     <title><?= e($title ?? 'Beranda') ?> | <?= SITE_NAME ?> - <?= SITE_TAGLINE ?></title>
 
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN (Development only - compile for production) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Global BASE_URL for JavaScript -->
