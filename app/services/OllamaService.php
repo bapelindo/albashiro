@@ -43,7 +43,7 @@ class OllamaService
 
         $this->baseUrl = rtrim($host ?? $defaultHost, '/');
         $this->model = $model ?? $defaultModel;
-        $this->timeout = $timeout === 120 ? 30 : $timeout; // EMERGENCY: Reduce default timeout to 30s
+        $this->timeout = 120; // 120s for long responses with large context
 
         $this->db = Database::getInstance();
 
@@ -72,8 +72,8 @@ class OllamaService
      */
     public function chatStream($userMessage, $conversationHistory = [], $onToken = null, $onStatus = null, $skipAutoLearning = false)
     {
-        // Increase execution time for streaming
-        set_time_limit(150);
+        // Increase execution time for streaming (long responses with large context)
+        set_time_limit(180);
 
         $startTime = microtime(true);
 
@@ -225,13 +225,14 @@ class OllamaService
             'keep_alive' => 0,  // Clear cache immediately after response
             'options' => [
                 'temperature' => 0.3,  // Reduced from 0.4 for stricter instruction following
-                'num_ctx' => 4096,
-                'num_predict' => 1048,   // Allow full response generation, no artificial length limit
+                'num_ctx' => 20480,  // 20 × 1024 tokens - very large context window
+                'num_predict' => 4096,   // 4K tokens = ~3000 words, very long complete answers
                 'num_thread' => $cpuThreads,
                 'num_batch' => 256,
                 'top_k' => 40,
                 'top_p' => 0.5,  // Reduced from 0.6 for more focused responses
-                'repeat_penalty' => 1.3  // Increased from 1.2 to prevent repetition
+                'repeat_penalty' => 1.1,  // Reduced from 1.3 to allow complete long responses
+                'stop' => null  // Don't use custom stop sequences - let model finish naturally
             ]
         ];
 
@@ -610,10 +611,22 @@ ATURAN:
 5. Booking → arahkan WA terapis
 6. Tidak tahu → arahkan WA $whatsappAdmin
 
+CRITICAL - ANTI-HALLUCINATION (WAJIB IKUTI):
+✅ HANYA jawab dari data yang EKSPLISIT tersedia di bagian LAYANAN/TERAPIS/JADWAL/KNOWLEDGE BASE
+✅ Kalau tidak ada di data → bilang 'Untuk info lebih detail hubungi WA: $whatsappAdmin'
+
+❌ DILARANG buat-buat:
+- Nama orang/founder (kecuali dari data TERAPIS)
+- Lokasi/alamat (kecuali dari data yang diberikan)
+- Angka/statistik/tahun berdiri
+- Program/metode spesifik (kecuali dari LAYANAN)
+- Circle of Excellence atau istilah yang tidak ada di data
+- Testimoni/cerita klien (kecuali dari data TESTIMONI)
+
 PENTING:
 - Greeting: 'Assalamualaikum! Ada yang bisa saya bantu?'
-- List service: nama + harga saja, singkat
-- Penjelasan detail: boleh panjang kalau user tanya spesifik";
+- List service: gunakan HANYA dari bagian LAYANAN
+- Tentang Albashiro: gunakan HANYA dari KEUNGGULAN + KNOWLEDGE BASE, JANGAN tambah detail lain";
         // Inject only relevant sections
         if (!empty($servicesInfo)) {
             $context .= "\nLAYANAN:\n$servicesInfo\n";
