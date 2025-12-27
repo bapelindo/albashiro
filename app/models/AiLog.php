@@ -196,7 +196,14 @@ class AiLog
                 FROM ai_performance_logs 
                 WHERE created_at >= DATE_SUB(NOW(), INTERVAL :days DAY)";
 
-        return $this->db->query($sql, ['days' => $days])->fetch();
+        $result = $this->db->query($sql, ['days' => $days])->fetch();
+        return $result ?: (object) [
+            'total_requests' => 0,
+            'total_errors' => 0,
+            'total_fallbacks' => 0,
+            'error_rate' => 0,
+            'fallback_rate' => 0
+        ];
     }
 
     /**
@@ -232,17 +239,33 @@ class AiLog
     {
         $stats = $this->getAverageResponseTime(null, $days);
 
+        // Ensure $stats is an object even if no data exists
+        if (!$stats) {
+            $stats = (object) [
+                'avg_total' => 0,
+                'avg_api' => 0,
+                'avg_services' => 0,
+                'avg_therapists' => 0,
+                'avg_schedule' => 0,
+                'avg_knowledge' => 0,
+                'avg_context' => 0,
+                'total_requests' => 0
+            ];
+        } else {
+            $stats = (object) $stats;
+        }
+
         // Enhanced component breakdown
         $components = [
             // Main components
-            'API Call (Ollama)' => $stats['avg_api'] ?? 0,
-            'Context Building' => $stats['avg_context'] ?? 0,
+            'API Call (Ollama)' => $stats->avg_api ?? 0,
+            'Context Building' => $stats->avg_context ?? 0,
 
             // Database queries (detailed)
-            'DB: Services Query' => $stats['avg_services'] ?? 0,
-            'DB: Therapists Query' => $stats['avg_therapists'] ?? 0,
-            'DB: Schedule Query' => $stats['avg_schedule'] ?? 0,
-            'DB: Knowledge Search' => $stats['avg_knowledge'] ?? 0,
+            'DB: Services Query' => $stats->avg_services ?? 0,
+            'DB: Therapists Query' => $stats->avg_therapists ?? 0,
+            'DB: Schedule Query' => $stats->avg_schedule ?? 0,
+            'DB: Knowledge Search' => $stats->avg_knowledge ?? 0,
         ];
 
         // Sort by time (descending)
@@ -293,9 +316,9 @@ class AiLog
         }
 
         return [
-            'total_avg_time' => round($stats['avg_total'] ?? 0, 2),
+            'total_avg_time' => round($stats->avg_total ?? 0, 2),
             'components' => $analysis,
-            'total_requests' => $stats['total_requests'] ?? 0,
+            'total_requests' => $stats->total_requests ?? 0,
             'optimization_score' => $this->calculateOptimizationScore($analysis)
         ];
     }
