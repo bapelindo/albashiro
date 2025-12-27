@@ -222,16 +222,16 @@ class OllamaService
             'model' => $this->model,
             'messages' => $messages,
             'stream' => true,  // Enable streaming!
-            'keep_alive' => '5m',
+            'keep_alive' => 0,  // Clear cache immediately after response
             'options' => [
-                'temperature' => 0.3,
-                'num_ctx' => 2048,
-                'num_predict' => 1500,   // Increased to 1500 to fix long response truncation
+                'temperature' => 0.3,  // Reduced from 0.4 for stricter instruction following
+                'num_ctx' => 4096,
+                'num_predict' => 1048,   // Allow full response generation, no artificial length limit
                 'num_thread' => $cpuThreads,
                 'num_batch' => 256,
                 'top_k' => 40,
-                'top_p' => 0.6,
-                'repeat_penalty' => 1.05
+                'top_p' => 0.5,  // Reduced from 0.6 for more focused responses
+                'repeat_penalty' => 1.3  // Increased from 1.2 to prevent repetition
             ]
         ];
 
@@ -508,8 +508,10 @@ class OllamaService
             $testimonialsInfo = $_SESSION['cached_testimonials_info'];
         }
 
-        // Relevant Knowledge Search (FAQ/Blog) - UNCONDITIONAL
-        if (!empty($userMessage)) {
+        // Relevant Knowledge Search (FAQ/Blog) - Skip only for greetings
+        $isGreeting = preg_match('/^(halo|hai|assalamualaikum|selamat|hello)\s*$/i', trim($userMessage));
+
+        if (!empty($userMessage) && !$isGreeting) {
             try {
                 $dbStart = microtime(true);
                 $relevantKnowledge = $this->searchRelevantKnowledge($userMessage, $onStatus);
@@ -582,57 +584,36 @@ class OllamaService
             $timeDirective = "WAKTU: SORE/MALAM. Santai & reflektif.";
         }
 
-        // KEUNGGULAN (USPs)
-        $usps = "KEUNGGULAN KLINIK:
-- Pendekatan Syar'i: Terapi berdasarkan Al-Quran & Sunnah (Bebas klenik/syirik).
-- Terapis Bersertifikasi: Profesional, berpengalaman, dan amanah.
-- Privasi Terjaga: Kerahasiaan klien adalah prioritas mutlak.
-- Metode Modern: Menggabungkan Client-Centered Therapy dengan Spiritual Hypnotherapy.";
-
-        // TONE OF VOICE & STYLE
-        $toneOfVoice = "TONE OF VOICE (GAYA BAHASA):
-- Islami & Sejuk: Gunakan salam (Assalamualaikum) dan istilah yang santun.
-- Empati Tinggi: Tunjukkan kepedulian pada masalah klien (Validasi perasaan mereka).
-- Profesional & Solutif: Berikan jawaban yang jelas, terstruktur, dan mengarah ke solusi (Reservasi).
-- Persuasif Lembut: Ajak klien untuk berubah dengan bahasa yang santun.
-
-ATURAN RESPON:
-- Fokus hanya pada jawaban inti yang relevan.
-- Awali respon langsung dengan kata atau kalimat.
-- Gunakan bahasa teks standar. HINDARI penggunaan simbol grafis, ikon, atau emoji.
-- Pastikan nada bicara sesuai dengan TONE OF VOICE di atas.";
-
-        // TARGET AUDIENCE
-        $targetAudience = "TARGET AUDIENCE:
-- Individu dengan masalah mental/emosional (Cemas, Depresi, Trauma, LGBT, Narkoba).
-- Pasangan suami istri (Konflik rumah tangga, perselingkuhan).
-- Orang tua (Masalah pengasuhan/parenting).";
-
         // SITE IDENTITY - Fallback to constants if DB keys missing
         $siteName = $settings['site_name'] ?? $settings['name'] ?? SITE_NAME;
         $siteTagline = $settings['site_tagline'] ?? $settings['tagline'] ?? SITE_TAGLINE;
         $whatsappAdmin = $settings['admin_whatsapp'] ?? ADMIN_WHATSAPP;
-        $definition = $settings['description'] ?? "Albashiro adalah pusat layanan Islamic Spiritual Hypnotherapy terpercaya yang menggabungkan metode hipnoterapi klinis modern dengan pendekatan Al-Quran dan Sunnah. Kami membantu Anda mengatasi masalah mental, emosional, dan psikosomatis secara syar'i, aman, dan menenangkan.";
 
-        // Build COMPACT Context - TRIMMED & UNIFIED
-        $context = "PERAN: AI Assistant - $siteName ($siteTagline).
-Misi: Memberikan ketenangan, edukasi, dan solusi praktis berbasis psikologi Islam.
+        // Build PRODUCTION-READY Context - OPTIMIZED
+        $context = "Kamu: Asisten AI $siteName (Islamic Spiritual Hypnotherapy)
+WA: $whatsappAdmin
 
 $emotionalDirective
 $timeDirective
 
-SITE INFO:
-- Nama: AI $siteName
-- Tagline: $siteTagline
-- WhatsApp Admin: $whatsappAdmin
-- Definisi: $definition
+KEUNGGULAN:
+- Terapi Islami sesuai Al-Quran & Sunnah
+- Terapis profesional bersertifikat
+- Privasi terjamin
+- Metode modern + spiritual
 
-$usps
+ATURAN:
+1. Salam 'Assalamualaikum' cuma 1x di awal, JANGAN ulang
+2. Jawab langsung, JANGAN intro panjang
+3. Jawab lengkap tapi tetap concise - gunakan space seperlunya
+4. DILARANG bilang 'nama saya AI Albashiro'
+5. Booking → arahkan WA terapis
+6. Tidak tahu → arahkan WA $whatsappAdmin
 
-$targetAudience
-
-$toneOfVoice";
-
+PENTING:
+- Greeting: 'Assalamualaikum! Ada yang bisa saya bantu?'
+- List service: nama + harga saja, singkat
+- Penjelasan detail: boleh panjang kalau user tanya spesifik";
         // Inject only relevant sections
         if (!empty($servicesInfo)) {
             $context .= "\nLAYANAN:\n$servicesInfo\n";
@@ -654,24 +635,6 @@ $toneOfVoice";
             $context .= "\nKNOWLEDGE BASE:\n$relevantKnowledge\n";
         }
 
-        $context .= "
-ATURAN:
-1. Jawab dalam Bahasa Indonesia yang hangat & profesional
-2. Jika tidak tahu, arahkan ke WhatsApp: {$settings['admin_whatsapp']}
-3. Untuk booking, arahkan ke WhatsApp terapis
-4. Maksimal 3 paragraf singkat
-5. Jika user menanyakan harga, sebutkan harga lengkap dari data layanan
-6. Jika user menanyakan jadwal, berikan info jadwal yang tersedia
-7. Jika user membutuhkan terapis tertentu, sebutkan nama dan WhatsApp-nya
-
-TONE OF VOICE:
-- Empati tinggi (validasi perasaan user)
-- Profesional tapi tidak kaku
-- Spiritual (Islam) tapi tidak menggurui
-- Fokus pada solusi praktis
-
-Jawablah dengan ramah, natural, dan solutif. Anda boleh mengawali dengan sapaan singkat jika perlu.";
-
         return $context;
     }
 
@@ -686,16 +649,12 @@ Jawablah dengan ramah, natural, dan solutif. Anda boleh mengawali dengan sapaan 
     private function getServicesInfo()
     {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT name, description, price, duration, target_audience FROM services ORDER BY sort_order");
+        $stmt = $pdo->query("SELECT name, price, duration FROM services ORDER BY sort_order");
         $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $out = "";
         foreach ($services as $s) {
             $formattedPrice = number_format($s['price'], 0, ',', '.');
-            $out .= "- LAYANAN: {$s['name']}\n";
-            $out .= "  Harga: Rp {$formattedPrice}\n";
-            $out .= "  Durasi: {$s['duration']} menit\n";
-            $out .= "  Target: {$s['target_audience']}\n";
-            $out .= "  Deskripsi: {$s['description']}\n\n";
+            $out .= "- {$s['name']}: Rp {$formattedPrice} ({$s['duration']})\n";
         }
         return $out ?: "Data layanan belum tersedia.";
     }
@@ -703,7 +662,7 @@ Jawablah dengan ramah, natural, dan solutif. Anda boleh mengawali dengan sapaan 
     private function getTherapistsInfo()
     {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT id, name, title, specialty, bio FROM therapists WHERE is_active=1");
+        $stmt = $pdo->query("SELECT id, name, title, specialty FROM therapists WHERE is_active=1");
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $out = "";
 
@@ -711,7 +670,7 @@ Jawablah dengan ramah, natural, dan solutif. Anda boleh mengawali dengan sapaan 
 
         foreach ($res as $r) {
             $wa = $wa_config[$r['id']] ?? '-';
-            $out .= "- {$r['name']} {$r['title']} ({$r['specialty']})\n  Bio: {$r['bio']}\n  WA: $wa\n";
+            $out .= "- {$r['name']} {$r['title']} ({$r['specialty']}) - WA: $wa\n";
         }
         return $out ?: "Data kosong.";
     }
@@ -719,13 +678,13 @@ Jawablah dengan ramah, natural, dan solutif. Anda boleh mengawali dengan sapaan 
     private function getTestimonialsInfo()
     {
         $pdo = $this->db->getPdo();
-        // Get 3 featured testimonials (removed RAND() for performance)
-        $stmt = $pdo->query("SELECT client_name, content, rating FROM testimonials WHERE is_featured=1 LIMIT 3");
+        // Get 2 featured testimonials (reduced from 3)
+        $stmt = $pdo->query("SELECT client_name, rating FROM testimonials WHERE is_featured=1 LIMIT 2");
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $out = "";
         foreach ($res as $r) {
             $stars = str_repeat("⭐", $r['rating']);
-            $out .= "- \"{$r['content']}\" - {$r['client_name']} ($stars)\n";
+            $out .= "- {$r['client_name']}: $stars\n";
         }
         return $out ?: "Belum ada testimoni.";
     }
