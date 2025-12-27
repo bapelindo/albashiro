@@ -55,21 +55,13 @@ function sendBookingToGroup($bookingData)
         // Send to group
         $result = $fonnte->sendToGroup($groupId, $groupMessage);
 
-        // Log result
-        if ($result['success']) {
-            error_log("WhatsApp group notification sent for booking: {$bookingCode}");
-        } else {
-            error_log("Failed to send WhatsApp group notification for booking {$bookingCode}: " . ($result['message'] ?? 'Unknown error'));
-        }
 
         return $result;
 
     } catch (Exception $e) {
-        error_log("Exception in sendBookingToGroup: " . $e->getMessage());
         return [
             'success' => false,
             'message' => $e->getMessage()
         ];
     }
 }
-

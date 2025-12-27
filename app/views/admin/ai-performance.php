@@ -132,35 +132,67 @@
 
         <!-- Bottleneck Analysis -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">
-                <i class="fas fa-search text-red-600"></i> Bottleneck Analysis
-            </h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900">
+                    <i class="fas fa-search text-red-600"></i> Bottleneck Analysis
+                </h2>
+                <?php if (isset($bottleneckAnalysis['optimization_score'])): ?>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-600">Optimization Score</div>
+                        <div
+                            class="text-3xl font-bold <?= $bottleneckAnalysis['optimization_score'] >= 80 ? 'text-green-600' : ($bottleneckAnalysis['optimization_score'] >= 60 ? 'text-yellow-600' : 'text-red-600') ?>">
+                            <?= $bottleneckAnalysis['optimization_score'] ?>/100
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
 
             <?php if (!empty($bottleneckAnalysis['components'])): ?>
                 <div class="mb-4">
                     <p class="text-sm text-gray-600 mb-2">Total Avg Time:
-                        <strong><?= number_format($bottleneckAnalysis['total_avg_time'], 2) ?>ms</strong>
+                        <strong
+                            class="<?= $bottleneckAnalysis['total_avg_time'] > 3000 ? 'text-red-600' : ($bottleneckAnalysis['total_avg_time'] > 2000 ? 'text-yellow-600' : 'text-green-600') ?>"><?= number_format($bottleneckAnalysis['total_avg_time'], 2) ?>ms</strong>
                     </p>
                 </div>
 
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <?php foreach ($bottleneckAnalysis['components'] as $component): ?>
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <span
-                                    class="text-sm font-medium <?= $component['is_bottleneck'] ? 'text-red-600' : 'text-gray-700' ?>">
-                                    <?= htmlspecialchars($component['component']) ?>
-                                    <?php if ($component['is_bottleneck']): ?>
-                                        <span class="ml-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded">BOTTLENECK</span>
+                        <div
+                            class="border rounded-lg p-4 <?= $component['severity'] === 'critical' ? 'border-red-300 bg-red-50' : ($component['severity'] === 'high' ? 'border-orange-300 bg-orange-50' : ($component['severity'] === 'medium' ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200')) ?>">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="text-sm font-medium <?= $component['is_bottleneck'] ? 'text-red-600' : 'text-gray-700' ?>">
+                                        <?= htmlspecialchars($component['component']) ?>
+                                    </span>
+                                    <?php if ($component['severity'] === 'critical'): ?>
+                                        <span class="text-xs bg-red-600 text-white px-2 py-1 rounded font-bold">CRITICAL</span>
+                                    <?php elseif ($component['severity'] === 'high'): ?>
+                                        <span class="text-xs bg-orange-600 text-white px-2 py-1 rounded font-bold">HIGH</span>
+                                    <?php elseif ($component['severity'] === 'medium'): ?>
+                                        <span class="text-xs bg-yellow-600 text-white px-2 py-1 rounded">MEDIUM</span>
                                     <?php endif; ?>
+                                </div>
+                                <span
+                                    class="text-sm font-bold <?= $component['severity'] === 'critical' ? 'text-red-700' : ($component['severity'] === 'high' ? 'text-orange-700' : 'text-gray-600') ?>">
+                                    <?= number_format($component['avg_time_ms'], 2) ?>ms (<?= $component['percentage'] ?>%)
                                 </span>
-                                <span class="text-sm text-gray-600"><?= number_format($component['avg_time_ms'], 2) ?>ms
-                                    (<?= $component['percentage'] ?>%)</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="<?= $component['is_bottleneck'] ? 'bg-red-600' : 'bg-blue-600' ?> h-2 rounded-full"
+
+                            <!-- Progress Bar -->
+                            <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+                                <div class="<?= $component['severity'] === 'critical' ? 'bg-red-600' : ($component['severity'] === 'high' ? 'bg-orange-600' : ($component['severity'] === 'medium' ? 'bg-yellow-600' : 'bg-blue-600')) ?> h-3 rounded-full transition-all"
                                     style="width: <?= $component['percentage'] ?>%"></div>
                             </div>
+
+                            <!-- Recommendation -->
+                            <?php if (!empty($component['recommendation'])): ?>
+                                <div
+                                    class="mt-2 text-xs <?= $component['severity'] === 'critical' ? 'text-red-700' : ($component['severity'] === 'high' ? 'text-orange-700' : 'text-gray-600') ?>">
+                                    <i class="fas fa-lightbulb mr-1"></i>
+                                    <strong>Recommendation:</strong> <?= htmlspecialchars($component['recommendation']) ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>

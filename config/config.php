@@ -74,7 +74,7 @@ define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for noti
 // ⚠️ SINGLE SOURCE OF TRUTH - Edit model here only!
 // Primary: Local Ollama (Standalone)
 define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: 'http://localhost:11434');
-define('OLLAMA_MODEL', 'gemma3:4b');  // Quality priority - better understanding for Indonesian
+define('OLLAMA_MODEL', 'gemma3:1b');  // Balance: Better quality than 0.5b, faster than 4b
 
 // Legacy/Cloud APIs (DISABLED)
 // define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');
@@ -97,11 +97,9 @@ define('THERAPIST_WHATSAPP', [
 // =====================================================
 date_default_timezone_set('Asia/Jakarta');
 
-// =====================================================
-// ERROR REPORTING (Set to 0 in production)
-// =====================================================
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Set to 0 in production
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+ini_set('display_errors', 0);
 
 // =====================================================
 // SESSION CONFIGURATION

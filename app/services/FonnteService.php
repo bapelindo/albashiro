@@ -25,7 +25,6 @@ class FonnteService
     public function sendMessage($phoneNumber, $message)
     {
         try {
-            $this->log("Sending message to {$phoneNumber}");
 
             $curl = curl_init();
 
@@ -55,7 +54,6 @@ class FonnteService
             $error = curl_error($curl);
 
             if ($error) {
-                $this->log("CURL Error: {$error}", 'ERROR');
                 return [
                     'success' => false,
                     'message' => $error
@@ -65,7 +63,6 @@ class FonnteService
             $result = json_decode($response, true);
 
             if ($httpCode == 200 && isset($result['status']) && $result['status']) {
-                $this->log("Message sent successfully to {$phoneNumber}");
                 return [
                     'success' => true,
                     'message' => 'Message sent successfully',
@@ -73,7 +70,6 @@ class FonnteService
                 ];
             } else {
                 $errorMsg = $result['reason'] ?? $result['message'] ?? 'Unknown error';
-                $this->log("Failed to send to {$phoneNumber}: {$errorMsg}", 'ERROR');
                 return [
                     'success' => false,
                     'message' => $errorMsg,
@@ -82,7 +78,6 @@ class FonnteService
             }
 
         } catch (Exception $e) {
-            $this->log("Exception: " . $e->getMessage(), 'ERROR');
             return [
                 'success' => false,
                 'message' => $e->getMessage()
@@ -100,7 +95,6 @@ class FonnteService
     public function sendToGroup($groupId, $message)
     {
         try {
-            $this->log("Sending message to group {$groupId}");
 
             $curl = curl_init();
 
@@ -129,7 +123,6 @@ class FonnteService
             $error = curl_error($curl);
 
             if ($error) {
-                $this->log("CURL Error: {$error}", 'ERROR');
                 return [
                     'success' => false,
                     'message' => $error
@@ -139,7 +132,6 @@ class FonnteService
             $result = json_decode($response, true);
 
             if ($httpCode == 200 && isset($result['status']) && $result['status']) {
-                $this->log("Message sent successfully to group {$groupId}");
                 return [
                     'success' => true,
                     'message' => 'Message sent to group successfully',
@@ -147,7 +139,6 @@ class FonnteService
                 ];
             } else {
                 $errorMsg = $result['reason'] ?? $result['message'] ?? 'Unknown error';
-                $this->log("Failed to send to group {$groupId}: {$errorMsg}", 'ERROR');
                 return [
                     'success' => false,
                     'message' => $errorMsg,
@@ -156,7 +147,6 @@ class FonnteService
             }
 
         } catch (Exception $e) {
-            $this->log("Exception: " . $e->getMessage(), 'ERROR');
             return [
                 'success' => false,
                 'message' => $e->getMessage()
@@ -283,7 +273,6 @@ class FonnteService
             return json_decode($response, true);
 
         } catch (Exception $e) {
-            $this->log("Error checking balance: " . $e->getMessage(), 'ERROR');
             return null;
         }
     }
@@ -295,7 +284,6 @@ class FonnteService
     public function getGroups()
     {
         try {
-            $this->log("Fetching WhatsApp groups");
 
             $curl = curl_init();
 
@@ -319,13 +307,11 @@ class FonnteService
             $result = json_decode($response, true);
 
             if (isset($result['data']) && is_array($result['data'])) {
-                $this->log("Found " . count($result['data']) . " groups");
                 return [
                     'success' => true,
                     'groups' => $result['data']
                 ];
             } else {
-                $this->log("No groups found or error", 'ERROR');
                 return [
                     'success' => false,
                     'message' => $result['reason'] ?? 'No groups found',
@@ -334,7 +320,6 @@ class FonnteService
             }
 
         } catch (Exception $e) {
-            $this->log("Error fetching groups: " . $e->getMessage(), 'ERROR');
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -343,20 +328,4 @@ class FonnteService
         }
     }
 
-    /**
-     * Log messages
-     */
-    private function log($message, $level = 'INFO')
-    {
-        $timestamp = date('Y-m-d H:i:s');
-        $logMessage = "[{$timestamp}] [{$level}] {$message}";
-
-        // Use error_log for Vercel (works with serverless)
-        error_log($logMessage);
-
-        // Only echo in CLI mode (cron jobs)
-        if (php_sapi_name() === 'cli') {
-            echo $logMessage . "\n";
-        }
-    }
 }

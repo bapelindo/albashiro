@@ -64,7 +64,7 @@ class AiLog
 
             return true;
         } catch (Exception $e) {
-            error_log("AiLog Error: " . $e->getMessage());
+            // Ignore
             return false;
         }
     }
@@ -232,13 +232,17 @@ class AiLog
     {
         $stats = $this->getAverageResponseTime(null, $days);
 
+        // Enhanced component breakdown
         $components = [
-            'API Call' => $stats->avg_api ?? 0,
-            'DB Services Query' => $stats->avg_services ?? 0,
-            'DB Therapists Query' => $stats->avg_therapists ?? 0,
-            'DB Schedule Query' => $stats->avg_schedule ?? 0,
-            'DB Knowledge Query' => $stats->avg_knowledge ?? 0,
-            'Context Building' => $stats->avg_context ?? 0
+            // Main components
+            'API Call (Ollama)' => $stats['avg_api'] ?? 0,
+            'Context Building' => $stats['avg_context'] ?? 0,
+
+            // Database queries (detailed)
+            'DB: Services Query' => $stats['avg_services'] ?? 0,
+            'DB: Therapists Query' => $stats['avg_therapists'] ?? 0,
+            'DB: Schedule Query' => $stats['avg_schedule'] ?? 0,
+            'DB: Knowledge Search' => $stats['avg_knowledge'] ?? 0,
         ];
 
         // Sort by time (descending)
@@ -250,20 +254,71 @@ class AiLog
         foreach ($components as $component => $time) {
             if ($time > 0) {
                 $percentage = $total > 0 ? round(($time / $total) * 100, 2) : 0;
+
+                // Determine severity and recommendation
+                $severity = 'low';
+                $recommendation = '';
+
+                if ($percentage > 40) {
+                    $severity = 'critical';
+                    $recommendation = 'URGENT: Major bottleneck detected!';
+                } elseif ($percentage > 30) {
+                    $severity = 'high';
+                    $recommendation = 'High impact - needs optimization';
+                } elseif ($percentage > 20) {
+                    $severity = 'medium';
+                    $recommendation = 'Moderate impact - consider optimizing';
+                }
+
+                // Component-specific recommendations
+                if (strpos($component, 'API Call') !== false && $time > 1000) {
+                    $recommendation .= ' | Reduce num_ctx/num_predict or use faster model';
+                } elseif (strpos($component, 'Knowledge Search') !== false && $time > 500) {
+                    $recommendation .= ' | Add vector index or pre-filter results';
+                } elseif (strpos($component, 'Context Building') !== false && $time > 300) {
+                    $recommendation .= ' | Enable context caching';
+                } elseif (strpos($component, 'DB:') !== false && $time > 100) {
+                    $recommendation .= ' | Add caching or optimize query';
+                }
+
                 $analysis[] = [
                     'component' => $component,
                     'avg_time_ms' => round($time, 2),
                     'percentage' => $percentage,
-                    'is_bottleneck' => $percentage > 30 // Flag if > 30% of total time
+                    'is_bottleneck' => $percentage > 30,
+                    'severity' => $severity,
+                    'recommendation' => $recommendation
                 ];
             }
         }
 
         return [
-            'total_avg_time' => round($stats->avg_total ?? 0, 2),
+            'total_avg_time' => round($stats['avg_total'] ?? 0, 2),
             'components' => $analysis,
-            'total_requests' => $stats->total_requests ?? 0
+            'total_requests' => $stats['total_requests'] ?? 0,
+            'optimization_score' => $this->calculateOptimizationScore($analysis)
         ];
+    }
+
+    /**
+     * Calculate optimization score (0-100)
+     * Higher is better
+     */
+    private function calculateOptimizationScore($analysis)
+    {
+        $score = 100;
+
+        foreach ($analysis as $component) {
+            if ($component['severity'] === 'critical') {
+                $score -= 30;
+            } elseif ($component['severity'] === 'high') {
+                $score -= 20;
+            } elseif ($component['severity'] === 'medium') {
+                $score -= 10;
+            }
+        }
+
+        return max(0, $score);
     }
 
     /**

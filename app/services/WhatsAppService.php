@@ -24,7 +24,6 @@ class WhatsAppService
     public function sendMessage($phoneNumber, $message)
     {
         if (!$this->enabled) {
-            error_log("WhatsApp service disabled. Message not sent to: $phoneNumber");
             return ['success' => false, 'message' => 'WhatsApp service is disabled'];
         }
 
@@ -60,7 +59,7 @@ class WhatsAppService
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            // curl_close is No-Op in PHP 8.0+
 
             if ($httpCode === 200) {
                 $result = json_decode($response, true);
@@ -70,7 +69,6 @@ class WhatsAppService
                     'response' => $result
                 ];
             } else {
-                error_log("WhatsApp API error: HTTP $httpCode - $response");
                 return [
                     'success' => false,
                     'message' => "API returned HTTP $httpCode",
@@ -78,7 +76,6 @@ class WhatsAppService
                 ];
             }
         } catch (Exception $e) {
-            error_log("WhatsApp send error: " . $e->getMessage());
             return [
                 'success' => false,
                 'message' => $e->getMessage()
