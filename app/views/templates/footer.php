@@ -286,13 +286,6 @@
     </span>
 </a>
 
-<!-- Back to Top Button -->
-<button id="back-to-top"
-    class="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-40 w-11 h-11 sm:w-12 sm:h-12 bg-primary-800 hover:bg-primary-700 rounded-full items-center justify-center shadow-lg transition-all opacity-0 pointer-events-none hidden md:flex"
-    onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-    <i class="fas fa-chevron-up text-white text-sm sm:text-base"></i>
-</button>
-
 <!-- Swiper JS - Local -->
 <script src="<?= base_url('public/js/swiper-bundle.min.js') ?>"></script>
 
