@@ -161,8 +161,6 @@ class AiLog
      */
     public function getSlowQueries($threshold = 3000, $limit = 50)
     {
-        // Cast to int for security
-        $threshold = (int) $threshold;
         $limit = (int) $limit;
 
         $sql = "SELECT 
@@ -172,11 +170,13 @@ class AiLog
                     db_schedule_time_ms, db_knowledge_time_ms,
                     context_build_time_ms, created_at
                 FROM ai_performance_logs 
-                WHERE total_time_ms > $threshold 
+                WHERE total_time_ms > :threshold 
                 ORDER BY total_time_ms DESC 
                 LIMIT $limit";
 
-        return $this->db->query($sql, [])->fetchAll();
+        return $this->db->query($sql, [
+            'threshold' => (int) $threshold
+        ])->fetchAll();
     }
 
     /**

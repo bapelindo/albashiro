@@ -12,7 +12,7 @@ class Chat extends Controller
     public function __construct()
     {
         // Suppress error display for API endpoints (log errors instead)
-        ini_set('display_errors', '1');
+        ini_set('display_errors', '0'); // FIXED: Should be 0 in production
         error_reporting(E_ALL);
 
         // Instantiation - Use OllamaService (Local Standalone)
@@ -93,32 +93,29 @@ class Chat extends Controller
             $isLoggedIn = isset($_SESSION['user_id']);
             $userId = $isLoggedIn ? $_SESSION['user_id'] : null;
 
-            // HISTORY HANDLING
+            // HISTORY HANDLING - GET HISTORY FIRST (before current message)
             $history = [];
 
             if ($isLoggedIn) {
-                // MEMBER: Save to DB & Get Context from DB
-                $this->chatModel->saveMessage($userId, 'user', $message);
-                $history = $this->chatModel->getRecentContext($userId, 20); // Last 10 pairs (20 messages)
+                // MEMBER: Get PREVIOUS context from DB first (NOT including current message)
+                $history = $this->chatModel->getRecentContext($userId, 20); // Last 10 pairs
+                // NOTE: User message will be saved AFTER AI response (as pair)
             } else {
-                // Add current message to session history (while session is still writable)
+                // GUEST: Get from session (NOT including current message yet)
                 if (!isset($_SESSION['chat_history'])) {
                     $_SESSION['chat_history'] = [];
                 }
-                $_SESSION['chat_history'][] = ['role' => 'user', 'message' => $message];
 
-                // Backup for AI response saving later (since session will be closed)
-                $pendingUserMessage = $message;
-
-                // Get context from session (last 10 interactions = 20 messages)
+                // Get existing history BEFORE adding current message
                 $sessionHistory = $_SESSION['chat_history'];
                 $historyLimit = array_slice($sessionHistory, -20);
 
                 // Format for AI Service
-                $history = [];
                 foreach ($historyLimit as $h) {
                     $history[] = ['role' => $h['role'], 'message' => $h['message']];
                 }
+
+                // Will add current message to session AFTER AI response
             }
 
             ini_set('output_buffering', 'off');
@@ -180,17 +177,26 @@ class Chat extends Controller
                 ob_flush();
             flush();
 
-            // SAVE RESPONSE (Always to DB via ChatLog model)
+            // SAVE COMPLETE CONVERSATION PAIR (User + AI) to DB
             $responseText = $aiResponse['response'] ?? '';
 
-            // Note: ChatLog handles the pair (User + AI) saving to DB using session_id
-            $this->chatModel->saveMessage($userId, 'ai', $responseText);
+            // Save to DB using ChatLog model
+            $this->chatModel->saveConversationPair($userId, $message, $responseText);
 
-            // History for Guests is mainly for context in the current stream.
-            // Persistence across requests for guests is handled by ChatLog DB.
+            // Also save to session for guests (for current session context)
+            if (!$isLoggedIn) {
+                // Reopen session to save history
+                if (session_status() !== PHP_SESSION_ACTIVE) {
+                    session_start();
+                }
+                $_SESSION['chat_history'][] = ['role' => 'user', 'message' => $message];
+                $_SESSION['chat_history'][] = ['role' => 'ai', 'message' => $responseText];
+            }
 
         } catch (Exception $e) {
-            // Error handling removed for production
+            // Log error for debugging
+            error_log("Chat stream error: " . $e->getMessage());
+
             // Send error event
             echo "data: " . json_encode([
                 'error' => true,
@@ -215,16 +221,23 @@ class Chat extends Controller
             return;
         }
 
-        if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-            return;
+        // Ensure session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
-        // Clear session history
+        // Clear session history (for both logged in and guest users)
         $_SESSION['chat_history'] = [];
 
-        // Optional: Clear DB history if requested? 
-        // For now, simple clear.
+        // Optional: Clear DB history for logged-in users
+        if (isset($_SESSION['user_id']) && $this->chatModel) {
+            try {
+                // Uncomment if you want to clear DB history
+                // $this->chatModel->clearHistory($_SESSION['user_id']);
+            } catch (Exception $e) {
+                error_log("Clear history error: " . $e->getMessage());
+            }
+        }
 
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);

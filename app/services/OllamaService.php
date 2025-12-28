@@ -1,14 +1,14 @@
 <?php
 /**
  * Albashiro - Ollama AI Service (Local Standalone)
- * Handles interactions with Local Ollama API (gemma3:1b)
+ * Handles interactions with Local Ollama API (gemma3:4b - Optimized)
  */
 
 class OllamaService
 {
     private $baseUrl;
     private $model;
-    private $timeout = 45;  // Increased from 30 to 45 seconds
+    private $timeout;
     private $db;
 
     // Auto-learning metadata
@@ -16,16 +16,15 @@ class OllamaService
     private $lastSearchKeywords = '';
     private $autoLearning;
 
-    // Performance: Context caching
-    private $contextCache = null;
-    private $cacheExpiry = 0;
-    private $cacheTTL = 300; // 5 minutes
-
-    // Performance: Schedule caching
+    // Performance: Caching
     private $scheduleCache = [];
-
-    // Performance: Embedding caching
     private $embeddingCache = [];
+    private $knowledgeCache = [];
+
+    // Static caches (shared across instances)
+    private static $greetingPattern = '/^(halo|hai|assalamualaikum|selamat|hello|hi|horas|apa kabar)(\s|!|\?)*$/i';
+    private static $staticSettingsCache = null;
+    private static $staticSettingsCacheTime = 0;
 
     /**
      * Constructor
@@ -39,7 +38,7 @@ class OllamaService
         int $timeout = 120
     ) {
         $defaultHost = defined('OLLAMA_API_URL') ? OLLAMA_API_URL : 'http://localhost:11434';
-        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'qwen2.5:0.5b';
+        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'gemma3:4b';
 
         $this->baseUrl = rtrim($host ?? $defaultHost, '/');
         $this->model = $model ?? $defaultModel;
@@ -75,6 +74,17 @@ class OllamaService
         // Increase execution time for streaming (long responses with large context)
         set_time_limit(180);
 
+        // Early return for empty messages (prevents wasted processing)
+        if (empty(trim($userMessage))) {
+            return [
+                'response' => 'Maaf, pesan Anda kosong. Silakan kirim pertanyaan.',
+                'metadata' => [
+                    'provider' => 'validation',
+                    'response_time_ms' => 0
+                ]
+            ];
+        }
+
         $startTime = microtime(true);
 
         // Performance tracking
@@ -94,6 +104,8 @@ class OllamaService
             'context_build_time_ms' => null,
             'knowledge_matched' => 0,
             'keywords_searched' => '',
+            'user_sentiment' => 'NEUTRAL', // Track detected sentiment
+
             'error_occurred' => 0,
             'error_message' => null,
             'fallback_used' => 0,
@@ -104,33 +116,39 @@ class OllamaService
         if ($onStatus && is_callable($onStatus))
             $onStatus("Sedang memproses dengan penuh perhatian...");
 
-        // 1. Build System Context (Dynamic)
-        $contextStart = microtime(true);
-        $systemContext = $this->buildSystemContext($userMessage, $perfData, $onStatus);
-        $perfData['context_build_time_ms'] = round((microtime(true) - $contextStart) * 1000);
-
-        // 2. Prepare Messages
+        // 2. Prepare Messages Array & Build History FIRST
         $messages = [];
-
-        // Add System Prompt first
-        $messages[] = ['role' => 'system', 'content' => $systemContext];
 
         // Add Conversation History
         if (!empty($conversationHistory)) {
-            $historyToUse = array_slice($conversationHistory, -4);
+            // Limit to last 8 messages (4 pairs) for 10k context
+            $historyToUse = array_slice($conversationHistory, -8);
             foreach ($historyToUse as $msg) {
                 // Map 'ai' role to 'assistant'
                 $role = (($msg['role'] ?? '') === 'ai') ? 'assistant' : ($msg['role'] ?? 'user');
                 $content = $msg['message'] ?? ($msg['content'] ?? '');
 
-                // Pastikan history bersih
-                if ($role === 'assistant') {
-                    // Hapus artifacts dari history masa lalu agar tidak menular
-                    $content = ltrim($content, "!?. \t\n\r");
-                }
+                // Clean assistant responses
+                // Note: Don't strip leading characters - they may be intentional
+                // (e.g., "Assalamualaikum" should not become "ssalamualaikum")
 
                 $messages[] = ['role' => $role, 'content' => $content];
             }
+        }
+
+        // 3. Build System Context ONCE with correct hasHistory
+        $contextStart = microtime(true);
+        $hasHistory = !empty($messages); // True if we have history messages
+        $systemContext = $this->buildSystemContext($userMessage, $perfData, $onStatus, $hasHistory);
+        $perfData['context_build_time_ms'] = round((microtime(true) - $contextStart) * 1000);
+
+        // 4. For custom model (albashiro-assistant), SYSTEM prompt is already embedded in Modelfile
+        // Don't override with system role - instead, prepend dynamic data to user message
+        $isCustomModel = (strpos($this->model, 'albashiro') !== false);
+
+        if (!$isCustomModel) {
+            // Standard model: send system context as system role
+            array_unshift($messages, ['role' => 'system', 'content' => $systemContext]);
         }
 
         // --- PERBAIKAN PENTING: CEK DUPLIKASI ---
@@ -140,12 +158,19 @@ class OllamaService
         $isDuplicate = ($lastMsg && $lastMsg['role'] === 'user' && trim($lastMsg['content']) === trim($userMessage));
 
         if (!$isDuplicate) {
-            $messages[] = ['role' => 'user', 'content' => $userMessage];
+            // For custom model, prepend dynamic context to user message
+            if ($isCustomModel && !empty($systemContext)) {
+                $userMessageWithContext = "<context>\n$systemContext\n</context>\n\n<user_query>\n$userMessage\n</user_query>";
+                $messages[] = ['role' => 'user', 'content' => $userMessageWithContext];
+            } else {
+                $messages[] = ['role' => 'user', 'content' => $userMessage];
+            }
         }
 
         try {
             // Call Streaming API
             $apiStart = microtime(true);
+
             $fullResponse = $this->generateChatStream($messages, $onToken);
             $apiTime = round((microtime(true) - $apiStart) * 1000);
             $perfData['api_call_time_ms'] = $apiTime;
@@ -221,25 +246,25 @@ class OllamaService
         $payload = [
             'model' => $this->model,
             'messages' => $messages,
-            'stream' => true,  // Enable streaming!
-            'keep_alive' => 0,  // Clear cache immediately after response
+            'stream' => true,
+            'keep_alive' => '60m',  // Keep model loaded for 10 mins (faster subsequent)
             'options' => [
-                'temperature' => 0.3,  // Reduced from 0.4 for stricter instruction following
-                'num_ctx' => 20480,  // 20 × 1024 tokens - very large context window
-                'num_predict' => 4096,   // 4K tokens = ~3000 words, very long complete answers
+                // Quality Settings
+                'temperature' => 0.6,       // Balanced creativity
+                'top_k' => 40,              // Standard diversity
+                'top_p' => 0.9,             // Natural language flow
+                'repeat_penalty' => 1.0,    // Prevent repetition
+
+                // Speed Settings
+                'num_ctx' => 4096,          // Context window (smaller = faster)
+                'num_predict' => 2048,      // Max response tokens (shorter = faster)
                 'num_thread' => $cpuThreads,
-                'num_batch' => 256,
-                'top_k' => 40,
-                'top_p' => 0.5,  // Reduced from 0.6 for more focused responses
-                'repeat_penalty' => 1.1,  // Reduced from 1.3 to allow complete long responses
-                'stop' => null  // Don't use custom stop sequences - let model finish naturally
+                'num_batch' => 2048,         // Batch size for throughput
             ]
         ];
 
         $fullResponse = '';
         $buffer = '';
-
-        // DEBUG: Log the full payload to catch "!" injection
 
         // cURL streaming handler
         $ch = curl_init($endpoint);
@@ -300,8 +325,7 @@ class OllamaService
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-
-        // No curl_close() needed in PHP 8.0+ (and deprecated in 8.4+)
+        // Note: curl_close() deprecated in PHP 8.5+ (auto-closed by PHP)
 
         if ($result === false) {
             throw new Exception("Ollama Streaming Connection Error: $error");
@@ -310,7 +334,6 @@ class OllamaService
         if ($httpCode >= 400) {
             throw new Exception("Ollama Streaming API Error (HTTP $httpCode)");
         }
-
 
         return $fullResponse;
     }
@@ -467,16 +490,20 @@ class OllamaService
      * Build system context with Albashiro information
      * SMART INJECTION: Only include relevant data based on user's question
      */
-    private function buildSystemContext($userMessage = '', &$perfData = null, $onStatus = null)
+    private function buildSystemContext($userMessage = '', &$perfData = null, $onStatus = null, $hasHistory = false)
     {
         // Safety: Ensure perfData is an array if passed as null
         if ($perfData === null)
             $perfData = [];
 
-        $needsServices = preg_match('/(layanan|service|terapi|paket|harga|biaya|price|berapa)/i', $userMessage);
-        $needsTherapists = preg_match('/(terapis|therapist|dokter|bunda|ustadzah|siapa|profil)/i', $userMessage);
-        $needsSchedule = preg_match('/(jadwal|tersedia|booking|slot|kosong|kapan|waktu|jam|reservasi|praktek|janji|bisa)/i', $userMessage);
-        $needsTestimonials = preg_match('/(testimoni|review|pengalaman|hasil|berhasil)/i', $userMessage);
+        $needsServices = preg_match('/(layanan|service|terapi|paket|harga|biaya|price|berapa.*biaya|berapa.*harga)/i', $userMessage);
+        $needsTherapists = preg_match('/(terapis|therapist|dokter|bunda|ustadzah|siapa.*terapis|profil.*terapis)/i', $userMessage);
+
+        // FIXED: More specific schedule pattern - removed generic words like "bisa", "waktu"  
+        // Only trigger if explicitly asking about schedule/booking
+        $needsSchedule = preg_match('/(jadwal|tersedia.*jadwal|booking|slot|kosong.*jadwal|kapan.*tersedia|jam.*praktek|jam.*buka|reservasi|janji.*temu)/i', $userMessage);
+
+        $needsTestimonials = preg_match('/(testimoni|review|pengalaman|hasil.*terapi|berhasil.*terapi)/i', $userMessage);
 
         // Only fetch what's needed
         $servicesInfo = '';
@@ -509,8 +536,8 @@ class OllamaService
             $testimonialsInfo = $_SESSION['cached_testimonials_info'];
         }
 
-        // Relevant Knowledge Search (FAQ/Blog) - Skip only for greetings
-        $isGreeting = preg_match('/^(halo|hai|assalamualaikum|selamat|hello)\s*$/i', trim($userMessage));
+        // Relevant Knowledge Search (FAQ/Blog) - Skip for pure greetings
+        $isGreeting = preg_match(self::$greetingPattern, trim($userMessage));
 
         if (!empty($userMessage) && !$isGreeting) {
             try {
@@ -525,8 +552,8 @@ class OllamaService
             }
         }
 
-        // Schedule (only if asking about schedule)
-        if ($needsSchedule) {
+        // Schedule (only if asking about schedule) - ALSO skip for greetings!
+        if ($needsSchedule && !$isGreeting) {
             try {
                 $dbStart = microtime(true);
                 $queryDate = $this->extractDateFromMessage($userMessage) ?? date('Y-m-d');
@@ -549,103 +576,89 @@ class OllamaService
 
         // ANALYZE SENTIMENT (EQ Engine) - Simplified
         $mood = $this->analyzeSentiment($userMessage);
-        $emotionalDirective = "";
-
-        switch ($mood) {
-            case 'ANXIETY':
-                $emotionalDirective = "MODE: CALMING. Fokus validasi ketakutan. Sangat lembut.";
-                break;
-            case 'SADNESS':
-                $emotionalDirective = "MODE: EMPATI. Berikan harapan. Pendekatan spiritual.";
-                break;
-            case 'ANGER':
-                $emotionalDirective = "MODE: DE-ESKALASI. Jangan defensif. Tawarkan solusi.";
-                break;
-            case 'CURIOUS':
-                $emotionalDirective = "MODE: SALES. Jelaskan value. Arahkan booking.";
-                break;
-            case 'URGENT':
-                $emotionalDirective = "MODE: DARURAT. Singkat padat. Arahkan WhatsApp.";
-                break;
-            default:
-                $emotionalDirective = "MODE: STANDARD. Seimbang empati & edukasi.";
-        }
-
-        // TIME AWARENESS - Simplified
-        $hour = (int) date('H');
-        $timeDirective = "";
-
-        if ($hour >= 22 || $hour < 4) {
-            $timeDirective = "WAKTU: LARUT MALAM. User mungkin insomnia. Nada tenang.";
-        } elseif ($hour >= 4 && $hour < 10) {
-            $timeDirective = "WAKTU: PAGI. Afirmasi positif.";
-        } elseif ($hour >= 11 && $hour < 15) {
-            $timeDirective = "WAKTU: SIANG. Professional & energic.";
-        } else {
-            $timeDirective = "WAKTU: SORE/MALAM. Santai & reflektif.";
-        }
+        // SIMPLIFIED MOOD - Only if critical
+        $moodHint = "";
+        if ($mood === 'ANXIETY')
+            $moodHint = "Nada: Tenang";
+        elseif ($mood === 'URGENT')
+            $moodHint = "Nada: Cepat, arahkan WA";
+        elseif ($mood === 'ANGER')
+            $moodHint = "Nada: Netral, solusi";
 
         // SITE IDENTITY - Fallback to constants if DB keys missing
         $siteName = $settings['site_name'] ?? $settings['name'] ?? SITE_NAME;
         $siteTagline = $settings['site_tagline'] ?? $settings['tagline'] ?? SITE_TAGLINE;
         $whatsappAdmin = $settings['admin_whatsapp'] ?? ADMIN_WHATSAPP;
 
-        // Build PRODUCTION-READY Context - OPTIMIZED
-        $context = "Kamu: Asisten AI $siteName (Islamic Spiritual Hypnotherapy)
-WA: $whatsappAdmin
 
-$emotionalDirective
-$timeDirective
+        // Context suppression logic removed as per user request to handle priority in Modelfile.
+        $context = ""; // Initialize context variable
 
-KEUNGGULAN:
-- Terapi Islami sesuai Al-Quran & Sunnah
-- Terapis profesional bersertifikat
-- Privasi terjamin
-- Metode modern + spiritual
+        // Inject current date/time (so AI knows the real date)
+        $currentDate = date('d F Y'); // e.g., "28 Desember 2025"
+        $currentTime = date('H:i'); // e.g., "12:30"
+        $dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][date('w')];
+        $context .= "WAKTU: $dayName, $currentDate pukul $currentTime WIB\n\n";
 
-ATURAN:
-1. Salam 'Assalamualaikum' cuma 1x di awal, JANGAN ulang
-2. Jawab langsung, JANGAN intro panjang
-3. Jawab lengkap tapi tetap concise - gunakan space seperlunya
-4. DILARANG bilang 'nama saya AI Albashiro'
-5. Booking → arahkan WA terapis
-6. Tidak tahu → arahkan WA $whatsappAdmin
+        // SENTIMENT-BASED RESPONSE ADJUSTMENT
+        $sentiment = $this->analyzeSentiment($userMessage);
 
-CRITICAL - ANTI-HALLUCINATION (WAJIB IKUTI):
-✅ HANYA jawab dari data yang EKSPLISIT tersedia di bagian LAYANAN/TERAPIS/JADWAL/KNOWLEDGE BASE
-✅ Kalau tidak ada di data → bilang 'Untuk info lebih detail hubungi WA: $whatsappAdmin'
+        switch ($sentiment) {
+            case 'URGENT':
+                $context .= "PENTING: User tampak membutuhkan bantuan segera. Berikan respons yang sangat empatik dan tawarkan solusi cepat. Prioritaskan keselamatan dan kesehatan mental mereka. Gunakan nada yang menenangkan namun responsif.\n\n";
+                break;
 
-❌ DILARANG buat-buat:
-- Nama orang/founder (kecuali dari data TERAPIS)
-- Lokasi/alamat (kecuali dari data yang diberikan)
-- Angka/statistik/tahun berdiri
-- Program/metode spesifik (kecuali dari LAYANAN)
-- Circle of Excellence atau istilah yang tidak ada di data
-- Testimoni/cerita klien (kecuali dari data TESTIMONI)
+            case 'ANXIETY':
+                $context .= "PERHATIAN: User tampak cemas atau khawatir. Berikan respons yang menenangkan dan reassuring. Fokus pada solusi praktis. Hindari informasi yang bisa menambah kecemasan. Gunakan bahasa yang lembut dan supportif.\n\n";
+                break;
 
-PENTING:
-- Greeting: 'Assalamualaikum! Ada yang bisa saya bantu?'
-- List service: gunakan HANYA dari bagian LAYANAN
-- Tentang Albashiro: gunakan HANYA dari KEUNGGULAN + KNOWLEDGE BASE, JANGAN tambah detail lain";
-        // Inject only relevant sections
-        if (!empty($servicesInfo)) {
-            $context .= "\nLAYANAN:\n$servicesInfo\n";
+            case 'SADNESS':
+                $context .= "EMPATI: User tampak sedih atau down. Berikan dukungan emosional yang lembut. Tunjukkan empati dan pengertian mendalam. Tawarkan bantuan dengan cara yang supportif dan non-judgmental. Validasi perasaan mereka.\n\n";
+                break;
+
+            case 'ANGER':
+                $context .= "TENANG: User tampak frustrasi atau kecewa. Tetap tenang dan profesional. Akui perasaan mereka dengan validasi. Fokus pada solusi konstruktif. Hindari nada defensif. Tunjukkan bahwa Anda memahami dan siap membantu.\n\n";
+                break;
+
+            case 'CURIOUS':
+                $context .= "INFORMATIF: User sedang mencari informasi (harga/jadwal/booking). Berikan jawaban yang jelas, terstruktur, dan lengkap. Sertakan detail praktis. Proaktif tawarkan bantuan lebih lanjut. Gunakan nada yang helpful dan encouraging.\n\n";
+                break;
+
+            case 'NEUTRAL':
+            default:
+                // No special adjustment for neutral sentiment
+                break;
         }
 
-        if (!empty($therapistsInfo)) {
-            $context .= "\nTERAPIS:\n$therapistsInfo\n";
+        // Store sentiment for analytics
+        if (isset($perfData)) {
+            $perfData['user_sentiment'] = $sentiment;
         }
 
-        if (!empty($testimonialsInfo)) {
-            $context .= "\nTESTIMONI:\n$testimonialsInfo\n";
+        // Mood context if applicable
+        if ($moodHint) {
+            $context .= "$moodHint\n\n";
         }
+        // Inject data (compact format)
+        // Inject data (compact format) - PRIORITY ORDER (Least to Most Important)
 
-        if (!empty($scheduleInfo)) {
-            $context .= "\nJADWAL:\n$scheduleInfo\n";
-        }
+        // 1. Knowledge Base (General Info) - Lowest Priority
+        if ($relevantKnowledge)
+            $context .= "\n\nKB:\n$relevantKnowledge";
 
-        if (!empty($relevantKnowledge)) {
-            $context .= "\nKNOWLEDGE BASE:\n$relevantKnowledge\n";
+        // 2. Static Data
+        if ($servicesInfo)
+            $context .= "\n\nLAYANAN:\n$servicesInfo";
+        if ($therapistsInfo)
+            $context .= "\n\nTERAPIS:\n$therapistsInfo";
+        if ($testimonialsInfo)
+            $context .= "\n\nTESTI:\n$testimonialsInfo";
+
+        // 3. Real-time Schedule (HIGHEST PRIORITY - Must override KB)
+        if ($scheduleInfo) {
+            $context .= "\n\nJADWAL (INFO TERKINI - PRIORITAS UTAMA):\n$scheduleInfo";
+            // Add warning to reinforced model attention
+            $context .= "\n[INSTRUKSI: Gunakan data JADWAL di atas sebagai kebenaran mutlak. Abaikan info jadwal lain di bagian KB jika bertentangan.]";
         }
 
         return $context;
@@ -653,10 +666,23 @@ PENTING:
 
     private function getSiteSettings()
     {
+        // Static cache for 1 hour (site settings rarely change)
+        if (self::$staticSettingsCache !== null && (time() - self::$staticSettingsCacheTime) < 3600) {
+            return self::$staticSettingsCache;
+        }
+
         $pdo = $this->db->getPdo();
         $stmt = $pdo->query("SELECT setting_key, setting_value FROM site_settings");
-        $results = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-        return $results ?: [];
+        $settings = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $settings[$row['setting_key']] = $row['setting_value'];
+        }
+
+        // Cache the result
+        self::$staticSettingsCache = $settings;
+        self::$staticSettingsCacheTime = time();
+
+        return $settings;
     }
 
     private function getServicesInfo()
@@ -704,10 +730,20 @@ PENTING:
 
     private function searchRelevantKnowledge($msg, $onStatus = null)
     {
+        // Cache check (5-10ms saved on repeated queries)
+        $cacheKey = md5(strtolower(trim($msg)));
+        if (isset($this->knowledgeCache[$cacheKey])) {
+            // Update stats from cache
+            $cached = $this->knowledgeCache[$cacheKey];
+            $this->lastKnowledgeMatchCount = $cached['count'];
+            $this->lastSearchKeywords = $cached['keywords'];
+            return $cached['result'];
+        }
+
         $contextMatches = [];
         $seenContent = [];
 
-        // 1. Vector Search (Semantic) - Limit 5 (Restored)
+        // 1. Vector Search (Semantic) - Skip if table doesn't exist
         try {
             $vectorResults = $this->vectorSearch($msg, 5);
             foreach ($vectorResults as $r) {
@@ -719,25 +755,27 @@ PENTING:
                 }
             }
         } catch (Exception $e) {
-            return [];
+            // Table doesn't exist or vector search failed - continue with keyword search
         }
 
-        // 2. Keyword Search (Literal) - Limit 3 (Restored)
+        // 2. Keyword Search (Optimized LIKE) - TiDB Compatible
         $kws = $this->extractKeywords($msg);
         if ($kws) {
             $pdo = $this->db->getPdo();
-            $p = [];
-            foreach ($kws as $k) {
-                // Prepare params for FAQ search
-                $p[] = "%$k%";
-                $p[] = "%$k%";
-            }
 
-            // 2a. Search FAQs
-            $q_faq = array_fill(0, count($kws), "question LIKE ? OR answer LIKE ?");
+            // Limit to top 3 keywords for performance
+            $topKeywords = array_slice($kws, 0, 3);
+
+            // 2a. Search FAQs (Optimized with prefix index)
+            $p = [];
+            foreach ($topKeywords as $k) {
+                $p[] = "$k%";  // Prefix match (faster with index)
+                $p[] = "$k%";
+            }
+            $q_faq = array_fill(0, count($topKeywords), "question LIKE ? OR answer LIKE ?");
             $sql_faq = "SELECT question, answer FROM faqs WHERE is_active=1 AND (" . implode(" OR ", $q_faq) . ") LIMIT 3";
             $stmt = $pdo->prepare($sql_faq);
-            $stmt->execute($p); // Execute with duplicate params for Q and A
+            $stmt->execute($p);
 
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
                 $content = "Q: {$r['question']}\nA: {$r['answer']}";
@@ -748,22 +786,73 @@ PENTING:
                 }
             }
 
-            // 2b. Search RAG Vectors (Text Match) - Hybrid Boost
-            // Improved: Also search the massive knowledge base for exact keyword matches
-            $q_vec = array_fill(0, count($kws), "content_text LIKE ?");
-            $p_vec = array_map(fn($k) => "%$k%", $kws);
 
-            $sql_vec = "SELECT content_text FROM knowledge_vectors WHERE " . implode(" OR ", $q_vec) . " LIMIT 3";
-            $stmt_vec = $pdo->prepare($sql_vec);
-            $stmt_vec->execute($p_vec);
+            // 2b. Search Knowledge Vectors (5050 rows - optimized with index)
+            try {
+                $p_vec = array_map(fn($k) => "$k%", $topKeywords);
+                $q_vec = array_fill(0, count($topKeywords), "content_text LIKE ?");
+                $sql_vec = "SELECT content_text FROM knowledge_vectors WHERE " . implode(" OR ", $q_vec) . " LIMIT 3";
+                $stmt_vec = $pdo->prepare($sql_vec);
+                $stmt_vec->execute($p_vec);
 
-            foreach ($stmt_vec->fetchAll(PDO::FETCH_ASSOC) as $r) {
-                $content = $r['content_text'];
-                $hash = md5($content);
-                if (!isset($seenContent[$hash])) {
-                    $contextMatches[] = $content; // Add text match result
-                    $seenContent[$hash] = true;
+                foreach ($stmt_vec->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                    $content = $r['content_text'];
+                    $hash = md5($content);
+                    if (!isset($seenContent[$hash])) {
+                        $contextMatches[] = $content;
+                        $seenContent[$hash] = true;
+                    }
                 }
+            } catch (Exception $e) {
+                // Table doesn't exist or query failed, skip
+            }
+
+            // 2c. Search AI Knowledge Base (531 rows - optimized with index)
+            try {
+                $p_kb = [];
+                foreach ($topKeywords as $k) {
+                    $p_kb[] = "$k%";
+                    $p_kb[] = "$k%";
+                }
+                $q_kb = array_fill(0, count($topKeywords), "(question LIKE ? OR answer LIKE ?)");
+                $sql_kb = "SELECT question, answer FROM ai_knowledge_base WHERE is_active=1 AND (" . implode(" OR ", $q_kb) . ") LIMIT 3";
+                $stmt_kb = $pdo->prepare($sql_kb);
+                $stmt_kb->execute($p_kb);
+
+                foreach ($stmt_kb->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                    $content = "Q: {$r['question']}\nA: {$r['answer']}";
+                    $hash = md5($content);
+                    if (!isset($seenContent[$hash])) {
+                        $contextMatches[] = $content;
+                        $seenContent[$hash] = true;
+                    }
+                }
+            } catch (Exception $e) {
+                // Table doesn't exist or query failed, skip
+            }
+
+            // 2d. Search Training Examples (Few-shot learning from DB)
+            try {
+                $q_train = array_fill(0, count($kws), "(keywords LIKE ? OR user_input LIKE ?)");
+                $p_train = [];
+                foreach ($kws as $k) {
+                    $p_train[] = "%$k%";
+                    $p_train[] = "%$k%";
+                }
+                $sql_train = "SELECT user_input, assistant_response FROM ai_training_examples WHERE is_active=1 AND (" . implode(" OR ", $q_train) . ") ORDER BY priority DESC LIMIT 2";
+                $stmt_train = $pdo->prepare($sql_train);
+                $stmt_train->execute($p_train);
+
+                foreach ($stmt_train->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                    $content = "CONTOH:\nUser: {$r['user_input']}\nAssistant: {$r['assistant_response']}";
+                    $hash = md5($content);
+                    if (!isset($seenContent[$hash])) {
+                        $contextMatches[] = $content;
+                        $seenContent[$hash] = true;
+                    }
+                }
+            } catch (Exception $e) {
+                // Table might not exist yet, ignore
             }
         }
 
@@ -771,10 +860,19 @@ PENTING:
         $this->lastKnowledgeMatchCount = count($contextMatches);
         $this->lastSearchKeywords = "HYBRID: " . count($contextMatches) . " items";
 
-        if (empty($contextMatches))
-            return "";
+        $result = empty($contextMatches) ? "" : implode("\n---\n", array_slice($contextMatches, 0, 8));
 
-        return implode("\n---\n", array_slice($contextMatches, 0, 8)); // Return max 8 unique items
+        // Cache the result (limit cache size to 50 entries)
+        if (count($this->knowledgeCache) > 50) {
+            array_shift($this->knowledgeCache); // Remove oldest entry
+        }
+        $this->knowledgeCache[$cacheKey] = [
+            'result' => $result,
+            'count' => $this->lastKnowledgeMatchCount,
+            'keywords' => $this->lastSearchKeywords
+        ];
+
+        return $result;
     }
 
     private function extractKeywords($msg)
@@ -848,6 +946,10 @@ PENTING:
     {
         $msg = strtolower($msg);
 
+        // PRIORITY 1: Curiosity / Buying Intent (Override emotions if asking for price/info)
+        if (preg_match('/(harga|biaya|lokasi|alamat|jadwal|pesan|booking|daftar)/', $msg))
+            return 'CURIOUS';
+
         // Anxiety / Fear
         if (preg_match('/(cemas|takut|panik|khawatir|gelisah|deg-degan|mati|bahaya)/', $msg))
             return 'ANXIETY';
@@ -859,10 +961,6 @@ PENTING:
         // Anger / Frustration
         if (preg_match('/(marah|kesal|benci|dendam|kecewa|bohong|penipu)/', $msg))
             return 'ANGER';
-
-        // Curiosity / Buying Intent
-        if (preg_match('/(harga|biaya|lokasi|alamat|jadwal|pesan|booking|daftar)/', $msg))
-            return 'CURIOUS';
 
         // Critical / Urgent
         if (preg_match('/(darurat|bantu|tolong|sakit|parah)/', $msg))

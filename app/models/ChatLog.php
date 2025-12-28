@@ -13,7 +13,26 @@ class ChatLog
     }
 
     /**
-     * Save a message to the database
+     * Save a conversation pair (user message + AI response) directly
+     * Called AFTER AI response is complete
+     */
+    public function saveConversationPair($userId, $userMessage, $aiResponse)
+    {
+        $sessionId = session_status() === PHP_SESSION_ACTIVE ? session_id() : 'no-session';
+
+        $this->db->query(
+            "INSERT INTO chat_conversations (session_id, user_message, ai_response, created_at) 
+             VALUES (:session_id, :user_message, :ai_response, NOW())",
+            [
+                'session_id' => $sessionId,
+                'user_message' => $userMessage,
+                'ai_response' => $aiResponse
+            ]
+        );
+    }
+
+    /**
+     * Save a message to the database (Legacy - kept for backwards compatibility)
      * For chat_conversations table, we save pairs (user + AI response)
      */
     public function saveMessage($userId, $role, $message)
@@ -90,7 +109,9 @@ class ChatLog
              WHERE session_id = :session_id 
              ORDER BY created_at DESC 
              LIMIT $pairLimit",
-            ['session_id' => $sessionId]
+            [
+                'session_id' => $sessionId
+            ]
         )->fetchAll();
 
         // Convert to role-based format and reverse to chronological order

@@ -225,7 +225,13 @@
     const typingIndicator = document.getElementById('typing-indicator');
     const chatBackdrop = document.getElementById('chat-backdrop');
 
+    // Early return if chat elements don't exist (not on chat page)
+    if (!chatToggle || !chatWindow) {
+        return;
+    }
+
     let isFirstOpen = true;
+    let isProcessing = false; // Prevent multiple simultaneous requests
 
     // Get CSRF token from meta tag or generate
     const getCSRFToken = () => {
@@ -320,6 +326,13 @@
         const message = chatInput.value.trim();
         if (!message) return;
 
+        // Prevent multiple simultaneous requests
+        if (isProcessing) {
+            console.log('Request already in progress, please wait...');
+            return;
+        }
+        isProcessing = true;
+
         // Display user message
         appendMessage('user', message);
         chatInput.value = '';
@@ -360,6 +373,10 @@
         };
 
         try {
+            // Add timeout to prevent hanging requests
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
             const response = await fetch(getBaseUrl() + '/chat/stream', {
                 method: 'POST',
                 headers: {
@@ -368,8 +385,11 @@
                 body: JSON.stringify({
                     message: message,
                     csrf_token: getCSRFToken()
-                })
+                }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId); // Clear timeout if request succeeds
 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -496,12 +516,31 @@
                 }
             }, 100);
 
+            // Safety: Clear interval after 30 seconds to prevent memory leak
+            setTimeout(() => clearInterval(waitForTyping), 30000);
+
         } catch (error) {
             console.error('Error sending message:', error);
             typingIndicator.classList.add('hidden');
 
-            // Show error in the bubble
-            textElement.textContent = 'Maaf, koneksi terputus. Silakan coba lagi atau hubungi admin via WhatsApp.';
+            // Show error in the bubble (create if doesn't exist)
+            if (!messageDiv) {
+                messageDiv = document.createElement('div');
+                messageDiv.className = 'flex justify-start animate-fade-in';
+                bubble = document.createElement('div');
+                bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md bg-red-50 text-red-900 border-2 border-red-100 rounded-bl-sm';
+                bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
+                messageDiv.appendChild(bubble);
+                chatMessages.appendChild(messageDiv);
+                textElement = bubble.querySelector('p');
+            }
+
+            if (textElement) {
+                textElement.textContent = 'Maaf, koneksi terputus. Silakan coba lagi atau hubungi admin via WhatsApp.';
+            }
+        } finally {
+            // Always reset processing flag
+            isProcessing = false;
         }
 
         scrollToBottom();
@@ -645,11 +684,15 @@
         return text;
     };
 
-    // Scroll to bottom of chat
+    // Scroll to bottom of chat (debounced for performance)
+    let scrollTimeout;
     const scrollToBottom = () => {
-        setTimeout(() => {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 100);
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }, 50); // Debounce 50ms
     };
 
     // VOICE SYNTHESIS (BETA)
