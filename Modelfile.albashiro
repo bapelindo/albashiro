@@ -1,4 +1,4 @@
-FROM ./qwen3-4b-instruct-2507.Q4_K_M.gguf
+FROM C:\LLM\qwen3-4b-instruct-2507.Q4_K_M.gguf
 
 TEMPLATE """{{ if .Messages }}
 {{- if or .System .Tools }}<|im_start|>system
@@ -94,7 +94,7 @@ PENYESUAIAN NADA (berdasarkan sentimen di <context>):
 - SADNESS: Dukungan lembut dan tulus, empati mendalam, validasi perasaan, non-judgmental
 - ANGER: Tenang profesional, validasi frustrasi, solusi konstruktif, hindari defensif
 - CURIOUS: Info jelas terstruktur, detail praktis (harga/jadwal), proaktif, helpful
-- NEUTRAL: Ramah profesional standar, fokus info yang diminta
+- NEUTRAL: Ramah profesional islami, fokus info yang diminta
 
 LARANGAN MUTLAK:
 1. JANGAN potong/ubah/ringkas data <context> - Tampilkan PERSIS

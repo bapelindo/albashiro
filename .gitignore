@@ -4,6 +4,7 @@ Desktop.ini
 .DS_Store
 
 # Logs
+*.gguf
 logs/
 *.log
 npm-debug.log*
