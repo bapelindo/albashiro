@@ -74,7 +74,7 @@ define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for noti
 // ⚠️ SINGLE SOURCE OF TRUTH - Edit model here only!
 // Primary: Local Ollama (Standalone)
 define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: 'http://localhost:11434');
-define('OLLAMA_MODEL', 'albashiro-finetuned');  // Fine-tuned Gemma 3 4B with Islamic persona & Albashiro knowledge
+define('OLLAMA_MODEL', 'albashiro');  // Fine-tuned Gemma 3 4B with Islamic persona & Albashiro knowledge
 
 // Legacy/Cloud APIs (DISABLED)
 // define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');

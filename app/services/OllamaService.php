@@ -249,14 +249,14 @@ class OllamaService
             'stream' => true,
             'keep_alive' => '60m',  // Keep model loaded for 10 mins (faster subsequent)
             'options' => [
-                // Quality Settings
-                'temperature' => 0.6,       // Balanced creativity
-                'top_k' => 40,              // Standard diversity
-                'top_p' => 0.9,             // Natural language flow
-                'repeat_penalty' => 1.0,    // Prevent repetition
+                // Quality Settings (Optimized for Qwen3:4b Instruct)
+                'temperature' => 0.5,       // Balanced creativity (Qwen3 recommended)
+                'top_k' => 20,              // Focused diversity (Qwen3 recommended)
+                'top_p' => 0.8,             // Natural language flow (Qwen3 recommended)
+                'repeat_penalty' => 1.0,    // Prevent repetition (Qwen3 recommended)
 
                 // Speed Settings
-                'num_ctx' => 4096,          // Context window (smaller = faster)
+                'num_ctx' => 8192,          // Context window (smaller = faster)
                 'num_predict' => 2048,      // Max response tokens (shorter = faster)
                 'num_thread' => $cpuThreads,
                 'num_batch' => 2048,         // Batch size for throughput
