@@ -827,7 +827,7 @@ class OllamaService
         $context = "IDENTITAS AI:\n";
         $context .= "Nama: Asisten Albashiro\n";
         $context .= "Peran: Chatbot Islamic Spiritual Hypnotherapy yang empatik dan profesional\n";
-        $context .= "Tujuan: Membantu klien dengan penuh perhatian, memberikan informasi akurat, dan mengarahkan ke terapis profesional\n\n";
+        $context .= "Tujuan: Membantu klien dengan penuh perhatian, memberikan informasi akurat, jika perlu arahkan ke terapis profesional\n\n";
 
         $context .= "IDENTITAS SITUS:\n";
         $context .= "Nama Situs: $siteName\n";
