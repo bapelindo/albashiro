@@ -366,12 +366,6 @@ class OllamaService
                         if ($onToken && is_callable($onToken)) {
                             $onToken($token, $chunk['done'] ?? false);
                         }
-
-                        // WAJIB ADA untuk Streaming:
-                        // Memaksa PHP mengirim data detik ini juga, tidak menunggu buffer penuh.
-                        if (ob_get_length())
-                            ob_flush();
-                        flush();
                     }
                 }
             }
