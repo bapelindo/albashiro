@@ -8,11 +8,14 @@ ini_set('zlib.output_compression', false);
 while (ob_get_level())
     ob_end_clean();
 
-// 2. Set Streaming Headers
-header('Content-Type: text/event-stream');
-header('Cache-Control: no-cache');
-header('Connection: keep-alive');
-header('X-Accel-Buffering: no'); // Critical for Nginx/Proxies
+// 2. Set Streaming Headers ONLY for Chat Endpoint
+$requestUrl = $_GET['url'] ?? $_SERVER['REQUEST_URI'];
+if (strpos($requestUrl, 'api/chat') !== false) {
+    header('Content-Type: text/event-stream');
+    header('Cache-Control: no-cache');
+    header('Connection: keep-alive');
+    header('X-Accel-Buffering: no'); // Critical for Nginx/Proxies
+}
 
 // 3. Load Main App
 require __DIR__ . '/../index.php';
