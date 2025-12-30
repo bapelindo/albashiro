@@ -140,16 +140,6 @@ class Chat extends Controller
 
             ob_implicit_flush(true);
 
-            // TRICK: Send 4KB of Padding to force Vercel/Nginx to flush buffer headers immediately
-            echo ":" . str_repeat(" ", 4096) . "\n\n";
-
-            // Send Immediate "Thinking" Status (0ms) to keep connection alive
-            echo "data: " . json_encode(['status' => 'Sedang berpikir...']) . "\n\n";
-
-            if (ob_get_level())
-                ob_flush();
-            flush();
-
             $fullResponse = '';
 
             // Call AI Service with streaming callback
