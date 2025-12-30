@@ -73,7 +73,10 @@ define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for noti
 // =====================================================
 // ⚠️ SINGLE SOURCE OF TRUTH - Edit model here only!
 // Primary: Local Ollama (Standalone)
-define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: 'https://ollama.bapel.my.id');
+// Auto-detect environment: localhost vs production
+$isLocalhost = (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false));
+$defaultOllamaUrl = $isLocalhost ? 'http://localhost:11434' : 'https://ollama.bapel.my.id';
+define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: $defaultOllamaUrl);
 define('OLLAMA_MODEL', 'albashiro');  // Fine-tuned Qwen3 4B with Islamic persona & Albashiro knowledgeIslamic persona & Albashiro knowledge
 // Secondary: Embedding Model// Embedding Model: 'all-minilm' (Official, Light & Fast)
 
