@@ -412,13 +412,10 @@
             const decoder = new TextDecoder();
             let buffer = '';
 
-            console.log('[CLIENT DEBUG] Starting to read SSE stream...');
-
             while (true) {
                 const { done, value } = await reader.read();
 
                 if (done) {
-                    console.log('[CLIENT DEBUG] Stream reading completed');
                     break;
                 }
 
@@ -433,20 +430,15 @@
                     msg = msg.trim();
                     if (!msg) continue;
 
-                    console.log('[CLIENT DEBUG] Received SSE message:', msg.substring(0, 100));
-
                     // Robust parsing: Find 'data: ' anywhere (handles prepended warnings/whitespace)
                     const dataIndex = msg.indexOf('data: ');
                     if (dataIndex === -1) {
-                        console.warn('[CLIENT DEBUG] No "data:" prefix found in message');
                         continue;
                     }
 
                     try {
                         const jsonStr = msg.substring(dataIndex + 6); // Extract JSON after 'data: '
                         const data = JSON.parse(jsonStr);
-
-                        console.log('[CLIENT DEBUG] Parsed data:', data);
 
                         if (data.error) {
                             // Hide typing indicator

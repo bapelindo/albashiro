@@ -26,7 +26,6 @@ export default async function handler(req) {
         }
 
         // Step 1: Get context from PHP endpoint
-        console.log('[DEBUG] Fetching context from PHP...');
         const contextUrl = 'https://' + req.headers.get('host') + '/api/context.php';
 
         const contextResponse = await fetch(contextUrl, {
@@ -40,7 +39,6 @@ export default async function handler(req) {
         }
 
         const contextData = await contextResponse.json();
-        console.log('[DEBUG] Context received, length:', contextData.metadata?.context_length);
 
         // Step 2: Build Ollama request with context from PHP
         const ollamaUrl = 'https://ollama.bapel.my.id/api/chat';
@@ -62,9 +60,6 @@ export default async function handler(req) {
             body: JSON.stringify(ollamaPayload),
         });
 
-        console.log('[DEBUG] Ollama Response Status:', ollamaResponse.status);
-        console.log('[DEBUG] Ollama Response Headers:', Object.fromEntries(ollamaResponse.headers.entries()));
-
         if (!ollamaResponse.ok) {
             const errorText = await ollamaResponse.text();
             console.error('[ERROR] Ollama API error:', ollamaResponse.status, errorText);
@@ -84,12 +79,9 @@ export default async function handler(req) {
                 let buffer = '';
                 let chunkCount = 0;
 
-                console.log('[DEBUG] Starting stream processing...');
-
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
-                        console.log('[DEBUG] Stream ended. Total chunks processed:', chunkCount);
                         break;
                     }
 
@@ -101,8 +93,6 @@ export default async function handler(req) {
                         if (!line.trim()) continue;
 
                         chunkCount++;
-                        console.log('[DEBUG] Processing chunk', chunkCount, ':', line.substring(0, 100));
-
                         try {
                             const chunk = JSON.parse(line);
 
@@ -125,7 +115,6 @@ export default async function handler(req) {
 
                             // Send completion event
                             if (chunk.done) {
-                                console.log('[DEBUG] Sending completion event');
                                 await writer.write(
                                     encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
                                 );
@@ -141,7 +130,6 @@ export default async function handler(req) {
                     encoder.encode(`data: ${JSON.stringify({ error: true, message: 'Stream error' })}\n\n`)
                 );
             } finally {
-                console.log('[DEBUG] Closing writer');
                 await writer.close();
             }
         })();
