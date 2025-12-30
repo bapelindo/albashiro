@@ -305,7 +305,7 @@ class OllamaService
                 'num_ctx' => 2048,          // Optimized context for 4GB VRAM
                 'num_predict' => 1024,      // Max response tokens
                 'num_thread' => 1,          // Minimal CPU threads (GPU handles processing)
-                'num_batch' => 2048,        // Larger batch for GPU throughput
+                'num_batch' => 1024,        // Larger batch for GPU throughput
             ]
         ];
 
@@ -691,19 +691,23 @@ class OllamaService
             }
         }
 
-        // REGEX FALLBACK (Only if Semantic didn't trigger OR if Semantic is OFF)
-        // User requested "Pure Mode" but practically we need regex if semantic misses. 
-        // Logic: If NO specific data triggered yet, try Regex.
+        // REGEX SUPPLEMENT (Run ALWAYS to catch what semantic missed)
+        // This ensures we catch "Services" even if Semantic routing missed it or caught something else
 
-        $anythingTriggered = ($needsServices || $needsTherapists || $needsSchedule || $needsContact);
-
-        if (!$anythingTriggered) {
+        if (!$needsServices)
             $needsServices = preg_match('/(layanan|service|paket|harga|biaya|price|tarif|berapa.*biaya|berapa.*harga|berapa.*terapi)/i', $userMessage);
+
+        if (!$needsTherapists)
             $needsTherapists = preg_match('/(terapis|therapist|dokter|bunda|ustadzah|siapa.*terapis|profil.*terapis)/i', $userMessage);
+
+        if (!$needsSchedule)
             $needsSchedule = preg_match('/(jadwal|tersedia|booking|slot|kosong|kapan.*bisa|ada.*kosong|jam.*praktek|jam.*buka|reservasi|janji.*temu|hari.*apa)/i', $userMessage);
+
+        if (!$needsTestimonials)
             $needsTestimonials = preg_match('/(testimoni|review|pengalaman|hasil.*terapi|berhasil.*terapi)/i', $userMessage);
+
+        if (!$needsContact)
             $needsContact = preg_match('/(alamat|lokasi|dimana.*praktek|kantor|tempat|wa|telp|hubungi|contact|arah|maps|peta)/i', $userMessage);
-        }
 
         // Only fetch what's needed
         $servicesInfo = '';
