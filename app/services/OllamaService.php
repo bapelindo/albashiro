@@ -366,11 +366,6 @@ class OllamaService
                         if ($onToken && is_callable($onToken)) {
                             $onToken($token, $chunk['done'] ?? false);
                         }
-
-                        // RESTORED: Critical for Vercel Streaming
-                        if (ob_get_length())
-                            ob_flush();
-                        flush();
                     }
                 }
             }
