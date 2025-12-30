@@ -373,11 +373,17 @@
         };
 
         try {
-            // Use PHP endpoint for ALL environments (has full context injection)
-            // This ensures RAG, system prompt, and database context are included
-            const streamEndpoint = getBaseUrl() + '/chat/stream';
+            // Hybrid: Node.js (Vercel) fetches context from PHP, then streams
+            // Localhost: Direct PHP streaming
+            const isLocalhost = window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1' ||
+                window.location.hostname === 'albashiro.bapel.my.id';
 
-            console.log('[CLIENT DEBUG] Using PHP endpoint:', streamEndpoint);
+            const streamEndpoint = isLocalhost
+                ? getBaseUrl() + '/chat/stream'  // PHP direct
+                : '/api/stream';                  // Node.js proxy (calls PHP internally)
+
+            console.log('[CLIENT DEBUG] Using endpoint:', streamEndpoint);
 
             // Add timeout to prevent hanging requests
             const controller = new AbortController();
