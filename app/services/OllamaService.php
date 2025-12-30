@@ -300,11 +300,12 @@ class OllamaService
                 'top_p' => 0.9,             // Natural language flow
                 'repeat_penalty' => 1.15,    // Prevent repetition
 
-                // Speed Settings
-                'num_ctx' => 2048,          // Increased for Multi-Intent (Prevents Output Cutoff)
-                'num_predict' => 1024,      // Max response tokens (shorter = faster)
-                'num_thread' => $cpuThreads,
-                'num_batch' => 1024,         // Batch size for throughput
+                // Speed Settings (GPU Enabled)
+                'num_gpu' => 99,            // Force all layers to GPU
+                'num_ctx' => 2048,          // Optimized context for 4GB VRAM
+                'num_predict' => 1024,      // Max response tokens
+                'num_thread' => 1,          // Minimal CPU threads (GPU handles processing)
+                'num_batch' => 2048,        // Larger batch for GPU throughput
             ]
         ];
 
