@@ -71,10 +71,16 @@ export default async function handler(req) {
                 const reader = ollamaResponse.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
+                let chunkCount = 0;
+
+                console.log('[DEBUG] Starting stream processing...');
 
                 while (true) {
                     const { done, value } = await reader.read();
-                    if (done) break;
+                    if (done) {
+                        console.log('[DEBUG] Stream ended. Total chunks processed:', chunkCount);
+                        break;
+                    }
 
                     buffer += decoder.decode(value, { stream: true });
                     const lines = buffer.split('\n');
@@ -83,8 +89,13 @@ export default async function handler(req) {
                     for (const line of lines) {
                         if (!line.trim()) continue;
 
+                        chunkCount++;
+                        console.log('[DEBUG] Processing chunk', chunkCount, ':', line.substring(0, 100));
+
                         try {
                             const chunk = JSON.parse(line);
+
+                            console.log('[DEBUG] Parsed chunk:', JSON.stringify(chunk).substring(0, 200));
 
                             // Extract token from Ollama response
                             if (chunk.message?.content) {
@@ -92,6 +103,8 @@ export default async function handler(req) {
                                     token: chunk.message.content,
                                     done: chunk.done || false
                                 };
+
+                                console.log('[DEBUG] Sending token:', sseData.token.substring(0, 50));
 
                                 // Send as SSE event
                                 await writer.write(
@@ -101,21 +114,23 @@ export default async function handler(req) {
 
                             // Send completion event
                             if (chunk.done) {
+                                console.log('[DEBUG] Sending completion event');
                                 await writer.write(
                                     encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
                                 );
                             }
                         } catch (parseError) {
-                            console.error('JSON parse error:', parseError);
+                            console.error('[ERROR] JSON parse error:', parseError, 'Line:', line.substring(0, 100));
                         }
                     }
                 }
             } catch (error) {
-                console.error('Stream processing error:', error);
+                console.error('[ERROR] Stream processing error:', error);
                 await writer.write(
                     encoder.encode(`data: ${JSON.stringify({ error: true, message: 'Stream error' })}\n\n`)
                 );
             } finally {
+                console.log('[DEBUG] Closing writer');
                 await writer.close();
             }
         })();
