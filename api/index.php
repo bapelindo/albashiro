@@ -8,13 +8,12 @@ ini_set('zlib.output_compression', false);
 while (ob_get_level())
     ob_end_clean();
 
-// 2. Set Streaming Headers ONLY for Chat Endpoint
+// 2. Set Streaming Settings (Headers handled by Controller)
 $requestUrl = $_GET['url'] ?? $_SERVER['REQUEST_URI'];
-if (strpos($requestUrl, 'api/chat') !== false) {
-    header('Content-Type: text/event-stream');
-    header('Cache-Control: no-cache');
-    header('Connection: keep-alive');
-    header('X-Accel-Buffering: no'); // Critical for Nginx/Proxies
+
+// Only apply NGINX buffer disabling here, Content-Type is handled by Controller
+if (stripos($requestUrl, 'chat') !== false) {
+    header('X-Accel-Buffering: no');
 }
 
 // 3. Load Main App
