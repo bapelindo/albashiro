@@ -366,11 +366,6 @@ class OllamaService
                         if ($onToken && is_callable($onToken)) {
                             $onToken($token, $chunk['done'] ?? false);
                         }
-
-                        // FORCE FLUSH to prevent Vercel Timeout
-                        if (ob_get_length())
-                            ob_flush();
-                        flush();
                     }
                 }
             }
