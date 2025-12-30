@@ -1,7 +1,8 @@
 <?php
 /**
  * API Endpoint: Get Chat Context
- * Returns context data (RAG, system prompt, history) for Node.js proxy
+ * Returns FULL context data (RAG, system prompt, history) for Node.js proxy
+ * This replicates OllamaService.php's context building logic
  */
 
 // Disable error display, return JSON errors instead
@@ -19,6 +20,7 @@ require_once __DIR__ . '/../config/config.php';
 
 // Load core classes
 require_once SITE_ROOT . '/core/Database.php';
+require_once SITE_ROOT . '/app/services/OllamaService.php';
 
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -39,11 +41,31 @@ if (empty($message)) {
 }
 
 try {
-    // Build messages manually
+    // Initialize OllamaService and call chatStream to get prepared messages
+    // We'll use output buffering to capture the context
+    $ollamaService = new OllamaService();
+
+    // Convert history format
+    $conversationHistory = [];
+    foreach ($history as $msg) {
+        $conversationHistory[] = [
+            'role' => $msg['role'],
+            'message' => $msg['message']
+        ];
+    }
+
+    // Call chatStream with a callback that does nothing
+    // This will build the full context internally
+    $capturedMessages = null;
+
+    // We need to access the prepared messages
+    // Since we can't easily extract them, we'll replicate the logic
+
+    // Build messages array
     $messages = [];
 
     // Add history
-    foreach ($history as $msg) {
+    foreach ($conversationHistory as $msg) {
         $role = ($msg['role'] === 'ai') ? 'assistant' : 'user';
         $messages[] = [
             'role' => $role,
@@ -51,15 +73,18 @@ try {
         ];
     }
 
-    // Build basic context
-    date_default_timezone_set('Asia/Jakarta');
-    $currentDate = date('l, d F Y');
-    $currentTime = date('H:i');
+    // Build system context (replicate buildSystemContext logic)
+    $perfData = [];
+    $hasHistory = !empty($messages);
 
-    $systemContext = "Tanggal: $currentDate\nWaktu: $currentTime WIB\n\n";
-    $systemContext .= "Kamu adalah Asisten Albashiro, chatbot untuk Albashiro Islamic Spiritual Hypnotherapy.\n";
+    // Call the actual buildSystemContext method using reflection
+    $reflection = new ReflectionClass($ollamaService);
+    $method = $reflection->getMethod('buildSystemContext');
+    $method->setAccessible(true);
 
-    // Add user message with context
+    $systemContext = $method->invoke($ollamaService, $message, $perfData, null, $hasHistory);
+
+    // Add user message with full context
     $userMessageWithContext = "<context>\n$systemContext\n</context>\n\n<user_query>\n$message\n</user_query>";
     $messages[] = [
         'role' => 'user',
@@ -78,9 +103,11 @@ try {
 
 } catch (Exception $e) {
     error_log("Context API error: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'error' => true,
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'trace' => $e->getTraceAsString()
     ]);
 }
