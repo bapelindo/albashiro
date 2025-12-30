@@ -377,7 +377,7 @@
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
 
-            const response = await fetch(getBaseUrl() + '/chat/stream', {
+            const response = await fetch('/api/stream', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
