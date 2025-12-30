@@ -372,407 +372,415 @@
             }
         };
 
-        try {
-            // Add timeout to prevent hanging requests
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
+        // Add timeout to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
 
-            const response = await fetch('/api/stream', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: message,
-                    csrf_token: getCSRFToken()
-                }),
-                signal: controller.signal
-            });
+        // Smart endpoint detection: localhost uses PHP, production uses Node.js
+        const isLocalhost = window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname.includes('localhost');
 
-            clearTimeout(timeoutId); // Clear timeout if request succeeds
+        const endpoint = isLocalhost
+            ? getBaseUrl() + '/chat/stream'  // PHP endpoint for localhost
+            : '/api/stream';                  // Node.js endpoint for Vercel
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message,
+                csrf_token: getCSRFToken()
+            }),
+            signal: controller.signal
+        });
 
-            // Read the stream
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = '';
+        clearTimeout(timeoutId); // Clear timeout if request succeeds
 
-            while (true) {
-                const { done, value } = await reader.read();
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
 
-                if (done) break;
+        // Read the stream
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-                // Decode chunk
-                buffer += decoder.decode(value, { stream: true });
+        while (true) {
+            const { done, value } = await reader.read();
 
-                // Process complete SSE messages (separated by \n\n)
-                const messages = buffer.split('\n\n');
-                buffer = messages.pop() || ''; // Keep incomplete message in buffer
+            if (done) break;
 
-                for (let msg of messages) {
-                    msg = msg.trim();
-                    if (!msg) continue;
+            // Decode chunk
+            buffer += decoder.decode(value, { stream: true });
 
-                    // Robust parsing: Find 'data: ' anywhere (handles prepended warnings/whitespace)
-                    const dataIndex = msg.indexOf('data: ');
-                    if (dataIndex === -1) continue;
+            // Process complete SSE messages (separated by \n\n)
+            const messages = buffer.split('\n\n');
+            buffer = messages.pop() || ''; // Keep incomplete message in buffer
 
-                    try {
-                        const jsonStr = msg.substring(dataIndex + 6); // Extract JSON after 'data: '
-                        const data = JSON.parse(jsonStr);
+            for (let msg of messages) {
+                msg = msg.trim();
+                if (!msg) continue;
 
-                        if (data.error) {
-                            // Hide typing indicator
+                // Robust parsing: Find 'data: ' anywhere (handles prepended warnings/whitespace)
+                const dataIndex = msg.indexOf('data: ');
+                if (dataIndex === -1) continue;
+
+                try {
+                    const jsonStr = msg.substring(dataIndex + 6); // Extract JSON after 'data: '
+                    const data = JSON.parse(jsonStr);
+
+                    if (data.error) {
+                        // Hide typing indicator
+                        typingIndicator.classList.add('hidden');
+
+                        // Create bubble for error if not exists
+                        if (!messageDiv) {
+                            messageDiv = document.createElement('div');
+                            messageDiv.className = 'flex justify-start animate-fade-in';
+                            bubble = document.createElement('div');
+                            bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm';
+                            bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
+                            messageDiv.appendChild(bubble);
+                            chatMessages.appendChild(messageDiv);
+                            textElement = bubble.querySelector('p');
+                        }
+
+                        textElement.textContent = data.message || 'Maaf, terjadi kesalahan.';
+                        break;
+                    }
+
+                    if (data.status) {
+                        // UPDATE EXISTING INDICATOR TEXT
+                        // Instead of creating a duplicate pill, update the footer indicator
+                        const thinkingText = document.getElementById('ai-thinking-text');
+                        if (thinkingText) {
+                            thinkingText.textContent = data.status;
+                        }
+                        continue; // Skip processing other data types
+                    }
+
+                    if (data.token) {
+                        // Create bubble on first token
+                        if (!messageDiv) {
+                            // Hide typing indicator when first token arrives
                             typingIndicator.classList.add('hidden');
 
-                            // Create bubble for error if not exists
-                            if (!messageDiv) {
-                                messageDiv = document.createElement('div');
-                                messageDiv.className = 'flex justify-start animate-fade-in';
-                                bubble = document.createElement('div');
-                                bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm';
-                                bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
-                                messageDiv.appendChild(bubble);
-                                chatMessages.appendChild(messageDiv);
-                                textElement = bubble.querySelector('p');
-                            }
+                            messageDiv = document.createElement('div');
+                            messageDiv.className = 'flex justify-start animate-fade-in';
 
-                            textElement.textContent = data.message || 'Maaf, terjadi kesalahan.';
-                            break;
+                            bubble = document.createElement('div');
+                            bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm';
+                            bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
+
+                            messageDiv.appendChild(bubble);
+                            chatMessages.appendChild(messageDiv);
+                            scrollToBottom();
+
+                            textElement = bubble.querySelector('p');
                         }
 
-                        if (data.status) {
-                            // UPDATE EXISTING INDICATOR TEXT
-                            // Instead of creating a duplicate pill, update the footer indicator
-                            const thinkingText = document.getElementById('ai-thinking-text');
-                            if (thinkingText) {
-                                thinkingText.textContent = data.status;
-                            }
-                            continue; // Skip processing other data types
+                        fullResponse += data.token;
+
+                        // Start typing animation if not already typing
+                        if (!isTyping) {
+                            typeCharacters();
                         }
-
-                        if (data.token) {
-                            // Create bubble on first token
-                            if (!messageDiv) {
-                                // Hide typing indicator when first token arrives
-                                typingIndicator.classList.add('hidden');
-
-                                messageDiv = document.createElement('div');
-                                messageDiv.className = 'flex justify-start animate-fade-in';
-
-                                bubble = document.createElement('div');
-                                bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm';
-                                bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
-
-                                messageDiv.appendChild(bubble);
-                                chatMessages.appendChild(messageDiv);
-                                scrollToBottom();
-
-                                textElement = bubble.querySelector('p');
-                            }
-
-                            fullResponse += data.token;
-
-                            // Start typing animation if not already typing
-                            if (!isTyping) {
-                                typeCharacters();
-                            }
-                        }
-
-                        if (data.done && data.metadata) {
-                            // Stream complete - let typing finish naturally
-                        }
-                    } catch (parseError) {
                     }
+
+                    if (data.done && data.metadata) {
+                        // Stream complete - let typing finish naturally
+                    }
+                } catch (parseError) {
                 }
             }
-
-            // Wait for typing to complete
-            const waitForTyping = setInterval(() => {
-                if (!isTyping && displayedResponse.length === fullResponse.length) {
-                    clearInterval(waitForTyping);
-                    if (textElement && fullResponse) {
-                        textElement.innerHTML = parseMarkdown(fullResponse);
-
-                        // VOICE BUTTON (Safe Layout: Inside bubble at bottom right)
-                        const voiceBtn = document.createElement('button');
-                        voiceBtn.className = 'float-right ml-2 mt-1 text-emerald-400 hover:text-emerald-600 transition-colors p-1';
-                        voiceBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
-                        voiceBtn.onclick = (e) => {
-                            e.stopPropagation();
-                            window.speakText(fullResponse, voiceBtn);
-                        };
-
-                        // Append icon to the bubble content (last paragraph)
-                        const lastP = textElement.querySelector('p:last-child');
-                        if (lastP) lastP.appendChild(voiceBtn);
-                        else textElement.appendChild(voiceBtn);
-
-                        scrollToBottom();
-                    }
-                }
-            }, 100);
-
-            // Safety: Clear interval after 30 seconds to prevent memory leak
-            setTimeout(() => clearInterval(waitForTyping), 30000);
-
-        } catch (error) {
-            console.error('Error sending message:', error);
-            typingIndicator.classList.add('hidden');
-
-            // Show error in the bubble (create if doesn't exist)
-            if (!messageDiv) {
-                messageDiv = document.createElement('div');
-                messageDiv.className = 'flex justify-start animate-fade-in';
-                bubble = document.createElement('div');
-                bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md bg-red-50 text-red-900 border-2 border-red-100 rounded-bl-sm';
-                bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
-                messageDiv.appendChild(bubble);
-                chatMessages.appendChild(messageDiv);
-                textElement = bubble.querySelector('p');
-            }
-
-            if (textElement) {
-                textElement.textContent = 'Maaf, saat ini Asisten AI sedang istirahat (Offline). Silakan coba lagi beberapa saat nanti. 🙏';
-            }
-        } finally {
-            // Always reset processing flag
-            isProcessing = false;
         }
 
-        scrollToBottom();
-    });
+        // Wait for typing to complete
+        const waitForTyping = setInterval(() => {
+            if (!isTyping && displayedResponse.length === fullResponse.length) {
+                clearInterval(waitForTyping);
+                if (textElement && fullResponse) {
+                    textElement.innerHTML = parseMarkdown(fullResponse);
 
-    // Append message to chat with typing effect
-    const appendMessage = (sender, text) => {
-        // Safety check
-        if (!text) {
-            console.error('appendMessage called with undefined text');
-            text = 'Error: No response received';
-        }
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`;
-
-        const bubble = document.createElement('div');
-        bubble.className = `max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg ${sender === 'user'
-            ? 'bg-gradient-to-br from-teal-600 to-emerald-700 text-white rounded-br-sm'
-            : 'bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm'
-            }`;
-
-        // For AI messages, add gentle typing effect
-        if (sender === 'ai') {
-            // DETECT ENGAGEMENT BLOCK (Quick Replies)
-            let contentPart = text;
-            let quickReplies = [];
-
-            if (text.includes('[ENGAGEMENT]')) {
-                const parts = text.split('[ENGAGEMENT]');
-                contentPart = parts[0].trim(); // Actual message content
-                const engagementPart = parts[1]; // Questions block
-
-                // Parse questions (e.g., "1. Question ...")
-                const matches = engagementPart.match(/\d\.\s+(.+)/g);
-                if (matches) {
-                    quickReplies = matches.map(m => m.replace(/^\d\.\s+/, '').trim());
-                }
-            }
-
-            bubble.innerHTML = ''; // Start empty
-            messageDiv.appendChild(bubble);
-            chatMessages.appendChild(messageDiv);
-            scrollToBottom();
-
-            // Typing effect
-            let index = 0;
-            const typingSpeed = 8; // milliseconds per character
-
-            const typeWriter = () => {
-                if (index < contentPart.length) {
-                    // Use parseMarkdown for formatting
-                    const currentText = contentPart.substring(0, index + 1);
-                    bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(currentText)}</p>`;
-                    index++;
-                    setTimeout(typeWriter, typingSpeed);
-                    scrollToBottom();
-                } else {
-                    // Final render with full markdown
-                    bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(contentPart)}</p>`;
-
-                    // RENDER QUICK REPLY BUTTONS
-                    if (quickReplies.length > 0) {
-                        const btnContainer = document.createElement('div');
-                        btnContainer.className = 'mt-3 flex flex-wrap gap-2 animate-fade-in pl-1';
-
-                        quickReplies.forEach(q => {
-                            const btn = document.createElement('button');
-                            btn.className = 'px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 text-xs rounded-full shadow-sm hover:bg-emerald-50 hover:shadow-md transition-all cursor-pointer whitespace-nowrap';
-                            btn.textContent = q;
-                            btn.onclick = () => {
-                                chatInput.value = q;
-                                chatForm.dispatchEvent(new Event('submit'));
-                                btnContainer.remove(); // Click once
-                            };
-                            btnContainer.appendChild(btn);
-                        });
-
-                        // Append container OUTSIDE bubble, inside messageDiv
-                        messageDiv.appendChild(btnContainer);
-                        // Also auto smooth scroll to buttons
-                    }
-
-                    // VOICE BUTTON
                     // VOICE BUTTON (Safe Layout: Inside bubble at bottom right)
                     const voiceBtn = document.createElement('button');
                     voiceBtn.className = 'float-right ml-2 mt-1 text-emerald-400 hover:text-emerald-600 transition-colors p-1';
                     voiceBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
                     voiceBtn.onclick = (e) => {
                         e.stopPropagation();
-                        window.speakText(contentPart, voiceBtn);
+                        window.speakText(fullResponse, voiceBtn);
                     };
 
                     // Append icon to the bubble content (last paragraph)
-                    const lastP = bubble.querySelector('p:last-child');
+                    const lastP = textElement.querySelector('p:last-child');
                     if (lastP) lastP.appendChild(voiceBtn);
-                    else bubble.appendChild(voiceBtn);
+                    else textElement.appendChild(voiceBtn);
 
                     scrollToBottom();
                 }
-            };
+            }
+        }, 100);
 
-            typeWriter();
-        } else {
-            // User messages appear instantly
-            const formattedText = text.replace(/\n/g, '<br>');
-            bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${formattedText}</p>`;
+        // Safety: Clear interval after 30 seconds to prevent memory leak
+        setTimeout(() => clearInterval(waitForTyping), 30000);
+
+    } catch (error) {
+        console.error('Error sending message:', error);
+        typingIndicator.classList.add('hidden');
+
+        // Show error in the bubble (create if doesn't exist)
+        if (!messageDiv) {
+            messageDiv = document.createElement('div');
+            messageDiv.className = 'flex justify-start animate-fade-in';
+            bubble = document.createElement('div');
+            bubble.className = 'max-w-[85%] px-5 py-3 rounded-2xl shadow-md bg-red-50 text-red-900 border-2 border-red-100 rounded-bl-sm';
+            bubble.innerHTML = '<p class="text-sm leading-relaxed whitespace-pre-wrap"></p>';
             messageDiv.appendChild(bubble);
             chatMessages.appendChild(messageDiv);
-            scrollToBottom();
+            textElement = bubble.querySelector('p');
+        }
+
+        if (textElement) {
+            textElement.textContent = 'Maaf, saat ini Asisten AI sedang istirahat (Offline). Silakan coba lagi beberapa saat nanti. 🙏';
+        }
+    } finally {
+        // Always reset processing flag
+        isProcessing = false;
+    }
+
+    scrollToBottom();
+});
+
+// Append message to chat with typing effect
+const appendMessage = (sender, text) => {
+    // Safety check
+    if (!text) {
+        console.error('appendMessage called with undefined text');
+        text = 'Error: No response received';
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`;
+
+    const bubble = document.createElement('div');
+    bubble.className = `max-w-[85%] px-5 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg ${sender === 'user'
+        ? 'bg-gradient-to-br from-teal-600 to-emerald-700 text-white rounded-br-sm'
+        : 'bg-emerald-50 text-emerald-900 border-2 border-emerald-100 rounded-bl-sm'
+        }`;
+
+    // For AI messages, add gentle typing effect
+    if (sender === 'ai') {
+        // DETECT ENGAGEMENT BLOCK (Quick Replies)
+        let contentPart = text;
+        let quickReplies = [];
+
+        if (text.includes('[ENGAGEMENT]')) {
+            const parts = text.split('[ENGAGEMENT]');
+            contentPart = parts[0].trim(); // Actual message content
+            const engagementPart = parts[1]; // Questions block
+
+            // Parse questions (e.g., "1. Question ...")
+            const matches = engagementPart.match(/\d\.\s+(.+)/g);
+            if (matches) {
+                quickReplies = matches.map(m => m.replace(/^\d\.\s+/, '').trim());
+            }
+        }
+
+        bubble.innerHTML = ''; // Start empty
+        messageDiv.appendChild(bubble);
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+
+        // Typing effect
+        let index = 0;
+        const typingSpeed = 8; // milliseconds per character
+
+        const typeWriter = () => {
+            if (index < contentPart.length) {
+                // Use parseMarkdown for formatting
+                const currentText = contentPart.substring(0, index + 1);
+                bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(currentText)}</p>`;
+                index++;
+                setTimeout(typeWriter, typingSpeed);
+                scrollToBottom();
+            } else {
+                // Final render with full markdown
+                bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${parseMarkdown(contentPart)}</p>`;
+
+                // RENDER QUICK REPLY BUTTONS
+                if (quickReplies.length > 0) {
+                    const btnContainer = document.createElement('div');
+                    btnContainer.className = 'mt-3 flex flex-wrap gap-2 animate-fade-in pl-1';
+
+                    quickReplies.forEach(q => {
+                        const btn = document.createElement('button');
+                        btn.className = 'px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 text-xs rounded-full shadow-sm hover:bg-emerald-50 hover:shadow-md transition-all cursor-pointer whitespace-nowrap';
+                        btn.textContent = q;
+                        btn.onclick = () => {
+                            chatInput.value = q;
+                            chatForm.dispatchEvent(new Event('submit'));
+                            btnContainer.remove(); // Click once
+                        };
+                        btnContainer.appendChild(btn);
+                    });
+
+                    // Append container OUTSIDE bubble, inside messageDiv
+                    messageDiv.appendChild(btnContainer);
+                    // Also auto smooth scroll to buttons
+                }
+
+                // VOICE BUTTON
+                // VOICE BUTTON (Safe Layout: Inside bubble at bottom right)
+                const voiceBtn = document.createElement('button');
+                voiceBtn.className = 'float-right ml-2 mt-1 text-emerald-400 hover:text-emerald-600 transition-colors p-1';
+                voiceBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
+                voiceBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    window.speakText(contentPart, voiceBtn);
+                };
+
+                // Append icon to the bubble content (last paragraph)
+                const lastP = bubble.querySelector('p:last-child');
+                if (lastP) lastP.appendChild(voiceBtn);
+                else bubble.appendChild(voiceBtn);
+
+                scrollToBottom();
+            }
+        };
+
+        typeWriter();
+    } else {
+        // User messages appear instantly
+        const formattedText = text.replace(/\n/g, '<br>');
+        bubble.innerHTML = `<p class="text-sm leading-relaxed whitespace-pre-wrap">${formattedText}</p>`;
+        messageDiv.appendChild(bubble);
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+};
+
+// Simple markdown parser
+const parseMarkdown = (text) => {
+    // Headings: ### text
+    text = text.replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-3 mb-2">$1</h3>');
+    text = text.replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-4 mb-2">$1</h2>');
+    text = text.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-4 mb-2">$1</h1>');
+
+    // Code blocks: ```code```
+    text = text.replace(/```(.+?)```/gs, '<code class="block bg-gray-100 text-gray-800 px-3 py-2 rounded my-2 text-xs font-mono">$1</code>');
+
+    // Inline code: `code`
+    text = text.replace(/`(.+?)`/g, '<code class="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
+
+    // Bold: **text** or __text__
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+    // Italic: *text* or _text_
+    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    text = text.replace(/_(.+?)_/g, '<em>$1</em>');
+
+    // Strikethrough: ~~text~~
+    text = text.replace(/~~(.+?)~~/g, '<del class="opacity-70">$1</del>');
+
+    // Blockquote: > text
+    text = text.replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-emerald-300 pl-3 py-1 my-2 italic text-emerald-700 bg-emerald-50/50">$1</blockquote>');
+
+    // Links: [text](url)
+    text = text.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="underline text-accent-600">$1</a>');
+
+    // Unordered lists: * item or - item
+    text = text.replace(/^\* (.+)$/gm, '<li class="ml-4">$1</li>');
+    text = text.replace(/^- (.+)$/gm, '<li class="ml-4">$1</li>');
+
+    // Wrap consecutive <li> in <ul>
+    text = text.replace(/(<li.*<\/li>\n?)+/g, '<ul class="list-disc my-2">$&</ul>');
+
+    // Line breaks
+    text = text.replace(/\n/g, '<br>');
+
+    // TRUST BADGES (Sumber: ...)
+    // Pattern: (Sumber: Alodokter - Anxiety)
+    text = text.replace(/(\(Sumber: .+?\))/g, '<span class="inline-block px-2 py-0.5 mx-1 bg-teal-50 text-teal-700 text-[10px] font-medium uppercase tracking-wide rounded-full border border-teal-100">$1</span>');
+
+    return text;
+};
+
+// Scroll to bottom of chat (debounced for performance)
+let scrollTimeout;
+const scrollToBottom = () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }, 50); // Debounce 50ms
+};
+
+// VOICE SYNTHESIS (BETA)
+let speechSynth = window.speechSynthesis;
+let speaking = false;
+
+window.speakText = (text, btnElement) => {
+    // SVG Icons
+    const iconSpeaker = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
+    const iconStop = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg>';
+
+    if (speaking) {
+        speechSynth.cancel();
+        speaking = false;
+        // Reset all buttons
+        document.querySelectorAll('.voice-active').forEach(btn => {
+            btn.innerHTML = iconSpeaker;
+            btn.classList.remove('text-amber-500', 'voice-active');
+            btn.classList.add('text-emerald-400');
+        });
+        return;
+    }
+
+    // Clean text for speech
+    let cleanText = text.replace(/\[ENGAGEMENT\][\s\S]*/, '');
+    cleanText = cleanText.replace(/\(Sumber: .+?\)/g, '');
+    cleanText = cleanText.replace(/[*_#`]/g, '');
+    cleanText = cleanText.replace(/<[^>]*>/g, '');
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'id-ID';
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => {
+        speaking = true;
+        if (btnElement) {
+            btnElement.innerHTML = iconStop;
+            btnElement.classList.remove('text-emerald-400');
+            btnElement.classList.add('text-amber-500', 'voice-active');
         }
     };
 
-    // Simple markdown parser
-    const parseMarkdown = (text) => {
-        // Headings: ### text
-        text = text.replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-3 mb-2">$1</h3>');
-        text = text.replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-4 mb-2">$1</h2>');
-        text = text.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-4 mb-2">$1</h1>');
-
-        // Code blocks: ```code```
-        text = text.replace(/```(.+?)```/gs, '<code class="block bg-gray-100 text-gray-800 px-3 py-2 rounded my-2 text-xs font-mono">$1</code>');
-
-        // Inline code: `code`
-        text = text.replace(/`(.+?)`/g, '<code class="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
-
-        // Bold: **text** or __text__
-        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
-
-        // Italic: *text* or _text_
-        text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-        text = text.replace(/_(.+?)_/g, '<em>$1</em>');
-
-        // Strikethrough: ~~text~~
-        text = text.replace(/~~(.+?)~~/g, '<del class="opacity-70">$1</del>');
-
-        // Blockquote: > text
-        text = text.replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-emerald-300 pl-3 py-1 my-2 italic text-emerald-700 bg-emerald-50/50">$1</blockquote>');
-
-        // Links: [text](url)
-        text = text.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="underline text-accent-600">$1</a>');
-
-        // Unordered lists: * item or - item
-        text = text.replace(/^\* (.+)$/gm, '<li class="ml-4">$1</li>');
-        text = text.replace(/^- (.+)$/gm, '<li class="ml-4">$1</li>');
-
-        // Wrap consecutive <li> in <ul>
-        text = text.replace(/(<li.*<\/li>\n?)+/g, '<ul class="list-disc my-2">$&</ul>');
-
-        // Line breaks
-        text = text.replace(/\n/g, '<br>');
-
-        // TRUST BADGES (Sumber: ...)
-        // Pattern: (Sumber: Alodokter - Anxiety)
-        text = text.replace(/(\(Sumber: .+?\))/g, '<span class="inline-block px-2 py-0.5 mx-1 bg-teal-50 text-teal-700 text-[10px] font-medium uppercase tracking-wide rounded-full border border-teal-100">$1</span>');
-
-        return text;
-    };
-
-    // Scroll to bottom of chat (debounced for performance)
-    let scrollTimeout;
-    const scrollToBottom = () => {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            if (chatMessages) {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-        }, 50); // Debounce 50ms
-    };
-
-    // VOICE SYNTHESIS (BETA)
-    let speechSynth = window.speechSynthesis;
-    let speaking = false;
-
-    window.speakText = (text, btnElement) => {
-        // SVG Icons
-        const iconSpeaker = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
-        const iconStop = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg>';
-
-        if (speaking) {
-            speechSynth.cancel();
-            speaking = false;
-            // Reset all buttons
-            document.querySelectorAll('.voice-active').forEach(btn => {
-                btn.innerHTML = iconSpeaker;
-                btn.classList.remove('text-amber-500', 'voice-active');
-                btn.classList.add('text-emerald-400');
-            });
-            return;
+    utterance.onend = () => {
+        speaking = false;
+        if (btnElement) {
+            btnElement.innerHTML = iconSpeaker;
+            btnElement.classList.remove('text-amber-500', 'voice-active');
+            btnElement.classList.add('text-emerald-400');
         }
-
-        // Clean text for speech
-        let cleanText = text.replace(/\[ENGAGEMENT\][\s\S]*/, '');
-        cleanText = cleanText.replace(/\(Sumber: .+?\)/g, '');
-        cleanText = cleanText.replace(/[*_#`]/g, '');
-        cleanText = cleanText.replace(/<[^>]*>/g, '');
-
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-        utterance.lang = 'id-ID';
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-
-        utterance.onstart = () => {
-            speaking = true;
-            if (btnElement) {
-                btnElement.innerHTML = iconStop;
-                btnElement.classList.remove('text-emerald-400');
-                btnElement.classList.add('text-amber-500', 'voice-active');
-            }
-        };
-
-        utterance.onend = () => {
-            speaking = false;
-            if (btnElement) {
-                btnElement.innerHTML = iconSpeaker;
-                btnElement.classList.remove('text-amber-500', 'voice-active');
-                btnElement.classList.add('text-emerald-400');
-            }
-        };
-
-        utterance.onerror = () => {
-            speaking = false;
-            if (btnElement) {
-                btnElement.innerHTML = iconSpeaker;
-                btnElement.classList.remove('text-amber-500', 'voice-active');
-                btnElement.classList.add('text-emerald-400');
-            }
-        };
-
-        speechSynth.speak(utterance);
     };
-})();
+
+    utterance.onerror = () => {
+        speaking = false;
+        if (btnElement) {
+            btnElement.innerHTML = iconSpeaker;
+            btnElement.classList.remove('text-amber-500', 'voice-active');
+            btnElement.classList.add('text-emerald-400');
+        }
+    };
+
+    speechSynth.speak(utterance);
+};
+}) ();
 
 
