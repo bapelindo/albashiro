@@ -40,6 +40,9 @@ export default async function handler(req) {
         };
 
         // Forward request to Ollama
+        console.log('[DEBUG] Ollama URL:', ollamaUrl);
+        console.log('[DEBUG] Ollama Payload:', JSON.stringify(ollamaPayload, null, 2));
+
         const ollamaResponse = await fetch(ollamaUrl, {
             method: 'POST',
             headers: {
@@ -48,8 +51,13 @@ export default async function handler(req) {
             body: JSON.stringify(ollamaPayload),
         });
 
+        console.log('[DEBUG] Ollama Response Status:', ollamaResponse.status);
+        console.log('[DEBUG] Ollama Response Headers:', Object.fromEntries(ollamaResponse.headers.entries()));
+
         if (!ollamaResponse.ok) {
-            throw new Error(`Ollama API error: ${ollamaResponse.status}`);
+            const errorText = await ollamaResponse.text();
+            console.error('[ERROR] Ollama API error:', ollamaResponse.status, errorText);
+            throw new Error(`Ollama API error: ${ollamaResponse.status} - ${errorText}`);
         }
 
         // Create a TransformStream to convert Ollama's JSON stream to SSE
