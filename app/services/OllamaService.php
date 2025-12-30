@@ -302,7 +302,7 @@ class OllamaService
 
                 // Speed Settings (GPU Enabled)
                 'num_gpu' => 99,            // Force all layers to GPU
-                'num_ctx' => 2048,          // Optimized context for 4GB VRAM
+                'num_ctx' => 2048,          // Context window (2048 needed for emotional responses)
                 'num_predict' => 1024,      // Max response tokens
                 'num_thread' => 1,          // Minimal CPU threads (GPU handles processing)
                 'num_batch' => 1024,        // Larger batch for GPU throughput
@@ -551,12 +551,12 @@ class OllamaService
 
         $pdo = $this->db->getPdo();
 
-        // Find closest router intents (Top 5 to capture mixed intents)
+        // Find closest router intents (Top 3 is enough)
         $sql = "SELECT content_text, 1 - VEC_COSINE_DISTANCE(embedding, ?) AS score 
             FROM knowledge_vectors 
             WHERE source_table = 'router_intent'
             ORDER BY score DESC 
-            LIMIT 5";
+            LIMIT 3";
 
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(1, $vectorStr);
@@ -566,23 +566,10 @@ class OllamaService
 
         $detectedIntents = [];
 
-        // DEBUG ECHO (Loop through all matches)
-        // Only enable if needed for deep debugging
-        /*
-        if ($results) {
-            foreach ($results as $result) {
-                echo "\n[DEBUG ROUTER] Found: " . $result['content_text'] . " | Score: " . $result['score'];
-            }
-            echo "\n";
-        } else {
-            echo "\n[DEBUG ROUTER] SQL Result Empty!\n";
-            echo "[DEBUG ROUTER] Vector Len: " . strlen($vectorStr) . "\n";
-        }
-        */
-
         if (!empty($results)) {
             foreach ($results as $result) {
-                if ($result['score'] > 0.55) {
+                // HIGHER THRESHOLD (0.60) to avoid false positives on generic "Help me"
+                if ($result['score'] > 0.60) {
                     // Parse "INTENT:PRICE|Berapa harga..."
                     $parts = explode('|', $result['content_text'], 2);
                     if (count($parts) > 0 && strpos($parts[0], 'INTENT:') === 0) {
@@ -834,7 +821,19 @@ class OllamaService
 
 
         // Context suppression logic removed as per user request to handle priority in Modelfile.
-        $context = ""; // Initialize context variable
+
+        // BASELINE CONTEXT (Always Injected)
+        // This gives the AI "Ground Truth" about identity, preventing hallucination on greetings.
+        $context = "IDENTITAS AI:\n";
+        $context .= "Nama: Asisten Albashiro\n";
+        $context .= "Peran: Chatbot Islamic Spiritual Hypnotherapy yang empatik dan profesional\n";
+        $context .= "Tujuan: Membantu klien dengan penuh perhatian, memberikan informasi akurat, dan mengarahkan ke terapis profesional\n\n";
+
+        $context .= "IDENTITAS SITUS:\n";
+        $context .= "Nama Situs: $siteName\n";
+        $context .= "Tagline: $siteTagline\n";
+        $context .= "WhatsApp Admin: $whatsappAdmin\n";
+        $context .= "Lokasi: " . ($settings['address'] ?? 'Jl. Raya No. 123') . "\n\n";
 
         // Inject current date/time (so AI knows the real date)
         // Optimasi: WAKTU hanya disuntik kalau user tanya (needsTime) atau butuh Jadwal (needsSchedule)
