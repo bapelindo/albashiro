@@ -4,15 +4,21 @@
  * Returns context data (RAG, system prompt, history) for Node.js proxy
  */
 
+// Disable error display, return JSON errors instead
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// Set JSON header early
+header('Content-Type: application/json');
+
 // Define constant to allow config access
 define('ALBASHIRO', true);
 
 // Load configuration
-require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../config/config.php';
 
 // Load core classes
 require_once SITE_ROOT . '/core/Database.php';
-require_once SITE_ROOT . '/app/services/OllamaService.php';
 
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -33,21 +39,7 @@ if (empty($message)) {
 }
 
 try {
-    // Initialize OllamaService to use its context building
-    $ollamaService = new OllamaService();
-
-    // Build context using OllamaService's internal method
-    // We'll use reflection to access the protected method
-    $reflection = new ReflectionClass($ollamaService);
-    $method = $reflection->getMethod('buildSystemContext');
-    $method->setAccessible(true);
-
-    $perfData = [];
-    $hasHistory = !empty($history);
-
-    $systemContext = $method->invoke($ollamaService, $message, $perfData, null, $hasHistory);
-
-    // Format messages array
+    // Build messages manually
     $messages = [];
 
     // Add history
@@ -59,7 +51,15 @@ try {
         ];
     }
 
-    // Add current message with context
+    // Build basic context
+    date_default_timezone_set('Asia/Jakarta');
+    $currentDate = date('l, d F Y');
+    $currentTime = date('H:i');
+
+    $systemContext = "Tanggal: $currentDate\nWaktu: $currentTime WIB\n\n";
+    $systemContext .= "Kamu adalah Asisten Albashiro, chatbot untuk Albashiro Islamic Spiritual Hypnotherapy.\n";
+
+    // Add user message with context
     $userMessageWithContext = "<context>\n$systemContext\n</context>\n\n<user_query>\n$message\n</user_query>";
     $messages[] = [
         'role' => 'user',
@@ -67,7 +67,6 @@ try {
     ];
 
     // Return context data
-    header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'messages' => $messages,
