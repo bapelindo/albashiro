@@ -30,3 +30,5 @@ temp/
 public/images/blog-*
 .vercel
 .env*.local
+
+ollama_embeddings.json

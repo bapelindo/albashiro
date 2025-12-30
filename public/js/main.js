@@ -656,6 +656,17 @@
 
     // Simple markdown parser
     const parseMarkdown = (text) => {
+        // Headings: ### text
+        text = text.replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-3 mb-2">$1</h3>');
+        text = text.replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-4 mb-2">$1</h2>');
+        text = text.replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-4 mb-2">$1</h1>');
+
+        // Code blocks: ```code```
+        text = text.replace(/```(.+?)```/gs, '<code class="block bg-gray-100 text-gray-800 px-3 py-2 rounded my-2 text-xs font-mono">$1</code>');
+
+        // Inline code: `code`
+        text = text.replace(/`(.+?)`/g, '<code class="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
+
         // Bold: **text** or __text__
         text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
@@ -663,6 +674,12 @@
         // Italic: *text* or _text_
         text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
         text = text.replace(/_(.+?)_/g, '<em>$1</em>');
+
+        // Strikethrough: ~~text~~
+        text = text.replace(/~~(.+?)~~/g, '<del class="opacity-70">$1</del>');
+
+        // Blockquote: > text
+        text = text.replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-emerald-300 pl-3 py-1 my-2 italic text-emerald-700 bg-emerald-50/50">$1</blockquote>');
 
         // Links: [text](url)
         text = text.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="underline text-accent-600">$1</a>');
