@@ -536,7 +536,7 @@
             }
 
             if (textElement) {
-                textElement.textContent = 'Maaf, koneksi terputus. Silakan coba lagi atau hubungi admin via WhatsApp.';
+                textElement.textContent = 'Maaf, saat ini Asisten AI sedang istirahat (Offline). Silakan coba lagi beberapa saat nanti. 🙏';
             }
         } finally {
             // Always reset processing flag
