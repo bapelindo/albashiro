@@ -3,7 +3,7 @@ FROM C:\LLM\Qwen3-4B-Instruct-2507-Q3_K_M.gguf
 # GPU Acceleration Parameters (4GB VRAM)
 PARAMETER num_gpu 99
 PARAMETER num_thread 1
-PARAMETER num_ctx 2048
+PARAMETER num_ctx 1024
 PARAMETER num_batch 1024
 
 TEMPLATE """{{ if .System }}<|im_start|>system

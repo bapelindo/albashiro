@@ -31,19 +31,9 @@ class OllamaService
     private $cacheFile;
     private $isCacheModified = false;
 
-    // Debugging
-    public $debug = false;
-    private $debugStart = 0;
 
-    private function debugLog($msg)
-    {
-        if ($this->debug) {
-            if ($this->debugStart === 0)
-                $this->debugStart = microtime(true);
-            $delta = round((microtime(true) - $this->debugStart) * 1000);
-            echo "[DEBUG +{$delta}ms] $msg\n";
-        }
-    }
+
+
 
     /**
      * Constructor
@@ -68,7 +58,6 @@ class OllamaService
         // Load AutoLearningService
         require_once __DIR__ . '/AutoLearningService.php';
         $this->autoLearning = new AutoLearningService();
-        $this->debugStart = microtime(true);
 
         // Initialize Cache File Path
         $this->cacheFile = __DIR__ . '/../../cache/ollama_embeddings.json';
@@ -168,17 +157,17 @@ class OllamaService
 
         // 3. Build System Context ONCE with correct hasHistory
         $contextStart = microtime(true);
-        $this->debugLog("Start Building Context...");
+
 
         if ($skipRAG) {
             $systemContext = ""; // No context
             $perfData['context_build_time_ms'] = 0;
-            $this->debugLog("Skipping RAG (Benchmark Mode)");
+
         } else {
             $hasHistory = !empty($messages); // True if we have history messages
             $systemContext = $this->buildSystemContext($userMessage, $perfData, $onStatus, $hasHistory);
             $perfData['context_build_time_ms'] = round((microtime(true) - $contextStart) * 1000);
-            $this->debugLog("Context Built in {$perfData['context_build_time_ms']}ms");
+
         }
 
         // 4. For custom model (albashiro-assistant), SYSTEM prompt is already embedded in Modelfile
@@ -209,14 +198,14 @@ class OllamaService
         try {
             // Call Streaming API
             $apiStart = microtime(true);
-            $this->debugLog("Sending to Ollama API...");
+
 
             $result = $this->generateChatStream($messages, $onToken);
             $fullResponse = $result['response'];
             $metrics = $result['metrics'];
 
             $apiTime = round((microtime(true) - $apiStart) * 1000);
-            $this->debugLog("Ollama API Finished in {$apiTime}ms");
+
             $perfData['api_call_time_ms'] = $apiTime;
 
             $perfData['ai_response'] = substr($fullResponse, 0, 1000);
@@ -302,7 +291,7 @@ class OllamaService
 
                 // Speed Settings (GPU Enabled)
                 'num_gpu' => 99,            // Force all layers to GPU
-                'num_ctx' => 2048,          // Context window (2048 needed for emotional responses)
+                'num_ctx' => 1024,          // Context window (2048 needed for emotional responses)
                 'num_predict' => 1024,      // Max response tokens
                 'num_thread' => 1,          // Minimal CPU threads (GPU handles processing)
                 'num_batch' => 1024,        // Larger batch for GPU throughput
@@ -328,7 +317,7 @@ class OllamaService
             'Connection: keep-alive'
         ]);
 
-        $this->debugLog("cURL init complete, executing...");
+
 
         // State for Clean Start Filter
         $isResponseStarted = false;
@@ -351,7 +340,7 @@ class OllamaService
 
                 if (!$isResponseStarted) {
                     $isResponseStarted = true;
-                    $this->debugLog("First byte received!");
+
                 }
 
                 // Parse JSON line
@@ -430,11 +419,11 @@ class OllamaService
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 180);
 
-        $this->debugLog("Generating embedding...");
+
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            $this->debugLog("Embedding Curl Error: " . curl_error($ch));
+
             // curl_close($ch); // Deprecated in recent PHP
             return null;
         }
@@ -459,7 +448,7 @@ class OllamaService
             $data = json_decode(file_get_contents($this->cacheFile), true);
             if (is_array($data)) {
                 $this->embeddingCache = $data;
-                $this->debugLog("Loaded " . count($this->embeddingCache) . " cached embeddings.");
+
             }
         }
     }
@@ -473,7 +462,7 @@ class OllamaService
                 mkdir($dir, 0777, true);
 
             file_put_contents($this->cacheFile, json_encode($this->embeddingCache));
-            $this->debugLog("Saved " . count($this->embeddingCache) . " embeddings to disk.");
+
         }
     }
 
@@ -483,11 +472,11 @@ class OllamaService
      */
     private function vectorSearch($queryText, $limit = 3, $inputVector = null)
     {
-        $this->debugLog("Vector Search: Generating embedding for query...");
+
         // 1. Generate Embedding for Query (Use inputVector if available to save time)
         if ($inputVector && is_array($inputVector)) {
             $queryVector = $inputVector;
-            $this->debugLog("Vector Search: Using pre-computed vector (Optimization)");
+
         } else {
             $queryVector = $this->generateEmbedding($queryText);
         }
@@ -495,7 +484,7 @@ class OllamaService
         if (!$queryVector)
             return [];
 
-        $this->debugLog("Vector Search: Running SQL...");
+
 
         // Convert array to string '[0.1, 0.2, ...]' for SQL
         $vectorStr = json_encode($queryVector);
@@ -532,11 +521,11 @@ class OllamaService
      */
     private function detectIntentSemantic($userMessage, $inputVector = null)
     {
-        $this->debugLog("Semantic Intent Detection: Generating embedding for query...");
+
         // 1. Generate Embedding for Query (Use inputVector if available to save time)
         if ($inputVector && is_array($inputVector)) {
             $queryVector = $inputVector;
-            $this->debugLog("Semantic Intent Detection: Using pre-computed vector (Optimization)");
+
         } else {
             $queryVector = $this->generateEmbedding($userMessage);
         }
@@ -544,7 +533,7 @@ class OllamaService
         if (!$queryVector)
             return null;
 
-        $this->debugLog("Semantic Intent Detection: Running SQL...");
+
 
         // Convert array to string '[0.1, 0.2, ...]' for SQL
         $vectorStr = json_encode($queryVector);
@@ -614,16 +603,6 @@ class OllamaService
         ]);
     }
 
-    /**
-     * Delete Vector
-     */
-    public function deleteVector($table, $id)
-    {
-        $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("DELETE FROM knowledge_vectors WHERE source_table = ? AND source_id = ?");
-        return $stmt->execute([$table, $id]);
-    }
-
 
 
     /**
@@ -673,7 +652,7 @@ class OllamaService
                         if ($intent === 'CONTACT')
                             $needsContact = true;
                     }
-                    $this->debugLog("Semantic Routing Triggered: " . implode(", ", $detectedIntents));
+
                 }
             }
         }
@@ -762,7 +741,7 @@ class OllamaService
         if (!empty($userMessage) && !$isGreeting && !$isTimeCheck && !$hasSpecificData) {
             try {
                 $dbStart = microtime(true);
-                $this->debugLog("Searching relevant knowledge...");
+
 
                 // OPTIMIZATION: Use pre-computed vector if available
                 // This prevents re-generating embedding for RAG if Semantic Router was used.
@@ -773,7 +752,7 @@ class OllamaService
                     $perfData['knowledge_matched'] = $this->lastKnowledgeMatchCount;
                     $perfData['keywords_searched'] = $this->lastSearchKeywords;
                 }
-                $this->debugLog("Knowledge search done in " . ($perfData['db_knowledge_time_ms'] ?? 0) . "ms");
+
             } catch (Exception $e) {
             }
         }
@@ -782,7 +761,7 @@ class OllamaService
         if ($needsSchedule && !$isGreeting) {
             try {
                 $dbStart = microtime(true);
-                $this->debugLog("Searching schedule...");
+
                 $queryDate = $this->extractDateFromMessage($userMessage) ?? date('Y-m-d');
                 $therapistName = $this->extractTherapistFromMessage($userMessage);
 
@@ -795,7 +774,7 @@ class OllamaService
                 if ($perfData)
                     $perfData['db_schedule_time_ms'] = round((microtime(true) - $dbStart) * 1000);
 
-                $this->debugLog("Schedule search done in " . ($perfData['db_schedule_time_ms'] ?? 0) . "ms");
+
             } catch (Exception $e) {
             }
         }
