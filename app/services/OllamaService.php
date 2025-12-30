@@ -298,7 +298,7 @@ class OllamaService
                 'temperature' => 0.5,       // Balanced creativity
                 'top_k' => 20,              // Standard diversity
                 'top_p' => 0.9,             // Natural language flow
-                'repeat_penalty' => 1.05,    // Prevent repetition
+                'repeat_penalty' => 1.15,    // Prevent repetition
 
                 // Speed Settings
                 'num_ctx' => 2048,          // Increased for Multi-Intent (Prevents Output Cutoff)
