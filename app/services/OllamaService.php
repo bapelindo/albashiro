@@ -24,7 +24,26 @@ class OllamaService
     // Static caches (shared across instances)
     private static $greetingPattern = '/^(halo|hai|assalamualaikum|selamat|hello|hi|horas|apa kabar)(\s|!|\?)*$/i';
     private static $staticSettingsCache = null;
+
     private static $staticSettingsCacheTime = 0;
+
+    // Persistent Cache
+    private $cacheFile;
+    private $isCacheModified = false;
+
+    // Debugging
+    public $debug = false;
+    private $debugStart = 0;
+
+    private function debugLog($msg)
+    {
+        if ($this->debug) {
+            if ($this->debugStart === 0)
+                $this->debugStart = microtime(true);
+            $delta = round((microtime(true) - $this->debugStart) * 1000);
+            echo "[DEBUG +{$delta}ms] $msg\n";
+        }
+    }
 
     /**
      * Constructor
@@ -35,20 +54,30 @@ class OllamaService
     public function __construct(
         ?string $host = null,
         ?string $model = null,
-        int $timeout = 120
+        int $timeout = 180
     ) {
         $defaultHost = defined('OLLAMA_API_URL') ? OLLAMA_API_URL : 'http://localhost:11434';
-        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'gemma3:4b';
+        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'albashiro';
 
         $this->baseUrl = rtrim($host ?? $defaultHost, '/');
         $this->model = $model ?? $defaultModel;
-        $this->timeout = 120; // 120s for long responses with large context
+        $this->timeout = $timeout; // Use passed timeout (default 180s)
 
         $this->db = Database::getInstance();
 
         // Load AutoLearningService
         require_once __DIR__ . '/AutoLearningService.php';
         $this->autoLearning = new AutoLearningService();
+        $this->debugStart = microtime(true);
+
+        // Initialize Cache File Path
+        $this->cacheFile = __DIR__ . '/../../cache/ollama_embeddings.json';
+        $this->loadEmbeddingCache();
+    }
+
+    public function __destruct()
+    {
+        $this->saveEmbeddingCache();
     }
 
     /**
@@ -67,9 +96,10 @@ class OllamaService
      * @param callable $onToken Callback function to handle each token
      * @param callable $onStatus Callback function for status updates
      * @param bool $skipAutoLearning Skip auto-learning logging (for internal AI calls)
+     * @param bool $skipRAG Skip RAG context building (for benchmarking)
      * @return array Final response with metadata
      */
-    public function chatStream($userMessage, $conversationHistory = [], $onToken = null, $onStatus = null, $skipAutoLearning = false)
+    public function chatStream($userMessage, $conversationHistory = [], $onToken = null, $onStatus = null, $skipAutoLearning = false, $skipRAG = false)
     {
         // Increase execution time for streaming (long responses with large context)
         set_time_limit(180);
@@ -138,9 +168,18 @@ class OllamaService
 
         // 3. Build System Context ONCE with correct hasHistory
         $contextStart = microtime(true);
-        $hasHistory = !empty($messages); // True if we have history messages
-        $systemContext = $this->buildSystemContext($userMessage, $perfData, $onStatus, $hasHistory);
-        $perfData['context_build_time_ms'] = round((microtime(true) - $contextStart) * 1000);
+        $this->debugLog("Start Building Context...");
+
+        if ($skipRAG) {
+            $systemContext = ""; // No context
+            $perfData['context_build_time_ms'] = 0;
+            $this->debugLog("Skipping RAG (Benchmark Mode)");
+        } else {
+            $hasHistory = !empty($messages); // True if we have history messages
+            $systemContext = $this->buildSystemContext($userMessage, $perfData, $onStatus, $hasHistory);
+            $perfData['context_build_time_ms'] = round((microtime(true) - $contextStart) * 1000);
+            $this->debugLog("Context Built in {$perfData['context_build_time_ms']}ms");
+        }
 
         // 4. For custom model (albashiro-assistant), SYSTEM prompt is already embedded in Modelfile
         // Don't override with system role - instead, prepend dynamic data to user message
@@ -170,9 +209,14 @@ class OllamaService
         try {
             // Call Streaming API
             $apiStart = microtime(true);
+            $this->debugLog("Sending to Ollama API...");
 
-            $fullResponse = $this->generateChatStream($messages, $onToken);
+            $result = $this->generateChatStream($messages, $onToken);
+            $fullResponse = $result['response'];
+            $metrics = $result['metrics'];
+
             $apiTime = round((microtime(true) - $apiStart) * 1000);
+            $this->debugLog("Ollama API Finished in {$apiTime}ms");
             $perfData['api_call_time_ms'] = $apiTime;
 
             $perfData['ai_response'] = substr($fullResponse, 0, 1000);
@@ -217,7 +261,8 @@ class OllamaService
                     'knowledge_matched' => $this->lastKnowledgeMatchCount,
                     'keywords_searched' => $this->lastSearchKeywords,
                     'response_time_ms' => $responseTime,
-                    'provider' => 'Local Ollama (' . $this->model . ') - Streaming'
+                    'provider' => 'Local Ollama (' . $this->model . ') - Streaming',
+                    'usage' => $metrics // Expose token usage
                 ]
             ];
         } catch (Exception $e) {
@@ -236,7 +281,7 @@ class OllamaService
      * Generate streaming chat response from Ollama
      * Processes NDJSON stream and calls callback for each token
      */
-    private function generateChatStream(array $messages, $onToken = null): string
+    private function generateChatStream(array $messages, $onToken = null): array
     {
         $endpoint = $this->baseUrl . '/api/chat';
 
@@ -256,10 +301,10 @@ class OllamaService
                 'repeat_penalty' => 1.05,    // Prevent repetition
 
                 // Speed Settings
-                'num_ctx' => 4096,          // Context window (smaller = faster)
-                'num_predict' => 2048,      // Max response tokens (shorter = faster)
+                'num_ctx' => 2048,          // Increased for Multi-Intent (Prevents Output Cutoff)
+                'num_predict' => 1024,      // Max response tokens (shorter = faster)
                 'num_thread' => $cpuThreads,
-                'num_batch' => 2048,         // Batch size for throughput
+                'num_batch' => 1024,         // Batch size for throughput
             ]
         ];
 
@@ -282,11 +327,16 @@ class OllamaService
             'Connection: keep-alive'
         ]);
 
+        $this->debugLog("cURL init complete, executing...");
+
         // State for Clean Start Filter
         $isResponseStarted = false;
 
+        // Stats container
+        $finalMetrics = [];
+
         // Write callback - called for each chunk received
-        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($curl, $data) use (&$fullResponse, &$buffer, $onToken) {
+        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($curl, $data) use (&$fullResponse, &$buffer, $onToken, &$isResponseStarted, &$finalMetrics) {
             $buffer .= $data;
 
             // Process complete lines (NDJSON format)
@@ -298,15 +348,27 @@ class OllamaService
                 if (empty($line))
                     continue;
 
+                if (!$isResponseStarted) {
+                    $isResponseStarted = true;
+                    $this->debugLog("First byte received!");
+                }
+
                 // Parse JSON line
                 $chunk = json_decode($line, true);
                 if (json_last_error() === JSON_ERROR_NONE) {
+                    // Capture stats from DONE chunk
+                    if (($chunk['done'] ?? false) === true) {
+                        $finalMetrics = [
+                            'prompt_eval_count' => $chunk['prompt_eval_count'] ?? 0,
+                            'eval_count' => $chunk['eval_count'] ?? 0,
+                            'load_duration' => $chunk['load_duration'] ?? 0,
+                            'prompt_eval_duration' => $chunk['prompt_eval_duration'] ?? 0,
+                            'eval_duration' => $chunk['eval_duration'] ?? 0,
+                        ];
+                    }
+
                     if (isset($chunk['message']['content'])) {
                         $token = $chunk['message']['content'];
-
-                        // --- PERBAIKAN: HAPUS SEMUA FILTER! ---
-                        // Karena Prompt sudah benar, kita tidak butuh ltrim/filter lagi.
-                        // Biarkan token mengalir apa adanya agar "Assalamualaikum" tidak hilang.
 
                         $fullResponse .= $token;
 
@@ -314,7 +376,6 @@ class OllamaService
                         if ($onToken && is_callable($onToken)) {
                             $onToken($token, $chunk['done'] ?? false);
                         }
-                        // --------------------------------------
                     }
                 }
             }
@@ -335,7 +396,10 @@ class OllamaService
             throw new Exception("Ollama Streaming API Error (HTTP $httpCode)");
         }
 
-        return $fullResponse;
+        return [
+            'response' => $fullResponse,
+            'metrics' => $finalMetrics ?? []
+        ];
     }
 
     /**
@@ -353,8 +417,9 @@ class OllamaService
         $endpoint = $this->baseUrl . '/api/embeddings';
 
         $payload = [
-            'model' => 'nomic-embed-text', // Specialized embedding model
-            'prompt' => $text
+            'model' => 'all-minilm', // Official stable model (384 dim, L6)
+            'prompt' => $text,
+            'keep_alive' => '60m' // Try to keep embedding model loaded
         ];
 
         $ch = curl_init($endpoint);
@@ -362,15 +427,18 @@ class OllamaService
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 180);
 
+        $this->debugLog("Generating embedding...");
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            // Embedding error ignored
+            $this->debugLog("Embedding Curl Error: " . curl_error($ch));
+            // curl_close($ch); // Deprecated in recent PHP
             return null;
         }
 
+        // curl_close($ch); // Deprecated in recent PHP
 
         $data = json_decode($response, true);
         $embedding = $data['embedding'] ?? null;
@@ -378,21 +446,55 @@ class OllamaService
         // Cache the result
         if ($embedding) {
             $this->embeddingCache[$cacheKey] = $embedding;
+            $this->isCacheModified = true;
         }
 
         return $embedding;
+    }
+
+    private function loadEmbeddingCache()
+    {
+        if (file_exists($this->cacheFile)) {
+            $data = json_decode(file_get_contents($this->cacheFile), true);
+            if (is_array($data)) {
+                $this->embeddingCache = $data;
+                $this->debugLog("Loaded " . count($this->embeddingCache) . " cached embeddings.");
+            }
+        }
+    }
+
+    private function saveEmbeddingCache()
+    {
+        if ($this->isCacheModified) {
+            // Create directory if not exists
+            $dir = dirname($this->cacheFile);
+            if (!is_dir($dir))
+                mkdir($dir, 0777, true);
+
+            file_put_contents($this->cacheFile, json_encode($this->embeddingCache));
+            $this->debugLog("Saved " . count($this->embeddingCache) . " embeddings to disk.");
+        }
     }
 
     /**
      * Vector Search (Semantic Search)
      * Finds most similar knowledge using TiDB Native Vector Search
      */
-    private function vectorSearch($queryText, $limit = 3)
+    private function vectorSearch($queryText, $limit = 3, $inputVector = null)
     {
-        // 1. Generate Embedding for Query
-        $queryVector = $this->generateEmbedding($queryText);
+        $this->debugLog("Vector Search: Generating embedding for query...");
+        // 1. Generate Embedding for Query (Use inputVector if available to save time)
+        if ($inputVector && is_array($inputVector)) {
+            $queryVector = $inputVector;
+            $this->debugLog("Vector Search: Using pre-computed vector (Optimization)");
+        } else {
+            $queryVector = $this->generateEmbedding($queryText);
+        }
+
         if (!$queryVector)
             return [];
+
+        $this->debugLog("Vector Search: Running SQL...");
 
         // Convert array to string '[0.1, 0.2, ...]' for SQL
         $vectorStr = json_encode($queryVector);
@@ -418,6 +520,81 @@ class OllamaService
 
         // Filter by relevance threshold (e.g., > 0.4)
         return array_filter($results, fn($r) => $r['score'] > 0.4);
+    }
+
+    /**
+     * Detect intent semantically using vector search on 'router_intent' table.
+     *
+     * @param string $userMessage The user's message.
+     * @param array|null $inputVector Pre-computed embedding for the user message.
+     * @return array|null Returns an array with 'intent' and 'score' if a strong match is found, otherwise null.
+     */
+    private function detectIntentSemantic($userMessage, $inputVector = null)
+    {
+        $this->debugLog("Semantic Intent Detection: Generating embedding for query...");
+        // 1. Generate Embedding for Query (Use inputVector if available to save time)
+        if ($inputVector && is_array($inputVector)) {
+            $queryVector = $inputVector;
+            $this->debugLog("Semantic Intent Detection: Using pre-computed vector (Optimization)");
+        } else {
+            $queryVector = $this->generateEmbedding($userMessage);
+        }
+
+        if (!$queryVector)
+            return null;
+
+        $this->debugLog("Semantic Intent Detection: Running SQL...");
+
+        // Convert array to string '[0.1, 0.2, ...]' for SQL
+        $vectorStr = json_encode($queryVector);
+
+        $pdo = $this->db->getPdo();
+
+        // Find closest router intents (Top 5 to capture mixed intents)
+        $sql = "SELECT content_text, 1 - VEC_COSINE_DISTANCE(embedding, ?) AS score 
+            FROM knowledge_vectors 
+            WHERE source_table = 'router_intent'
+            ORDER BY score DESC 
+            LIMIT 5";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(1, $vectorStr);
+        $stmt->execute();
+
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $detectedIntents = [];
+
+        // DEBUG ECHO (Loop through all matches)
+        // Only enable if needed for deep debugging
+        /*
+        if ($results) {
+            foreach ($results as $result) {
+                echo "\n[DEBUG ROUTER] Found: " . $result['content_text'] . " | Score: " . $result['score'];
+            }
+            echo "\n";
+        } else {
+            echo "\n[DEBUG ROUTER] SQL Result Empty!\n";
+            echo "[DEBUG ROUTER] Vector Len: " . strlen($vectorStr) . "\n";
+        }
+        */
+
+        if (!empty($results)) {
+            foreach ($results as $result) {
+                if ($result['score'] > 0.55) {
+                    // Parse "INTENT:PRICE|Berapa harga..."
+                    $parts = explode('|', $result['content_text'], 2);
+                    if (count($parts) > 0 && strpos($parts[0], 'INTENT:') === 0) {
+                        $intent = substr($parts[0], 7); // Remove INTENT: prefix
+                        if (!in_array($intent, $detectedIntents)) {
+                            $detectedIntents[] = $intent;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $detectedIntents; // Returns ['PRICE', 'SCHEDULE'] etc.
     }
 
     /**
@@ -459,32 +636,7 @@ class OllamaService
         return $stmt->execute([$table, $id]);
     }
 
-    /**
-     * Test Retrieval for Debugging
-     */
-    public function testRetrieval($query)
-    {
-        echo "🔍 Testing RAG for query: '$query'\n";
 
-        // 1. Check Embedding
-        $vec = $this->generateEmbedding($query);
-        if (!$vec) {
-            echo "❌ Embedding Generation Failed.\n";
-            return;
-        }
-        echo "✅ Embedding Generated (Dim: " . count($vec) . ")\n";
-
-        // 2. Check Vector Search
-        $results = $this->vectorSearch($query);
-        echo "📊 Vector Search Results: " . count($results) . " matches.\n";
-        foreach ($results as $r) {
-            echo "   - Score: " . number_format($r['score'], 4) . " | Content: " . substr($r['content_text'], 0, 50) . "...\n";
-        }
-
-        // 3. Check Keyword Fallback (Just to see)
-        $kws = $this->extractKeywords($query);
-        echo "🔑 Keywords extracted: " . implode(', ', $kws) . "\n";
-    }
 
     /**
      * Build system context with Albashiro information
@@ -496,14 +648,61 @@ class OllamaService
         if ($perfData === null)
             $perfData = [];
 
-        $needsServices = preg_match('/(layanan|service|terapi|paket|harga|biaya|price|berapa.*biaya|berapa.*harga)/i', $userMessage);
-        $needsTherapists = preg_match('/(terapis|therapist|dokter|bunda|ustadzah|siapa.*terapis|profil.*terapis)/i', $userMessage);
+        // Initialize Flags
+        $needsServices = false;
+        $needsTherapists = false;
+        $needsSchedule = false;
+        $needsTestimonials = false;
+        $needsContact = false;
 
-        // FIXED: More specific schedule pattern - removed generic words like "bisa", "waktu"  
-        // Only trigger if explicitly asking about schedule/booking
-        $needsSchedule = preg_match('/(jadwal|tersedia.*jadwal|booking|slot|kosong.*jadwal|kapan.*tersedia|jam.*praktek|jam.*buka|reservasi|janji.*temu)/i', $userMessage);
+        // Initialize Data Variables
+        $servicesInfo = '';
+        $therapistsInfo = '';
+        $testimonialsInfo = '';
+        $scheduleInfo = '';
+        $contactInfo = '';
+        $relevantKnowledge = '';
 
-        $needsTestimonials = preg_match('/(testimoni|review|pengalaman|hasil.*terapi|berhasil.*terapi)/i', $userMessage);
+        $computedVector = null;
+
+        // EXPERIMENTAL: Semantic Routing (Priority)
+        if (defined('USE_SEMANTIC_ROUTING') && USE_SEMANTIC_ROUTING) {
+            // Generate Vector ONCE here
+            $computedVector = $this->generateEmbedding($userMessage);
+
+            if ($computedVector) {
+                // Returns array of unique intents, e.g. ['PRICE', 'SCHEDULE']
+                $detectedIntents = $this->detectIntentSemantic($userMessage, $computedVector);
+
+                if (!empty($detectedIntents)) {
+                    foreach ($detectedIntents as $intent) {
+                        if ($intent === 'PRICE')
+                            $needsServices = true;
+                        if ($intent === 'SCHEDULE')
+                            $needsSchedule = true;
+                        if ($intent === 'THERAPIST')
+                            $needsTherapists = true;
+                        if ($intent === 'CONTACT')
+                            $needsContact = true;
+                    }
+                    $this->debugLog("Semantic Routing Triggered: " . implode(", ", $detectedIntents));
+                }
+            }
+        }
+
+        // REGEX FALLBACK (Only if Semantic didn't trigger OR if Semantic is OFF)
+        // User requested "Pure Mode" but practically we need regex if semantic misses. 
+        // Logic: If NO specific data triggered yet, try Regex.
+
+        $anythingTriggered = ($needsServices || $needsTherapists || $needsSchedule || $needsContact);
+
+        if (!$anythingTriggered) {
+            $needsServices = preg_match('/(layanan|service|paket|harga|biaya|price|tarif|berapa.*biaya|berapa.*harga|berapa.*terapi)/i', $userMessage);
+            $needsTherapists = preg_match('/(terapis|therapist|dokter|bunda|ustadzah|siapa.*terapis|profil.*terapis)/i', $userMessage);
+            $needsSchedule = preg_match('/(jadwal|tersedia|booking|slot|kosong|kapan.*bisa|ada.*kosong|jam.*praktek|jam.*buka|reservasi|janji.*temu|hari.*apa)/i', $userMessage);
+            $needsTestimonials = preg_match('/(testimoni|review|pengalaman|hasil.*terapi|berhasil.*terapi)/i', $userMessage);
+            $needsContact = preg_match('/(alamat|lokasi|dimana.*praktek|kantor|tempat|wa|telp|hubungi|contact|arah|maps|peta)/i', $userMessage);
+        }
 
         // Only fetch what's needed
         $servicesInfo = '';
@@ -538,16 +737,51 @@ class OllamaService
 
         // Relevant Knowledge Search (FAQ/Blog) - Skip for pure greetings
         $isGreeting = preg_match(self::$greetingPattern, trim($userMessage));
+        // Check if asking for current time (jam berapa sekarang, tanggal berapa)
+        $isTimeCheck = preg_match('/(jam|pukul|tanggal|hari).*(berapa|apa|sekarang)/i', $userMessage) && !preg_match('/(buka|tutup|praktek|jadwal)/i', $userMessage);
 
-        if (!empty($userMessage) && !$isGreeting) {
+        // Check if asking for Contact/Location (Alamat, WA, Lokasi, Dimana)
+        $needsContact = preg_match('/(alamat|lokasi|dimana.*praktek|kantor|tempat|wa|telp|hubungi|contact|arah|maps|peta)/i', $userMessage);
+
+
+
+        // ... (Services/Therapists/Testimonials unchanged) ...
+
+        // Contact Info (Only if asked)
+        if ($needsContact) {
+            $settings = $this->getSiteSettings(); // Fetch settings on demand
+            $tempSiteName = $settings['site_name'] ?? $settings['name'] ?? SITE_NAME;
+
+            $contactInfo = "KONTAK & LOKASI:\n";
+            $contactInfo .= "Nama: $tempSiteName\n";
+            $contactInfo .= "Alamat: " . ($settings['address'] ?? 'Jl. Raya No. 123') . "\n";
+            $contactInfo .= "WhatsApp: " . ($settings['admin_whatsapp'] ?? ADMIN_WHATSAPP) . "\n";
+            $contactInfo .= "Email: " . ($settings['admin_email'] ?? ADMIN_EMAIL) . "\n";
+            $contactInfo .= "Website: " . SITE_URL . "\n";
+            // Optional: Add Google Maps link if available in settings
+            if (!empty($settings['gmaps_link']))
+                $contactInfo .= "Maps: " . $settings['gmaps_link'] . "\n";
+        }
+
+        // Optimasi: Jangan search knowledge kalau sudah trigger Layanan/Terapis/Jadwal (Hemat Token)
+        // Atau kalau cuma greeting.
+        $hasSpecificData = ($needsServices || $needsTherapists || $needsSchedule || $needsTestimonials || $isTimeCheck || $needsContact);
+
+        if (!empty($userMessage) && !$isGreeting && !$isTimeCheck && !$hasSpecificData) {
             try {
                 $dbStart = microtime(true);
-                $relevantKnowledge = $this->searchRelevantKnowledge($userMessage, $onStatus);
+                $this->debugLog("Searching relevant knowledge...");
+
+                // OPTIMIZATION: Use pre-computed vector if available
+                // This prevents re-generating embedding for RAG if Semantic Router was used.
+                $relevantKnowledge = $this->searchRelevantKnowledge($userMessage, $onStatus, $computedVector);
+
                 if ($perfData) {
                     $perfData['db_knowledge_time_ms'] = round((microtime(true) - $dbStart) * 1000);
                     $perfData['knowledge_matched'] = $this->lastKnowledgeMatchCount;
                     $perfData['keywords_searched'] = $this->lastSearchKeywords;
                 }
+                $this->debugLog("Knowledge search done in " . ($perfData['db_knowledge_time_ms'] ?? 0) . "ms");
             } catch (Exception $e) {
             }
         }
@@ -556,6 +790,7 @@ class OllamaService
         if ($needsSchedule && !$isGreeting) {
             try {
                 $dbStart = microtime(true);
+                $this->debugLog("Searching schedule...");
                 $queryDate = $this->extractDateFromMessage($userMessage) ?? date('Y-m-d');
                 $therapistName = $this->extractTherapistFromMessage($userMessage);
 
@@ -567,6 +802,8 @@ class OllamaService
 
                 if ($perfData)
                     $perfData['db_schedule_time_ms'] = round((microtime(true) - $dbStart) * 1000);
+
+                $this->debugLog("Schedule search done in " . ($perfData['db_schedule_time_ms'] ?? 0) . "ms");
             } catch (Exception $e) {
             }
         }
@@ -595,10 +832,14 @@ class OllamaService
         $context = ""; // Initialize context variable
 
         // Inject current date/time (so AI knows the real date)
-        $currentDate = date('d F Y'); // e.g., "28 Desember 2025"
-        $currentTime = date('H:i'); // e.g., "12:30"
-        $dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][date('w')];
-        $context .= "WAKTU: $dayName, $currentDate pukul $currentTime WIB\n\n";
+        // Optimasi: WAKTU hanya disuntik kalau user tanya (needsTime) atau butuh Jadwal (needsSchedule)
+        // Ini mencegah halusinasi tanggal seperti "Idul Fitri" di chat biasa.
+        if ($isTimeCheck || $needsSchedule) {
+            $currentDate = date('d F Y'); // e.g., "28 Desember 2025"
+            $currentTime = date('H:i'); // e.g., "12:30"
+            $dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][date('w')];
+            $context .= "WAKTU: $dayName, $currentDate pukul $currentTime WIB\n\n";
+        }
 
         // SENTIMENT-BASED RESPONSE ADJUSTMENT
         $sentiment = $this->analyzeSentiment($userMessage);
@@ -653,6 +894,8 @@ class OllamaService
             $context .= "\n\nTERAPIS:\n$therapistsInfo";
         if ($testimonialsInfo)
             $context .= "\n\nTESTI:\n$testimonialsInfo";
+        if ($contactInfo)
+            $context .= "\n\nINFO KONTAK:\n$contactInfo";
 
         // 3. Real-time Schedule (HIGHEST PRIORITY - Must override KB)
         if ($scheduleInfo) {
@@ -685,8 +928,10 @@ class OllamaService
         return $settings;
     }
 
+
     private function getServicesInfo()
     {
+        // echo "[DEBUG] Fetching Services Info from DB...\n";
         $pdo = $this->db->getPdo();
         $stmt = $pdo->query("SELECT name, price, duration FROM services ORDER BY sort_order");
         $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -728,10 +973,11 @@ class OllamaService
         return $out ?: "Belum ada testimoni.";
     }
 
-    private function searchRelevantKnowledge($msg, $onStatus = null)
+    private function searchRelevantKnowledge($query, $onStatus = null, $inputVector = null)
     {
+        $knowledge = "";
         // Cache check (5-10ms saved on repeated queries)
-        $cacheKey = md5(strtolower(trim($msg)));
+        $cacheKey = md5(strtolower(trim($query)));
         if (isset($this->knowledgeCache[$cacheKey])) {
             // Update stats from cache
             $cached = $this->knowledgeCache[$cacheKey];
@@ -743,14 +989,14 @@ class OllamaService
         $contextMatches = [];
         $seenContent = [];
 
-        // 1. Vector Search (Semantic) - Skip if table doesn't exist
+        // 1. Vector Search (Semantic) - Highest Priority
         try {
-            $vectorResults = $this->vectorSearch($msg, 5);
+            $vectorResults = $this->vectorSearch($query, 3, $inputVector);
             foreach ($vectorResults as $r) {
                 // Deduplicate by content hash or direct string
                 $hash = md5($r['content_text']);
                 if (!isset($seenContent[$hash])) {
-                    $contextMatches[] = $r['content_text']; // Vector returns 'content_text'
+                    $contextMatches[] = substr($r['content_text'], 0, 500); // TRUNCATE RAG to 500 chars
                     $seenContent[$hash] = true;
                 }
             }
@@ -758,8 +1004,13 @@ class OllamaService
             // Table doesn't exist or vector search failed - continue with keyword search
         }
 
-        // 2. Keyword Search (Optimized LIKE) - TiDB Compatible
-        $kws = $this->extractKeywords($msg);
+        // OPTIMIZATION: If Vector match found, STOP here. Single Source of Truth.
+        if (!empty($contextMatches)) {
+            return implode("\n---\n", $contextMatches);
+        }
+
+        // 2. Keyword Search (Optimized LIKE) - Fallback
+        $kws = $this->extractKeywords($query);
         if ($kws) {
             $pdo = $this->db->getPdo();
 
@@ -781,11 +1032,15 @@ class OllamaService
                 $content = "Q: {$r['question']}\nA: {$r['answer']}";
                 $hash = md5($content);
                 if (!isset($seenContent[$hash])) {
-                    $contextMatches[] = $content;
+                    $contextMatches[] = substr($content, 0, 500);
                     $seenContent[$hash] = true;
                 }
             }
 
+            // OPTIMIZATION: If FAQ match found, STOP here.
+            if (!empty($contextMatches)) {
+                return implode("\n---\n", $contextMatches);
+            }
 
             // 2b. Search Knowledge Vectors (5050 rows - optimized with index)
             try {
@@ -796,7 +1051,7 @@ class OllamaService
                 $stmt_vec->execute($p_vec);
 
                 foreach ($stmt_vec->fetchAll(PDO::FETCH_ASSOC) as $r) {
-                    $content = $r['content_text'];
+                    $content = substr($r['content_text'], 0, 500);
                     $hash = md5($content);
                     if (!isset($seenContent[$hash])) {
                         $contextMatches[] = $content;
@@ -1076,6 +1331,10 @@ class OllamaService
             $out .= "Tidak ada slot tersedia.\n";
         }
 
+        // Generate Booking Link
+        $bookingLink = generate_wa_link($therapistName ?? 'Admin', 'Hipnoterapi', 'Klien', $date);
+        $out .= "\n[LINK BOOKING]: $bookingLink\n";
+
         // Cache the result
         $this->scheduleCache[$cacheKey] = $out;
 
@@ -1128,13 +1387,69 @@ class OllamaService
 
     private function extractDateFromMessage($msg)
     {
+        $msg = strtolower($msg);
+
         if (empty($msg))
             return null;
+
+        // Relative dates
         if (strpos($msg, 'besok') !== false)
             return date('Y-m-d', strtotime('+1 day'));
+        if (strpos($msg, 'lusa') !== false)
+            return date('Y-m-d', strtotime('+2 days'));
         if (strpos($msg, 'hari ini') !== false)
             return date('Y-m-d');
-        return null;
+
+        // ...
+
+        // Numeric dates (e.g., "tanggal 5", "tgl 25", "5 januari")
+        if (preg_match('/(tanggal|tgl)\s*(\d+)/i', $msg, $matches)) {
+            $day = $matches[2];
+            $month = date('m');
+            $year = date('Y');
+
+            $months = [
+                'januari' => 1,
+                'februari' => 2,
+                'maret' => 3,
+                'april' => 4,
+                'mei' => 5,
+                'juni' => 6,
+                'juli' => 7,
+                'agustus' => 8,
+                'september' => 9,
+                'oktober' => 10,
+                'november' => 11,
+                'desember' => 12,
+                'jan' => 1,
+                'feb' => 2,
+                'mar' => 3,
+                'apr' => 4,
+                'jun' => 6,
+                'jul' => 7,
+                'agust' => 8,
+                'sep' => 9,
+                'okt' => 10,
+                'nov' => 11,
+                'des' => 12
+            ];
+
+            foreach ($months as $name => $num) {
+                if (stripos($msg, $name) !== false) {
+                    $month = $num;
+                    break;
+                }
+            }
+
+            // If date has passed this year, assume next year
+            if (mktime(0, 0, 0, $month, $day, $year) < time()) {
+                $year++;
+            }
+
+            return date('Y-m-d', mktime(0, 0, 0, $month, $day, $year));
+        }
+
+        return null; // Default to null (Controller will use today if needed)
     }
 
     /**
@@ -1157,4 +1472,5 @@ class OllamaService
             // Ignore
         }
     }
+
 }

@@ -74,13 +74,18 @@ define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for noti
 // ⚠️ SINGLE SOURCE OF TRUTH - Edit model here only!
 // Primary: Local Ollama (Standalone)
 define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: 'http://localhost:11434');
-define('OLLAMA_MODEL', 'albashiro');  // Fine-tuned Gemma 3 4B with Islamic persona & Albashiro knowledge
+define('OLLAMA_MODEL', 'albashiro');  // Fine-tuned Qwen3 4B with Islamic persona & Albashiro knowledgeIslamic persona & Albashiro knowledge
+// Secondary: Embedding Model// Embedding Model: 'all-minilm' (Official, Light & Fast)
 
 // Legacy/Cloud APIs (DISABLED)
 // define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY') ?: '');
 // define('GOOGLE_MODEL', 'gemini-2.0-flash');
 // define('HUGGINGFACE_API_KEY', getenv('HUGGINGFACE_API_KEY') ?: '');
+// define('HUGGINGFACE_API_KEY', getenv('HUGGINGFACE_API_KEY') ?: '');
 // define('HUGGINGFACE_API_URL', 'https://router.huggingface.co/v1/chat/completions');
+
+// Experimental: Semantic Intent Routing (Memory Intensive)
+define('USE_SEMANTIC_ROUTING', true); // Set to true to enable experimental vector-based intent detection
 
 // =====================================================
 // THERAPIST WHATSAPP NUMBERS

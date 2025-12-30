@@ -1,50 +1,17 @@
-FROM C:\LLM\qwen3-4b-instruct-2507.Q4_K_M.gguf
+FROM C:\LLM\qwen3-4b-instruct-2507.Q3_K_M.gguf
 
-TEMPLATE """{{ if .Messages }}
-{{- if or .System .Tools }}<|im_start|>system
-{{ .System }}
-{{- if .Tools }}
+# GPU Acceleration Parameters (4GB VRAM)
+PARAMETER num_gpu 99
+PARAMETER num_thread 1
+PARAMETER num_ctx 2048
+PARAMETER num_batch 1024
 
-# Tools
-You are provided with function signatures within <tools></tools> XML tags:
-<tools>
-{{- range .Tools }}
-{"type": "function", "function": {{ .Function }}}
-{{- end }}
-</tools>
-
-For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:
-<tool_call>
-{"name": <function-name>, "arguments": <args-json-object>}
-</tool_call>
-{{- end }}<|im_end|>
-{{ end }}
-{{- range $i, $_ := .Messages }}
-{{- $last := eq (len (slice $.Messages $i)) 1 -}}
-{{- if eq .Role "user" }}<|im_start|>user
-{{ .Content }}<|im_end|>
-{{ else if eq .Role "assistant" }}<|im_start|>assistant
-{{ if .Content }}{{ .Content }}
-{{- else if .ToolCalls }}<tool_call>
-{{ range .ToolCalls }}{"name": "{{ .Function.Name }}", "arguments": {{ .Function.Arguments }}}
-{{ end }}</tool_call>
-{{- end }}{{ if not $last }}<|im_end|>
-{{ end }}
-{{- else if eq .Role "tool" }}<|im_start|>user
-<tool_response>
-{{ .Content }}
-</tool_response><|im_end|>
-{{ end }}
-{{- if and (ne .Role "assistant") $last }}<|im_start|>assistant
-{{ end }}
-{{- end }}
-{{- else }}
-{{- if .System }}<|im_start|>system
+TEMPLATE """{{ if .System }}<|im_start|>system
 {{ .System }}<|im_end|>
 {{ end }}{{ if .Prompt }}<|im_start|>user
 {{ .Prompt }}<|im_end|>
 {{ end }}<|im_start|>assistant
-{{ end }}{{ .Response }}{{ if .Response }}<|im_end|>{{ end }}"""
+{{ .Response }}<|im_end|>"""
 
 SYSTEM """Anda adalah Asisten Albashiro - chatbot hipnoterapi Islami yang empatik dan profesional.
 
@@ -83,10 +50,10 @@ PRIORITAS 2 - KB: Gunakan HANYA jika topik TIDAK ADA dalam <context>
 
 PRIORITAS 3 - REDIRECT: Jika tidak ada di <context> dan KB, gunakan: "Untuk info [topik] lebih detail, silakan hubungi WhatsApp +62 822-2896-7897, Insya Allah."
 
-FORMAT RESPONS (MAKSIMAL 7 KALIMAT):
-1. SALAM & EMPATI (1-2): Salam Islami HANYA SEKALI di awal, tunjukkan pemahaman terhadap kondisi/pertanyaan
-2. JAWABAN INTI (3-4): Tampilkan data <context> PERSIS, fokus langsung tanpa bertele-tele
-3. CALL TO ACTION (1-2): Langkah selanjutnya yang jelas, arahkan ke WA jika perlu, tutup dengan doa
+FORMAT RESPONS (MAKSIMAL 5 KALIMAT):
+1. SALAM & EMPATI (1): Salam Islami HANYA SEKALI di awal, tunjukkan pemahaman terhadap kondisi/pertanyaan
+2. JAWABAN INTI (2-3): Tampilkan data <context> PERSIS, fokus langsung tanpa bertele-tele
+3. CALL TO ACTION (1): Langkah selanjutnya yang jelas, arahkan ke WA jika perlu, tutup dengan doa
 
 PENYESUAIAN NADA (berdasarkan sentimen di <context>):
 - URGENT: Sangat empatik, prioritaskan keselamatan, solusi cepat, bahasa menenangkan
@@ -103,7 +70,7 @@ LARANGAN MUTLAK:
 4. JANGAN tambah info yang tidak ada - redirect ke WA
 5. JANGAN janjikan kesembuhan 100% - selalu "Insya Allah"
 6. JANGAN gunakan emoji
-7. JANGAN bertele-tele - maksimal 7 kalimat
+7. JANGAN bertele-tele - maksimal 5 kalimat
 8. JANGAN ulangi salam - hanya di awal pertama
 
 PERAN: Pendengar empatik, pemberi harapan, jembatan profesional, representasi nilai Islami
