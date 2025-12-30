@@ -373,16 +373,11 @@
         };
 
         try {
-            // Auto-detect environment and use appropriate endpoint
-            // Localhost: Use PHP endpoint (/chat/stream)
-            // Vercel/Production: Use Node.js endpoint (/api/stream)
-            const isLocalhost = window.location.hostname === 'localhost' ||
-                window.location.hostname === '127.0.0.1' ||
-                window.location.hostname === 'albashiro.bapel.my.id';
+            // Use PHP endpoint for ALL environments (has full context injection)
+            // This ensures RAG, system prompt, and database context are included
+            const streamEndpoint = getBaseUrl() + '/chat/stream';
 
-            const streamEndpoint = isLocalhost
-                ? getBaseUrl() + '/chat/stream'  // PHP endpoint for localhost
-                : '/api/stream';                  // Node.js endpoint for Vercel
+            console.log('[CLIENT DEBUG] Using PHP endpoint:', streamEndpoint);
 
             // Add timeout to prevent hanging requests
             const controller = new AbortController();

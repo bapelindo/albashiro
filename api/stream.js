@@ -25,17 +25,28 @@ export default async function handler(req) {
             });
         }
 
-        // Build Ollama request payload
+        // Step 1: Get context from PHP endpoint
+        console.log('[DEBUG] Fetching context from PHP...');
+        const contextUrl = 'https://' + req.headers.get('host') + '/api/context.php';
+
+        const contextResponse = await fetch(contextUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, history })
+        });
+
+        if (!contextResponse.ok) {
+            throw new Error(`Context API error: ${contextResponse.status}`);
+        }
+
+        const contextData = await contextResponse.json();
+        console.log('[DEBUG] Context received, length:', contextData.metadata?.context_length);
+
+        // Step 2: Build Ollama request with context from PHP
         const ollamaUrl = 'https://ollama.bapel.my.id/api/chat';
         const ollamaPayload = {
             model: 'albashiro',
-            messages: [
-                ...history.map(h => ({
-                    role: h.role === 'ai' ? 'assistant' : 'user',
-                    content: h.message
-                })),
-                { role: 'user', content: message }
-            ],
+            messages: contextData.messages, // Use messages from PHP (includes context)
             stream: true
         };
 
