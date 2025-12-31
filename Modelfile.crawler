@@ -1,0 +1,38 @@
+FROM "C:\LLM\Qwen3-4B-Instruct-2507-Q3_K_M.gguf"
+
+PARAMETER temperature 0.1
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER num_predict 10
+PARAMETER stop "<|im_start|>"
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "\n"
+
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{ if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+{{ end }}<|im_start|>assistant
+{{ .Response }}<|im_end|>
+"""
+
+SYSTEM """
+You are a binary classifier.
+Job: Determine if an article is relevant for a Mental Health & Islamic Psychology database.
+
+RELEVANT (YES):
+- Mental disorders (Depression, Anxiety, etc.)
+- Therapy/Counseling
+- Islamic Psychology (Tazkiyatun Nufus, Ruqyah, Heart diseases)
+- Psychological/Emotional wellbeing
+
+IRRELEVANT (NO):
+- Physical health (Diet, Skin, Pregnancy, General medicine)
+- News/Politics/Crime
+- Animals/Pets
+- General lifestyle (Travel, Cooking)
+
+INSTRUCTION: 
+Read both TITLE and CONTENT PREVIEW.
+Output ONLY one word: YES or NO.
+"""

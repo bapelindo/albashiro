@@ -303,7 +303,8 @@
 
 
 <!-- Custom Scripts - Local -->
-<script src="<?= base_url('public/js/main.js') ?>"></script>
+<?php $appVersion = '1.0.1'; // Bump version to clear cache ?>
+<script src="<?= base_url('public/js/main.js?v=' . $appVersion) ?>"></script>
 
 <!-- Calming Animations Styles -->
 <style>

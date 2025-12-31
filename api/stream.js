@@ -1,16 +1,30 @@
-// Vercel Serverless Function - Node.js Streaming Proxy for Ollama
-// This bypasses PHP buffering issues by using Node.js native streaming
+// Vercel Serverless Function - Node.js Streaming with Full OllamaService
+// Complete migration from PHP - uses OllamaService.js for context building
+
+import OllamaService from '../lib/ollama-service.js';
 
 export const config = {
-    runtime: 'edge', // Use Edge Runtime for better streaming support
+    runtime: 'nodejs', // Use Node.js runtime for mysql2 support
+    maxDuration: 60, // 60 seconds timeout
 };
 
 export default async function handler(req) {
+    const corsHeaders = {
+        'Access-Control-Allow-Origin': '*', // Atau spesifik 'https://albashiro.bapel.my.id'
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+    };
+
+    // Handle Preflight OPTIONS request
+    if (req.method === 'OPTIONS') {
+        return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
     // Only allow POST requests
     if (req.method !== 'POST') {
         return new Response(JSON.stringify({ error: 'Method not allowed' }), {
             status: 405,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...corsHeaders },
         });
     }
 
@@ -25,116 +39,73 @@ export default async function handler(req) {
             });
         }
 
-        // Step 1: Get context from PHP endpoint
-        const contextUrl = 'https://' + req.headers.get('host') + '/api/context.php';
+        // Initialize OllamaService
+        const ollamaService = new OllamaService();
 
-        const contextResponse = await fetch(contextUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, history })
-        });
+        // Build messages using OllamaService (includes full context)
+        const conversationHistory = history.map(h => ({
+            role: h.role,
+            message: h.message
+        }));
 
-        if (!contextResponse.ok) {
-            throw new Error(`Context API error: ${contextResponse.status}`);
-        }
-
-        const contextData = await contextResponse.json();
-
-        // Step 2: Build Ollama request with context from PHP
-        const ollamaUrl = 'https://ollama.bapel.my.id/api/chat';
-        const ollamaPayload = {
-            model: 'albashiro',
-            messages: contextData.messages, // Use messages from PHP (includes context)
-            stream: true
-        };
-
-        // Forward request to Ollama
-        console.log('[DEBUG] Ollama URL:', ollamaUrl);
-        console.log('[DEBUG] Ollama Payload:', JSON.stringify(ollamaPayload, null, 2));
-
-        const ollamaResponse = await fetch(ollamaUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(ollamaPayload),
-        });
-
-        if (!ollamaResponse.ok) {
-            const errorText = await ollamaResponse.text();
-            console.error('[ERROR] Ollama API error:', ollamaResponse.status, errorText);
-            throw new Error(`Ollama API error: ${ollamaResponse.status} - ${errorText}`);
-        }
-
-        // Create a TransformStream to convert Ollama's JSON stream to SSE
+        // Create SSE response
         const { readable, writable } = new TransformStream();
         const writer = writable.getWriter();
         const encoder = new TextEncoder();
 
-        // Process Ollama stream in background
+        // Stream chat in background
         (async () => {
             try {
-                const reader = ollamaResponse.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-                let chunkCount = 0;
+                // Token callback
+                const onToken = async (token) => {
+                    const sseData = {
+                        token: token,
+                        done: false
+                    };
+                    await writer.write(
+                        encoder.encode(`data: ${JSON.stringify(sseData)}\n\n`)
+                    );
+                };
 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        break;
-                    }
+                // Status callback
+                const onStatus = async (status) => {
+                    const sseData = {
+                        status: status
+                    };
+                    await writer.write(
+                        encoder.encode(`data: ${JSON.stringify(sseData)}\n\n`)
+                    );
+                };
 
-                    buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop() || '';
+                // Call chatStream with full context building
+                const result = await ollamaService.chatStream(
+                    message,
+                    conversationHistory,
+                    onToken,
+                    onStatus,
+                    false, // skipAutoLearning
+                    false  // skipRAG
+                );
 
-                    for (const line of lines) {
-                        if (!line.trim()) continue;
-
-                        chunkCount++;
-                        try {
-                            const chunk = JSON.parse(line);
-
-                            console.log('[DEBUG] Parsed chunk:', JSON.stringify(chunk).substring(0, 200));
-
-                            // Extract token from Ollama response
-                            if (chunk.message?.content) {
-                                const sseData = {
-                                    token: chunk.message.content,
-                                    done: chunk.done || false
-                                };
-
-                                console.log('[DEBUG] Sending token:', sseData.token.substring(0, 50));
-
-                                // Send as SSE event
-                                await writer.write(
-                                    encoder.encode(`data: ${JSON.stringify(sseData)}\n\n`)
-                                );
-                            }
-
-                            // Send completion event
-                            if (chunk.done) {
-                                await writer.write(
-                                    encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
-                                );
-                            }
-                        } catch (parseError) {
-                            console.error('[ERROR] JSON parse error:', parseError, 'Line:', line.substring(0, 100));
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('[ERROR] Stream processing error:', error);
+                // Send completion event
                 await writer.write(
-                    encoder.encode(`data: ${JSON.stringify({ error: true, message: 'Stream error' })}\n\n`)
+                    encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
+                );
+
+            } catch (error) {
+                console.error('Stream processing error:', error);
+                await writer.write(
+                    encoder.encode(`data: ${JSON.stringify({
+                        error: true,
+                        message: error.message
+                    })}\n\n`)
                 );
             } finally {
                 await writer.close();
             }
         })();
 
-        // Return SSE response
+        // Return SSE stream
         return new Response(readable, {
             headers: {
                 'Content-Type': 'text/event-stream',
@@ -146,12 +117,12 @@ export default async function handler(req) {
 
     } catch (error) {
         console.error('Handler error:', error);
-        return new Response(
-            JSON.stringify({ error: true, message: error.message }),
-            {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
-            }
-        );
+        return new Response(JSON.stringify({
+            error: true,
+            message: error.message
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
 }

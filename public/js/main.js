@@ -373,17 +373,21 @@
         };
 
         try {
-            // Hybrid: Node.js (Vercel) fetches context from PHP, then streams
-            // Localhost: Direct PHP streaming
-            const isLocalhost = window.location.hostname === 'localhost' ||
-                window.location.hostname === '127.0.0.1' ||
-                window.location.hostname === 'albashiro.bapel.my.id';
+            // "BEST SOLUTION" Centralized Router
+            const hostname = window.location.hostname;
+            let streamEndpoint;
 
-            const streamEndpoint = isLocalhost
-                ? getBaseUrl() + '/chat/stream'  // PHP direct
-                : '/api/stream';                  // Node.js proxy (calls PHP internally)
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                streamEndpoint = 'http://localhost:3000/api/stream'; // Local Dev Server
+            } else {
+                // Production (Cloudflare Tunnel)
+                // Route via same domain to avoid CORS
+                streamEndpoint = '/api/index.php?url=stream';
+            }
 
-            console.log('[CLIENT DEBUG] Using endpoint:', streamEndpoint);
+            console.log('[CLIENT DEBUG] Resolved Endpoint:', streamEndpoint);
+
+            console.log('[CLIENT DEBUG] Resolved Endpoint:', streamEndpoint);
 
             // Add timeout to prevent hanging requests
             const controller = new AbortController();
