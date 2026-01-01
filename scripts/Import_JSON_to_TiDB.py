@@ -36,79 +36,106 @@ def get_db_connection():
         return None
 
 def import_json_file(file_path):
-    """Import single JSON file to TiDB"""
+    """Import single JSON file to TiDB WITH ROBUST ERROR HANDLING"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             
         if not data:
+            print(f"      ⚠️ Empty JSON file")
             return 0
             
         conn = get_db_connection()
         if not conn:
-            return 0
+            print(f"      ❌ Database connection failed")
+            return -1
             
         cursor = conn.cursor()
         
-        # Prepare queries
-        # Skema harus sama persis dengan Albashiro_Crawler_PERFECT.py
-        # (source_table, source_id, content_text, embedding)
-        
         query = """
         INSERT INTO knowledge_vectors 
-        (source_table, source_id, content_text, embedding) 
-        VALUES (%s, %s, %s, %s)
+        (source_table, source_id, article_id, content_text, embedding) 
+        VALUES (%s, %s, %s, %s, %s)
         """
         
         inserted_count = 0
         batch_size = 50
         batch_data = []
+        failed_articles = 0
 
         for article in data:
-            if 'vectors' not in article:
+            try:
+                if 'vectors' not in article:
+                    continue
+                
+                article_id = article.get('id', 0)
+                title = article.get('processed_title', '')
+                
+                # Enumerate chunks starting from 1
+                for chunk_num, vec_data in enumerate(article['vectors'], start=1):
+                    try:
+                        content_chunk = vec_data.get('chunk_text', '')
+                        embedding_list = vec_data.get('embedding', [])
+                        
+                        if not content_chunk or not embedding_list:
+                            continue
+                        
+                        # Format embedding as string '[0.1, 0.2, ...]'
+                        embedding_str = '[' + ','.join(map(str, embedding_list)) + ']'
+                        
+                        batch_data.append((
+                            title,                # source_table = TITLE
+                            chunk_num,            # source_id = CHUNK NUMBER (1, 2, 3...)
+                            article_id,           # article_id = ARTICLE ID
+                            content_chunk,        # content_text = CHUNK ONLY (no prefix)
+                            embedding_str         # embedding
+                        ))
+                        
+                        if len(batch_data) >= batch_size:
+                            try:
+                                cursor.executemany(query, batch_data)
+                                conn.commit()
+                                inserted_count += len(batch_data)
+                                batch_data = []
+                            except Error as batch_error:
+                                print(f"      ⚠️ Batch insert error: {str(batch_error)[:100]}")
+                                conn.rollback()
+                                batch_data = []
+                                
+                    except Exception as chunk_error:
+                        print(f"      ⚠️ Chunk error (article {article_id}): {str(chunk_error)[:50]}")
+                        continue
+                        
+            except Exception as article_error:
+                failed_articles += 1
+                print(f"      ⚠️ Article error: {str(article_error)[:50]}")
                 continue
-            
-            article_id = article.get('id', 0)
-            title = article.get('processed_title', '')
-            
-            for vec_data in article['vectors']:
-                # vec_data structure: {'chunk_text': ..., 'embedding': [...]}
-                
-                content_chunk = vec_data.get('chunk_text', '')
-                embedding_list = vec_data.get('embedding', [])
-                
-                # Format embedding as string '[0.1, 0.2, ...]'
-                embedding_str = '[' + ','.join(map(str, embedding_list)) + ']'
-                
-                # Format content text: "Judul: ...\n\nIsi..."
-                content_to_store = f"Judul: {title}\n\n{content_chunk}"
-                
-                batch_data.append((
-                    'ai_crawler_colab',   # source_table (hardcoded match crawler)
-                    article_id,           # source_id
-                    content_to_store,     # content_text
-                    embedding_str         # embedding
-                ))
-                
-                if len(batch_data) >= batch_size:
-                    cursor.executemany(query, batch_data)
-                    conn.commit()
-                    inserted_count += len(batch_data)
-                    batch_data = []
         
-        # Insert sisa
+        # Insert remaining batch
         if batch_data:
-            cursor.executemany(query, batch_data)
-            conn.commit()
-            inserted_count += len(batch_data)
+            try:
+                cursor.executemany(query, batch_data)
+                conn.commit()
+                inserted_count += len(batch_data)
+            except Error as final_error:
+                print(f"      ⚠️ Final batch error: {str(final_error)[:100]}")
+                conn.rollback()
+        
+        if failed_articles > 0:
+            print(f"      ⚠️ {failed_articles} articles had errors (partial import)")
             
         cursor.close()
         conn.close()
         return inserted_count
         
+    except json.JSONDecodeError as json_error:
+        print(f"      ❌ Invalid JSON: {str(json_error)[:50]}")
+        return -1
     except Exception as e:
-        print(f"⚠️ Error processing {os.path.basename(file_path)}: {e}")
-        return 0
+        print(f"      ❌ Critical error: {str(e)[:100]}")
+        import traceback
+        traceback.print_exc()
+        return -1
 
 import shutil
 from datetime import datetime

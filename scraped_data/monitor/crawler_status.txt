@@ -1,22 +1,21 @@
-
 ╔══════════════════════════════════════════════════════════════╗
 ║          ALBASHIRO CRAWLER - REAL-TIME STATUS               ║
 ╚══════════════════════════════════════════════════════════════╝
 
-⏰ Last Updated: 2025-12-31 22:52:22
+⏰ Last Updated: 2026-01-01 21:13:30
 
 📊 PROGRESS
-  Articles: 2 / 3000 (0.1%)
+  Articles: 1 / 5000 (0.0%)
   Vectors:  0
   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 ⏱️  TIMING
-  Runtime:  0.04h / 11h
-  Speed:    47.0 articles/hour
-  ETA:      63.8 hours
+  Runtime:  0.09h / 11.0h
+  Speed:    11.7 articles/hour
+  ETA:      425.4 hours
+  Remaining: 10.9 hours
 
 📈 LATEST ARTICLES
-  [1] Wajib Dibaca!...
-  [2] Kalkulator BMI...
+  [1] Cognition, Affect and Well-being Lab
 
-✅ STATUS: RUNNING
+================================================================

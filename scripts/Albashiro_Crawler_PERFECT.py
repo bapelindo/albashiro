@@ -50,13 +50,16 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 
 BACKUP_DIR = os.path.join(PROJECT_ROOT, 'scraped_data', 'backup')
+STREAM_DIR = os.path.join(BACKUP_DIR, 'stream')  # For real-time import
 MONITOR_DIR = os.path.join(PROJECT_ROOT, 'scraped_data', 'monitor')
 SSL_CERT_PATH = os.path.join(PROJECT_ROOT, 'isrgrootx1.pem')
 
 os.makedirs(BACKUP_DIR, exist_ok=True)
+os.makedirs(STREAM_DIR, exist_ok=True)
 os.makedirs(MONITOR_DIR, exist_ok=True)
 print(f"✅ Local directories ready:")
 print(f"   Backup: {BACKUP_DIR}")
+print(f"   Stream: {STREAM_DIR}")
 print(f"   Monitor: {MONITOR_DIR}")
 print(f"   SSL Cert: {SSL_CERT_PATH}")
 
@@ -82,8 +85,9 @@ TIDB_CONFIG = {
 ENABLE_TIDB_INSERT = False   # ✅ False: Scrape & Save JSON Local ONLY (Importer runs separately)
 # Ollama Configuration (Localhost)
 OLLAMA_URL = 'http://localhost:11434'
-OLLAMA_MODEL = 'albashiro-crawler'  # Model khusus untuk crawler
-USE_OLLAMA = True  # True = pakai Ollama, False = keyword only
+OLLAMA_MODEL = 'albashiro-crawler'  # Model untuk AI relevance check
+OLLAMA_EMBEDDING_MODEL = 'all-minilm'  # Model untuk embeddings (384 dimensions)
+USE_OLLAMA = True  # True = pakai Ollama AI judge, False = keyword only
 
 # Crawler Settings
 MAX_ARTICLES = 3000  # Start with 100 for testing
@@ -139,6 +143,11 @@ else:
 # ============================================================
 import requests
 import warnings
+import random
+import concurrent.futures
+
+# PROXY LOGIC MOVED TO WEB SCRAPING SECTION
+
 warnings.filterwarnings('ignore')
 
 print("🔄 Loading AI Models (Localhost - Ollama)...\n")
@@ -186,95 +195,7 @@ print(f"   Embedding: {OLLAMA_EMBEDDING_MODEL}")
 # CELL 7: SEEDS (71 PREMIUM SOURCES - COMPLETE LIST)
 # ============================================================
 SEEDS = [
-    # --- 🏥 KESEHATAN MENTAL (Portal Besar) ---
-    'https://hellosehat.com/mental/',
-    'https://www.halodoc.com/kesehatan-mental',
-    'https://www.alodokter.com/kesehatan-mental',
-    # 'https://www.klikdokter.com/topik/kesehatan-mental',  # 404 - REMOVED
-    
-    # --- 🕌 ISLAM & SPIRITUALITAS ---
-    'https://islam.nu.or.id/',
-    # 'https://muhammadiyah.or.id/kategori/artikel/',  # 404 - REMOVED
-    # 'https://www.dream.co.id/muslim-lifestyle',  # 404 - REMOVED
-    
-    # --- 🇺🇸 ENGLISH PREMIUM SOURCES ---
-    'https://www.psychologytoday.com/us/basics',
-    'https://www.verywellmind.com/',
-    'https://www.healthline.com/health/mental-health',
-    'https://mysoulrefuge.com/',
-    
-    # --- 💎 GRADE SSS SOURCES (Trusted Authorities) ---
-    'https://www.apa.org/topics',
-    'https://www.nimh.nih.gov/health/topics',
-    'https://yayasanpulih.org/artikel/',
-    'https://www.intothelightid.org/artikel/',
-    'https://ijcp.org/index.php/ijcp',
-    'https://buletin.k-pin.org/',
-    
-    # --- 💎 GRADE SSS ISLAMIC (Tazkiyatun Nufus) ---
-    'https://rumaysho.com/learning/tazkiyatun-nufus',
-    'https://muslim.or.id/tag/tazkiyatun-nufus',
-    
-    # --- 💎 INDONESIAN MENTAL HEALTH BLOGS ---
-    'https://riliv.co/rilivstory/',
-    'https://satupersen.net/blog',
-    'https://pijarpsikologi.org/blog',
-    'https://www.ibunda.id/blog',
-    
-    # --- 🧠 INDO ISLAMIC PSYCHOLOGY & CONSULTATION ---
-    'https://konseling.id/artikel/',
-    'https://www.ruangpsikologi.com/blog',
-    
-    # --- 🌟 ADDITIONAL MENTAL HEALTH INDONESIA ---
-    'https://www.sehatq.com/artikel/kesehatan-mental',
-    'https://www.mitrakeluarga.com/artikel/kesehatan-mental',
-    'https://www.siloamhospitals.com/informasi-kesehatan/artikel/kesehatan-mental',
-    'https://www.rspondokindah.co.id/artikel/kesehatan-mental',
-    
-    # --- 🕌 ISLAMIC PSYCHOLOGY INDONESIA ---
-    'https://islampos.com/category/tazkiyatun-nufus/',
-    'https://www.hidayatullah.com/kajian/tazkiyatun-nufus/',
-    'https://www.arrahmah.id/category/tazkiyatun-nufus/',
-    'https://konsultasi.wordpress.com/',
-    'https://bincangsyariah.com/khazanah/kesehatan/',
-    'https://almanhaj.or.id/kategori/tazkiyatun-nufus',
-    'https://muslimah.or.id/tag/tazkiyatun-nufus',
-    'https://www.konsultasisyariah.com/tag/kesehatan/',
-    
-    # --- 🌍 ENGLISH MENTAL HEALTH ---
-    'https://www.mind.org.uk/information-support/',
-    'https://www.mentalhealth.org.uk/explore-mental-health',
-    'https://www.nami.org/About-Mental-Illness',
-    'https://www.beyondblue.org.au/the-facts',
-    
-    # --- 🕌 ISLAMIC PSYCHOLOGY ENGLISH ---
-    'https://muslimmatters.org/category/psychology/',
-    'https://www.virtualmosque.com/psychology/',
-    'https://seekersguidance.org/articles/general-spirituality/',
-    'https://www.islamicity.org/category/psychology/',
-    
-    # --- 💎 PARENTING & FAMILY ---
-    'https://www.parentingclub.co.id/smart-stories/kesehatan-mental-anak',
-    'https://www.popmama.com/big-kid/10-12-years-old/kesehatan-mental',
-    'https://sahabatkeluarga.kemdikbud.go.id/laman/index.php?r=tpost/xview&id=249900001',
-    
-    # --- 🌍 GLOBAL ISLAMIC PSYCHOLOGY (Grade A++) ---
-    'https://islamicpsychology.org/resources/',
-    'https://journal.iamph.org/index.php/jiamph',
-    'https://yaqeeninstitute.org/read/psychology',
-    'https://khalilcenter.com/articles/',
-    
-    # --- 🧠 INDO ISLAMIC PSYCHOLOGY & CONSULTATION (Extended) ---
-    'https://www.eramuslim.com/konsultasi/psikologi',
-    'https://hidayatullah.com/kanal/keluarga',
-    'https://yufid.com/tag/tazkiyatun-nufus/',
-    'https://wahdah.or.id/tag/tazkiyatun-nufus/',
-    
-    # --- 🌍 ADDITIONAL ENGLISH MENTAL HEALTH (Extended) ---
-    'https://www.nami.org/About-Mental-Illness/Mental-Health-Conditions',
-    'https://www.mind.org.uk/information-support/types-of-mental-health-problems/',
-    
-    # --- 🆕 ADDITIONAL MENTAL HEALTH INDONESIA (New) ---
+        # --- 🆕 ADDITIONAL MENTAL HEALTH INDONESIA (New) ---
     'https://www.klikdokter.com/psikologi',
     'https://www.alodokter.com/psikologi',
     'https://www.honestdocs.id/kesehatan-mental',
@@ -374,6 +295,95 @@ SEEDS = [
     # --- 🆕 ISLAMIC COUNSELING CONFERENCES & JOURNALS (2025) ---
     'https://journal.uinsgd.ac.id/index.php/psy/',  # Islamic Psychology Journal
     'https://ejournal.uin-suka.ac.id/dakwah/PI/',  # Psikologi Islam Journal
+
+    # --- 🏥 KESEHATAN MENTAL (Portal Besar) ---
+    'https://hellosehat.com/mental/',
+    'https://www.halodoc.com/kesehatan-mental',
+    'https://www.alodokter.com/kesehatan-mental',
+    # 'https://www.klikdokter.com/topik/kesehatan-mental',  # 404 - REMOVED
+    
+    # --- 🕌 ISLAM & SPIRITUALITAS ---
+    'https://islam.nu.or.id/',
+    # 'https://muhammadiyah.or.id/kategori/artikel/',  # 404 - REMOVED
+    # 'https://www.dream.co.id/muslim-lifestyle',  # 404 - REMOVED
+    
+    # --- 🇺🇸 ENGLISH PREMIUM SOURCES ---
+    'https://www.psychologytoday.com/us/basics',
+    'https://www.verywellmind.com/',
+    'https://www.healthline.com/health/mental-health',
+    'https://mysoulrefuge.com/',
+    
+    # --- 💎 GRADE SSS SOURCES (Trusted Authorities) ---
+    'https://www.apa.org/topics',
+    'https://www.nimh.nih.gov/health/topics',
+    'https://yayasanpulih.org/artikel/',
+    'https://www.intothelightid.org/artikel/',
+    'https://ijcp.org/index.php/ijcp',
+    'https://buletin.k-pin.org/',
+    
+    # --- 💎 GRADE SSS ISLAMIC (Tazkiyatun Nufus) ---
+    'https://rumaysho.com/learning/tazkiyatun-nufus',
+    'https://muslim.or.id/tag/tazkiyatun-nufus',
+    
+    # --- 💎 INDONESIAN MENTAL HEALTH BLOGS ---
+    'https://riliv.co/rilivstory/',
+    'https://satupersen.net/blog',
+    'https://pijarpsikologi.org/blog',
+    'https://www.ibunda.id/blog',
+    
+    # --- 🧠 INDO ISLAMIC PSYCHOLOGY & CONSULTATION ---
+    'https://konseling.id/artikel/',
+    'https://www.ruangpsikologi.com/blog',
+    
+    # --- 🌟 ADDITIONAL MENTAL HEALTH INDONESIA ---
+    'https://www.sehatq.com/artikel/kesehatan-mental',
+    'https://www.mitrakeluarga.com/artikel/kesehatan-mental',
+    'https://www.siloamhospitals.com/informasi-kesehatan/artikel/kesehatan-mental',
+    'https://www.rspondokindah.co.id/artikel/kesehatan-mental',
+    
+    # --- 🕌 ISLAMIC PSYCHOLOGY INDONESIA ---
+    'https://islampos.com/category/tazkiyatun-nufus/',
+    'https://www.hidayatullah.com/kajian/tazkiyatun-nufus/',
+    'https://www.arrahmah.id/category/tazkiyatun-nufus/',
+    'https://konsultasi.wordpress.com/',
+    'https://bincangsyariah.com/khazanah/kesehatan/',
+    'https://almanhaj.or.id/kategori/tazkiyatun-nufus',
+    'https://muslimah.or.id/tag/tazkiyatun-nufus',
+    'https://www.konsultasisyariah.com/tag/kesehatan/',
+    
+    # --- 🌍 ENGLISH MENTAL HEALTH ---
+    'https://www.mind.org.uk/information-support/',
+    'https://www.mentalhealth.org.uk/explore-mental-health',
+    'https://www.nami.org/About-Mental-Illness',
+    'https://www.beyondblue.org.au/the-facts',
+    
+    # --- 🕌 ISLAMIC PSYCHOLOGY ENGLISH ---
+    'https://muslimmatters.org/category/psychology/',
+    'https://www.virtualmosque.com/psychology/',
+    'https://seekersguidance.org/articles/general-spirituality/',
+    'https://www.islamicity.org/category/psychology/',
+    
+    # --- 💎 PARENTING & FAMILY ---
+    'https://www.parentingclub.co.id/smart-stories/kesehatan-mental-anak',
+    'https://www.popmama.com/big-kid/10-12-years-old/kesehatan-mental',
+    'https://sahabatkeluarga.kemdikbud.go.id/laman/index.php?r=tpost/xview&id=249900001',
+    
+    # --- 🌍 GLOBAL ISLAMIC PSYCHOLOGY (Grade A++) ---
+    'https://islamicpsychology.org/resources/',
+    'https://journal.iamph.org/index.php/jiamph',
+    'https://yaqeeninstitute.org/read/psychology',
+    'https://khalilcenter.com/articles/',
+    
+    # --- 🧠 INDO ISLAMIC PSYCHOLOGY & CONSULTATION (Extended) ---
+    'https://www.eramuslim.com/konsultasi/psikologi',
+    'https://hidayatullah.com/kanal/keluarga',
+    'https://yufid.com/tag/tazkiyatun-nufus/',
+    'https://wahdah.or.id/tag/tazkiyatun-nufus/',
+    
+    # --- 🌍 ADDITIONAL ENGLISH MENTAL HEALTH (Extended) ---
+    'https://www.nami.org/About-Mental-Illness/Mental-Health-Conditions',
+    'https://www.mind.org.uk/information-support/types-of-mental-health-problems/',
+    
 ]
 
 print(f"📦 Total Seeds: {len(SEEDS)}")
@@ -546,20 +556,21 @@ def generate_proper_title(original_title, content_snippet):
 def check_relevance(title, content_snippet):
     """
     Check if article is relevant using Ollama albashiro
-    LOCALHOST VERSION
+    LOCALHOST VERSION - OPTIMIZED FOR SPEED
     """
     if not USE_OLLAMA:
         return True  # Skip AI if disabled
     
     try:
-        # Prompt sederhana karena instruksi detail sudah ada di Modelfile system prompt
-        # Gunakan 4000 karakter (cukup untuk cover mayoritas artikel full) agar AI akurat
+        # Limit content to ~800 chars (≈1024 tokens) to prevent timeout
+        content_preview = content_snippet[:800]
+        
         prompt = f"""TITLE: "{title}"
-CONTENT PREVIEW: "{content_snippet[:4000]}"
+CONTENT PREVIEW: "{content_preview}"
 
 Is this article RELEVANT? (YES/NO)"""
         
-        # Call Ollama API
+        # Call Ollama API with reduced timeout and token limit
         response = requests.post(
             f'{OLLAMA_URL}/api/generate',
             json={
@@ -568,13 +579,14 @@ Is this article RELEVANT? (YES/NO)"""
                 'stream': False,
                 'options': {
                     'temperature': 0.1,
-                    'num_predict': 10
+                    'num_predict': 10,
+                    'num_ctx': 1024  # Context window: 1024 tokens
                 }
             },
-            timeout=30
+            timeout=15  # Reduced from 30s to 10s
         )
         
-        # Robust Parsing (sama seperti test script)
+        # Robust Parsing
         answer_raw = response.json()['response']
         answer_clean = answer_raw.strip().split('\n')[0].split()[0].upper().strip('.,!')
         
@@ -582,47 +594,90 @@ Is this article RELEVANT? (YES/NO)"""
         
         if not is_relevant:
             print(f"      ⚠️ AI REJECTED: {title[:50]}...")
-            # Optional: Print reason if needed for debugging
-            # print(f"         Response: {answer_raw}")
         
         return is_relevant
         
+    except requests.exceptions.Timeout:
+        print(f"      ⚠️ AI timeout (accepting by default): {title[:40]}...")
+        return True  # Accept if AI times out
     except Exception as e:
-        print(f"      ⚠️ Relevance check error: {str(e)}")
+        print(f"      ⚠️ Relevance check error: {str(e)[:80]}")
         return True  # Default to accept if AI fails
 
 def generate_embedding(text):
     """
     Generate embedding using Ollama all-minilm:latest
     Returns 384-dimensional embedding vector
+    WITH ROBUST ERROR HANDLING + FILE LOGGING
     """
-    try:
-        # Call Ollama embeddings API
-        response = requests.post(
-            f'{OLLAMA_URL}/api/embeddings',
-            json={
-                'model': OLLAMA_EMBEDDING_MODEL,
-                'prompt': text
-            },
-            timeout=30
-        )
-        
-        if response.status_code == 200:
-            embedding = response.json()['embedding']
+    max_retries = 2
+    
+    # Debug logging to file
+    import datetime
+    log_file = os.path.join(BACKUP_DIR, 'embedding_debug.log')
+    
+    for attempt in range(max_retries):
+        try:
+            timestamp = datetime.datetime.now().strftime('%H:%M:%S')
             
-            # Validate dimensions
-            if len(embedding) != 384:
-                print(f"      ⚠️ Warning: Embedding dimension is {len(embedding)}, expected 384")
+            # Log request start
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] Attempt {attempt+1}: Requesting embedding for {len(text)} chars\n")
+            
+            # Call Ollama embeddings API with timeout
+            response = requests.post(
+                f'{OLLAMA_URL}/api/embeddings',
+                json={
+                    'model': OLLAMA_EMBEDDING_MODEL,
+                    'prompt': text[:400]  # ~400 chars ≈ 256 word pieces (all-MiniLM max)
+                },
+                timeout=15  # Increased timeout for large chunks
+            )
+            
+            # Log response
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] Response status: {response.status_code}\n")
+            
+            if response.status_code == 200:
+                embedding = response.json()['embedding']
+                
+                # Validate dimensions
+                if len(embedding) != 384:
+                    with open(log_file, 'a', encoding='utf-8') as f:
+                        f.write(f"[{timestamp}] WARNING: Embedding dimension {len(embedding)}, expected 384\n")
+                    print(f"      ⚠️ Warning: Embedding dimension is {len(embedding)}, expected 384")
+                    return None
+                
+                with open(log_file, 'a', encoding='utf-8') as f:
+                    f.write(f"[{timestamp}] SUCCESS: Got {len(embedding)}d embedding\n")
+                return embedding
+            else:
+                with open(log_file, 'a', encoding='utf-8') as f:
+                    f.write(f"[{timestamp}] ERROR: API returned {response.status_code}\n")
+                print(f"      ⚠️ Embedding API error: {response.status_code}")
+                if attempt < max_retries - 1:
+                    time.sleep(1)
+                    continue
                 return None
             
-            return embedding
-        else:
-            print(f"      ⚠️ Embedding API error: {response.status_code}")
+        except requests.exceptions.Timeout:
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] TIMEOUT after 15s\n")
+            print(f"      ⚠️ Embedding timeout (attempt {attempt + 1}/{max_retries})")
+            if attempt < max_retries - 1:
+                time.sleep(2)
+                continue
             return None
-        
-    except Exception as e:
-        print(f"      ⚠️ Embedding error: {str(e)}")
-        return None
+        except Exception as e:
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] EXCEPTION: {str(e)}\n")
+            print(f"      ⚠️ Embedding error: {str(e)}")
+            if attempt < max_retries - 1:
+                time.sleep(1)
+                continue
+            return None
+    
+    return None
 
 def chunk_text(text, max_length=1000, overlap=100):
     """
@@ -665,11 +720,13 @@ def chunk_text(text, max_length=1000, overlap=100):
             chunks.append(chunk)
         
         # Move start position with overlap
-        start = end - overlap
-        
-        # Prevent infinite loop
-        if start <= 0:
+        # CRITICAL FIX: Ensure start always advances forward
+        new_start = end - overlap
+        if new_start <= start:
+            # Overlap too large or no progress, force advance
             start = end
+        else:
+            start = new_start
     
     return chunks
 
@@ -689,71 +746,84 @@ def get_random_user_agent():
     import random
     return random.choice(USER_AGENTS)
 
+def validate_proxy(proxy):
+    """Test a single proxy's health and speed (<2s)"""
+    test_url = "http://1.1.1.1"
+    try:
+        proxies = {"http": proxy, "https": proxy}
+        response = requests.get(test_url, proxies=proxies, timeout=2)
+        if response.status_code == 200:
+            return proxy
+    except:
+        pass
+    return None
+
 def fetch_proxies():
-    """Fetch proxies from Multiple Sources"""
+    """Fetch and Validate proxies from Multiple Sources"""
+    import concurrent.futures
+    import os
+    import random
+
     global PROXY_LIST
     if not ENABLE_PROXY:
         return
     
-    print("   🌐 Loading proxies...")
+    print("\n   🌐 Initializing High-Speed Proxy Pool...")
     new_proxies = []
     
-    # PRIORITY: Load Validated Local Proxies
+    # 1. Try local cache first
     valid_proxy_file = r'C:\apache\htdocs\albashiro\scraped_data\valid_proxies.txt'
     if os.path.exists(valid_proxy_file):
         try:
             with open(valid_proxy_file, 'r') as f:
-                lines = f.read().splitlines()
-                for line in lines:
+                new_proxies = [line.strip() for line in f if line.strip()]
+            print(f"      📂 Loaded {len(new_proxies)} proxies from local cache")
+        except: pass
+
+    # 2. If pool is small, fetch from internet
+    if len(new_proxies) < 5:
+        print("      🔄 Fetching fresh proxies from internet...")
+        # Source: Proxifly
+        try:
+            resp = requests.get(PROXY_SOURCE_TXT, timeout=10)
+            if resp.status_code == 200:
+                for line in resp.text.splitlines():
                     if line.strip():
-                        new_proxies.append(line.strip())
-            print(f"      ✅ LOADED LOCALLY: {len(new_proxies)} verified proxies from file")
-            PROXY_LIST = new_proxies
-            return # Skip fetching from internet if we have local
-        except Exception as e:
-            print(f"      ⚠️ Failed loading local proxies: {e}")
+                        new_proxies.append(f"http://{line.strip()}")
+        except: pass
+        
+        # Source: GeoNode
+        try:
+            resp = requests.get(PROXY_SOURCE_GEONODE, timeout=10)
+            if resp.status_code == 200:
+                for p in resp.json().get('data', []):
+                    ip, port = p.get('ip'), p.get('port')
+                    proto = p.get('protocols', ['http'])[0]
+                    new_proxies.append(f"{proto}://{ip}:{port}")
+        except: pass
 
-    print("   🌐 Fetching proxies from Global Sources (Fallback)...")
-    # ... (sisa code fetch internet)
-    # try:
-    #     resp = requests.get(PROXY_SOURCE_GEONODE, timeout=30)
-    #     data = resp.json()
-    #     for item in data.get('data', []):
-    #         ip = item.get('ip')
-    #         port = item.get('port')
-    #         protocols = item.get('protocols', [])
-    #         
-    #         # Determine best protocol
-    #         protocol = 'http'
-    #         if 'socks5' in protocols: protocol = 'socks5'
-    #         elif 'socks4' in protocols: protocol = 'socks4'
-    #         elif 'https' in protocols: protocol = 'https'
-    #             
-    #         new_proxies.append(f"{protocol}://{ip}:{port}")
-    #     print(f"      ✅ GeoNode: Found {len(data.get('data', []))} proxies")
-    # except Exception as e:
-    #     print(f"      ⚠️ GeoNode Error: {e}")
+    if not new_proxies:
+        print("      ⚠️ No proxies found!")
+        return
 
-    # SOURCE 2: Proxifly (TXT)
-    try:
-        resp = requests.get(PROXY_SOURCE_TXT, timeout=30)
-        lines = resp.text.splitlines()
-        count = 0
-        for line in lines:
-            line = line.strip()
-            if not line: continue
-            # Add protocol if missing
-            if '://' not in line:
-                line = f"http://{line}"
-            new_proxies.append(line)
-            count += 1
-        print(f"      ✅ Proxifly: Found {count} proxies")
-    except Exception as e:
-        print(f"      ⚠️ Proxifly Error: {e}")
+    # 3. Parallel Validation (The "Magic")
+    candidate_proxies = list(set(new_proxies))
+    print(f"      🧪 Validating {len(candidate_proxies)} proxies (2s limit)...")
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+        results = list(executor.map(validate_proxy, candidate_proxies))
+        PROXY_LIST = [p for p in results if p]
 
-    # Remove duplicates
-    PROXY_LIST = list(set(new_proxies))
-    print(f"   ✅ TOTAL PROXIES LOADED: {len(PROXY_LIST)}")
+    random.shuffle(PROXY_LIST)
+    print(f"   📡 SUCCESS! {len(PROXY_LIST)} validated proxies ready (Yield: {(len(PROXY_LIST)/len(candidate_proxies)*100):.1f}%)")
+
+    # 4. Save cache for next run
+    if PROXY_LIST:
+        try:
+            os.makedirs(os.path.dirname(valid_proxy_file), exist_ok=True)
+            with open(valid_proxy_file, 'w') as f:
+                f.write('\n'.join(PROXY_LIST))
+        except: pass
 
 def fetch_page(url):
     """
@@ -780,30 +850,30 @@ def fetch_page(url):
         'Upgrade-Insecure-Requests': '1'
     }
     
-    # Try up to 3 proxies before giving up (Fail Fast)
-    max_retries = 3
+    # Try only 1 proxy before giving up (Fail Fast)
+    max_retries = 1  # Reduced from 2 to 1 for faster rotation
     for attempt in range(max_retries):
         # Proxy Selection
         proxies = None
         current_proxy = None
         
         if ENABLE_PROXY and PROXY_LIST:
-            current_proxy = random.choice(PROXY_LIST)
+            current_proxy = PROXY_LIST[0]  # Use first proxy (respects rotation order)
             proxies = {
                 "http": current_proxy,
                 "https": current_proxy
             }
         
         try:
-            # Optimized timeout: 10s is enough for a good proxy
-            response = requests.get(url, headers=headers, proxies=proxies, timeout=10)
+            # Aggressive timeout: 5s is enough (Fail Fast!)
+            response = requests.get(url, headers=headers, proxies=proxies, timeout=5, verify=False)
             
             # Retry logic for 403 (Forbidden)
             if response.status_code == 403:
                 # 403 might be UA block, not Proxy fault. Try changing UA first.
                 time.sleep(1)
                 headers['User-Agent'] = user_agents[2]
-                response = requests.get(url, headers=headers, proxies=proxies, timeout=10)
+                response = requests.get(url, headers=headers, proxies=proxies, timeout=3)
                 
             response.raise_for_status()
             
@@ -816,16 +886,24 @@ def fetch_page(url):
         except Exception as e:
             error_msg = str(e)
             
-            # If proxy failed, REMOVE it from list (Auto-Pruning)
+            # AGGRESSIVE PRUNING: If proxy failed for ANY reason (except 404), REMOVE it
             if current_proxy and current_proxy in PROXY_LIST:
-                if 'connect' in error_msg.lower() or 'read' in error_msg.lower() or 'timeout' in error_msg.lower():
-                    # print(f"      🗑️ Removing bad proxy: {current_proxy}")
-                    PROXY_LIST.remove(current_proxy)
+                if '404' not in error_msg:
+                    try:
+                        PROXY_LIST.remove(current_proxy)
+                        # No need to print "removing" every time, just keep log clean
+                    except ValueError:
+                        pass
+            
+            # Auto-refresh if we run out of proxies
+            if ENABLE_PROXY and len(PROXY_LIST) < 2:
+                print("   ⚠️ Proxy list almost empty! Refreshing...")
+                fetch_proxies()
             
             # If it's the last attempt, log error
             if attempt == max_retries - 1:
                 if '404' not in error_msg:
-                    print(f"      ⚠️ Fetch error (after {max_retries} retries): {error_msg[:50]}...")
+                    print(f"      ⚠️ Fetch error: {error_msg[:100]}...")
                 return None
             
             # Otherwise continue to next attempt
@@ -866,12 +944,16 @@ def extract_article_content(soup, url):
         for tag in soup.find_all(class_=re.compile(class_name, re.I)):
             tag.decompose()
     
-    # Try to find article body
+    # Try to find article body (PRIORITAS: Selektor spesifik dulu)
     article_selectors = [
-        ('article', re.compile('article-body|entry-content|post-content|article-content|main-content', re.I)),
-        ('div', re.compile('article-body|entry-content|post-content|article-content|main-content', re.I)),
+        # Priority 1: Specific article content classes
+        ('article', re.compile('article-body|entry-content|post-content|article-content|main-content|content-body', re.I)),
+        ('div', re.compile('article-body|entry-content|post-content|article-content|main-content|content-body|post-body', re.I)),
+        # Priority 2: Semantic HTML5 tags
         ('article', None),
         ('main', None),
+        # Priority 3: Common blog/news structures
+        ('div', re.compile('content|post|entry', re.I)),
     ]
     
     content = ""
@@ -909,8 +991,8 @@ def extract_article_content(soup, url):
     for pattern in noise_patterns:
         content = re.sub(pattern, '', content, flags=re.MULTILINE | re.IGNORECASE)
     
-    # Normalize whitespace
-    content = re.sub(r'\\s+', ' ', content)
+    # Normalize whitespace (preserve newlines for readability)
+    content = re.sub(r'[ \t]+', ' ', content)  # Only collapse spaces/tabs
     content = content.strip()
     
     return title, content
@@ -948,49 +1030,94 @@ def get_db_connection():
 def insert_to_vector_db(processed_title, full_content, article_id):
     """
     Insert article to TiDB knowledge_vectors table
-    COMPLETE FUNCTION - NO SHORTCUTS
-    
-    Strategy:
-    - Embed: TITLE only (all-MiniLM 384d) for fast search
-    - Store: FULL CONTENT (no information loss) for albashiro to read
+    DEPRECATED - Not used (using Import_JSON_to_TiDB.py instead)
     """
+    pass  # Kept for compatibility
+
 def generate_article_vectors(processed_title, full_content):
     """
-    Generate chunks and embeddings (Title Strategy) WITHOUT database insertion.
-    Returns list of dict: [{'chunk': str, 'embedding': list}, ...]
+    Generate chunks and embeddings (CHUNK-BASED Strategy) WITHOUT database insertion.
+    MODIFIED: Each chunk gets its OWN embedding for accurate semantic search
+    Returns: list of {'chunk_text': str, 'embedding': list}
+    WITH ROBUST ERROR HANDLING - NEVER CRASHES
     """
     try:
+        print(f"      🔍 DEBUG: Entered generate_article_vectors, content length: {len(full_content)}")
+        
         # Chunk the content
+        print(f"      🔍 DEBUG: About to call chunk_text...")
         chunks = chunk_text(full_content, CHUNK_SIZE, CHUNK_OVERLAP)
+        print(f"      🔍 DEBUG: chunk_text returned {len(chunks) if chunks else 0} chunks")
         
         if not chunks:
             print("      ⚠️ No chunks generated")
             return []
-        
-        # Generate embedding for TITLE only (same for all chunks)
-        title_embedding = generate_embedding(processed_title)
-        
-        if not title_embedding:
-            print("      ⚠️ Failed to generate embedding")
-            return []
             
         vectors_data = []
-        for chunk in chunks:
-            if len(chunk) < 10: continue
-            vectors_data.append({
-                'chunk_text': chunk,
-                'embedding': title_embedding
-            })
+        failed_chunks = 0
+        
+        print(f"      📦 Processing {len(chunks)} chunks...")
+        
+        for idx, chunk in enumerate(chunks, 1):
+            if len(chunk) < 10: 
+                continue
+            
+            try:
+                # Show progress for each chunk
+                print(f"      ⏳ Chunk {idx}/{len(chunks)}...")
+                
+                # ✅ GENERATE EMBEDDING FROM CHUNK ITSELF (not title)
+                chunk_embedding = generate_embedding(chunk)
+                
+                if not chunk_embedding:
+                    failed_chunks += 1
+                    print(f"      ❌ Chunk {idx} failed")
+                    continue
+                
+                vectors_data.append({
+                    'chunk_text': chunk,           # ✅ Chunk content
+                    'embedding': chunk_embedding   # ✅ Vector dari CHUNK itu sendiri
+                })
+                print(f"      ✅ Chunk {idx} OK")
+                
+            except Exception as chunk_error:
+                failed_chunks += 1
+                print(f" ❌ Error: {str(chunk_error)[:30]}")
+                continue
+        
+        if failed_chunks > 0:
+            print(f"      ⚠️ {failed_chunks}/{len(chunks)} chunks failed, {len(vectors_data)} succeeded")
+        
+        if not vectors_data:
+            print("      ⚠️ No valid embeddings generated (all chunks failed)")
+            return []
             
         return vectors_data
+        
     except Exception as e:
-        print(f"      ⚠️ Vector generation error: {e}")
+        print(f"      ❌ Vector generation critical error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return []
 
 def insert_to_vector_db(processed_title, vectors_data, article_id):
     """
     Insert PRE-GENERATED vectors to TiDB.
-    vectors_data: List of dict [{'chunk_text': ..., 'embedding': ...}]
+    
+    STRUCTURE:
+    - source_table: Title artikel
+    - source_id: Chunk number (1, 2, 3, ...)
+    - article_id: Article ID (untuk grouping)
+    - content_text: Chunk content only
+    - embedding: Title vector
+    
+    Args:
+        processed_title: Title of the article
+        vectors_data: List of {'chunk_text': str, 'embedding': list}
+        article_id: Article ID number
+    
+    Returns:
+        int: Number of chunks inserted
     """
     try:
         if not vectors_data:
@@ -1009,39 +1136,35 @@ def insert_to_vector_db(processed_title, vectors_data, article_id):
             # Prepare batch data
             values_to_insert = []
             
-            for item in vectors_data:
+            for chunk_num, item in enumerate(vectors_data, start=1):
                 chunk = item['chunk_text']
                 embedding = item['embedding']
                 
-                # Prepare content to store: Title + Full Chunk
-                content_to_store = f"Judul: {processed_title}\n\n{chunk}"
-                
-                # Convert embedding to string format for TiDB
+                # Convert embedding to TiDB vector format
                 vector_str = '[' + ','.join(map(str, embedding)) + ']'
                 
                 values_to_insert.append((
-                    'ai_crawler_colab',
-                    article_id,
-                    content_to_store,
-                    vector_str
+                    processed_title,      # ✅ source_table = TITLE
+                    chunk_num,            # ✅ source_id = CHUNK NUMBER (1, 2, 3...)
+                    article_id,           # ✅ article_id = ARTICLE ID (custom field)
+                    chunk,                # ✅ content_text = CHUNK ONLY
+                    vector_str            # ✅ embedding = TITLE VECTOR
                 ))
 
-            # Batch insert (Bulk)
+            # Batch insert
             if values_to_insert:
                 print(f"         🔌 Connecting to TiDB... ", end='', flush=True)
                 
                 sql = """
                     INSERT INTO knowledge_vectors 
-                    (source_table, source_id, content_text, embedding) 
-                    VALUES (%s, %s, %s, %s)
+                    (source_table, source_id, article_id, content_text, embedding) 
+                    VALUES (%s, %s, %s, %s, %s)
                 """
                 
                 cursor.executemany(sql, values_to_insert)
-                
-                # Commit transaction
                 connection.commit()
                 inserted_count = len(values_to_insert)
-                print(f"✅ Inserted {inserted_count} vectors!")
+                print(f"✅ Inserted {inserted_count} chunks!")
             
             cursor.close()
             connection.close()
@@ -1057,13 +1180,6 @@ def insert_to_vector_db(processed_title, vectors_data, article_id):
     except Exception as e:
         print(f"      ⚠️ Database operation error: {str(e)}")
         return 0
-
-print("✅ All helper functions loaded")
-print("   ✅ AI Functions: generate_proper_title, check_relevance, generate_embedding")
-print("   ✅ Text Functions: chunk_text")
-print("   ✅ Web Scraping: fetch_page, extract_article_content")
-print("   ✅ Database: get_db_connection, insert_to_vector_db")
-print("   ✅ NO PLACEHOLDERS - Everything Complete!")
 
 # ============================================================
 # CELL 10: MAIN CRAWLER (COMPLETE - NO SHORTCUTS)
@@ -1120,8 +1236,7 @@ def auto_save_progress():
     # MEMORY OPTIMIZATION: Clean up after save
     import gc
     gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
+    # Torch cleanup removed (using Ollama, not torch)
     
     last_save_time = time.time()
     return auto_backup
@@ -1275,8 +1390,15 @@ def process_article(url):
     processed_title = title
     print(f"   ✅ Using original title")
     
-    # 1. GENERATE VECTORS (Unconditional)
+    # 1. GENERATE VECTORS (Always needed - JSON will be imported to TiDB later)
+    import time as time_module
+    vector_start = time_module.time()
+    
+    print(f"   🔄 Generating embeddings...")
     article_vectors = generate_article_vectors(processed_title, content)
+    vector_time = time_module.time() - vector_start
+    print(f"   ⚡ Embeddings done in {vector_time:.1f}s ({len(article_vectors)} chunks)")
+    
     # Note: article_vectors is list of {'chunk_text': str, 'embedding': [float]}
     
     # 2. SAVE TO LOCAL JSON
@@ -1310,6 +1432,15 @@ def process_article(url):
     else:
         print("   💾 Skipped TiDB Insert (Saved to JSON only)")
     
+    # 4. DUAL-WRITE: Save to stream folder for real-time import
+    try:
+        stream_file = os.path.join(STREAM_DIR, f'article_{articles_count}.json')
+        with open(stream_file, 'w', encoding='utf-8') as f:
+            json.dump([article_data], f, ensure_ascii=False, indent=2)
+        print(f"   📤 Streamed to: article_{articles_count}.json")
+    except Exception as stream_error:
+        print(f"   ⚠️ Stream write failed: {str(stream_error)[:50]}")
+    
     # Update monitor file (real-time tracking)
     update_monitor_file()
     
@@ -1321,9 +1452,13 @@ def process_article(url):
     ram_used = psutil.virtual_memory().used / (1024**3)  # GB
     ram_total = psutil.virtual_memory().total / (1024**3)  # GB
     ram_percent = psutil.virtual_memory().percent
+    print(f"   � RAM: {ram_used:.2f}/{ram_total:.2f} GB ({ram_percent:.1f}%)")
     
-    # Print memory usage (RAM Only)
-    print(f"   💾 RAM: {ram_used:.1f}/{ram_total:.1f} GB ({ram_percent:.0f}%)")
+    # Periodic garbage collection to prevent memory leak
+    if articles_count % 10 == 0:
+        import gc
+        gc.collect()
+        print(f"   🧹 Memory cleaned (GC run)")
     
     # Print memory usage (RAM Only)
     print(f"   💾 RAM: {ram_used:.1f}/{ram_total:.1f} GB ({ram_percent:.0f}%)")
@@ -1393,22 +1528,37 @@ try:
         if articles_count >= MAX_ARTICLES:
             break
         
-        # Fetch seed page (NEVER SKIP SEED - Infinite Retry)
+        # Fetch seed page (Max 5 retries with proxy rotation)
         soup = None
         seed_attempts = 0
-        while not soup:
+        max_seed_retries = 5  # Try 5 different proxies
+        
+        while not soup and seed_attempts < max_seed_retries:
             soup = fetch_page(seed_url)
             if not soup:
                 seed_attempts += 1
-                wait_time = min(5 * seed_attempts, 30) # Max 30s wait
-                print(f"   ⏳ Seed fetch failed. Retrying in {wait_time}s... (Attempt {seed_attempts})")
+                
+                # PERMANENT REMOVAL: Remove the failed proxy instead of rotating it
+                if PROXY_LIST:
+                    failed_proxy = PROXY_LIST.pop(0) if PROXY_LIST else None
+                    new_proxy = PROXY_LIST[0] if PROXY_LIST else "NONE (List Empty)"
+                    print(f"   🗑️ Proxy permanenly removed: {failed_proxy}")
+                    print(f"   🔄 Switching to next proxy: {new_proxy}")
+                
+                wait_time = 1  # Quick retry with new proxy
+                print(f"   ⏳ Seed fetch failed. Trying with new proxy... (Attempt {seed_attempts}/{max_seed_retries})")
                 time.sleep(wait_time)
                 
-                # Check timeout during infinite loop
+                # Check timeout during retry loop
                 is_timeout, _ = check_timeout()
                 if is_timeout:
                     print("   ❌ Timeout approaching, skipping seed.")
                     break
+        
+        # Skip seed if all retries failed
+        if not soup:
+            print(f"   ⚠️ Seed failed after {max_seed_retries} proxy attempts, skipping to next seed.")
+            continue
         
         if not soup:
             continue
@@ -1472,7 +1622,10 @@ except KeyboardInterrupt:
     sys.exit(0)
 
 except Exception as e:
+    import traceback
     print(f"\n❌ Unexpected error: {str(e)}")
+    print("\nFull traceback:")
+    traceback.print_exc()
     # Try to save what we have
     emergency_file = os.path.join(BACKUP_DIR, f'emergency_backup_error.json')
     try:
