@@ -73,12 +73,12 @@ func Load() *Config {
 			"https://api.proxyscrape.com/v2/?request=get&protocol=http&timeout=10000&country=SG&ssl=all&anonymity=all",
 		},
 
-		OllamaURL:            getEnv("OLLAMA_URL", "http://localhost:11434"),
+		OllamaURL:            getEnv("OLLAMA_URL", "http://127.0.0.1:11434"),
 		OllamaModel:          getEnv("OLLAMA_MODEL", "albashiro-crawler"),
-		OllamaEmbeddingModel: getEnv("OLLAMA_EMBEDDING_MODEL", "all-minilm"),
+		OllamaEmbeddingModel: getEnv("OLLAMA_EMBEDDING_MODEL", "all-minilm"), // 384-dim (matches chatbot)
 		UseOllama:            getEnvBool("USE_OLLAMA", true),
-		UseAIJudge:           getEnvBool("USE_AI_JUDGE", true),   // ENABLED with 1 worker
-		UseAISummary:         getEnvBool("USE_AI_SUMMARY", true), // ENABLED with 1 worker
+		UseAIJudge:           getEnvBool("USE_AI_JUDGE", false),  // DISABLED - too strict, semantic is enough
+		UseAISummary:         getEnvBool("USE_AI_SUMMARY", true), // ENABLED for embedding
 
 		BackupDir:  getEnv("BACKUP_DIR", "c:\\apache\\htdocs\\albashiro\\scraped_data\\backup"),
 		StreamDir:  getEnv("STREAM_DIR", "c:\\apache\\htdocs\\albashiro\\scraped_data\\backup\\stream"),

@@ -32,7 +32,11 @@ func NewClient(baseURL, model, embeddingModel string) *Client {
 		model:          model,
 		embeddingModel: embeddingModel,
 		httpClient: &http.Client{
-			Timeout: 120 * time.Second, // Increased for AI judge operations
+			Timeout: 300 * time.Second, // 2 minutes
+			Transport: &http.Transport{
+				Proxy:             nil,  // Force NO PROXY
+				DisableKeepAlives: true, // Prevent connection reuse hanging
+			},
 		},
 	}
 }
@@ -47,9 +51,8 @@ func (c *Client) GenerateEmbedding(ctx context.Context, text string) ([]float64,
 		Model:  c.embeddingModel,
 		Prompt: text,
 		Options: map[string]interface{}{
-			"num_gpu":    99,   // Force FULL GPU offloading (was 1)
-			"num_thread": 4,    // Limit CPU threads
-			"use_mmap":   true, // Memory mapping for efficiency
+			"num_gpu":  99,   // Use GPU for embeddings
+			"use_mmap": true, // Memory mapping for efficiency
 		},
 	}
 

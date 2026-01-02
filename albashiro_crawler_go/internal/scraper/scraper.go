@@ -41,8 +41,10 @@ type Scraper struct {
 	titlesMu            sync.Mutex
 
 	// Channels
-	jobChan    chan string
-	resultChan chan *Article
+	jobChan       chan string
+	resultChan    chan *Article
+	channelClosed bool
+	channelMu     sync.RWMutex
 
 	// AI Filtering
 	topicEmbedding []float64
@@ -93,6 +95,11 @@ func New(cfg *config.Config, proxyPool *proxy.Pool) *Scraper {
 }
 
 func (s *Scraper) Start(ctx context.Context, wg *sync.WaitGroup) error {
+	// Load previously processed URLs for resume capability
+	if err := LoadProcessedURLs(); err != nil {
+		fmt.Printf("   ⚠️  Failed to load URL history: %v\n", err)
+	}
+
 	// Test Ollama connection
 	if err := s.ollamaClient.Ping(); err != nil {
 		return fmt.Errorf("ollama not available: %w", err)
@@ -135,6 +142,10 @@ func (s *Scraper) Start(ctx context.Context, wg *sync.WaitGroup) error {
 				s.crawlSeedPage(ctx, seed)
 			}
 		}
+		// Mark channel as closed before actually closing it
+		s.channelMu.Lock()
+		s.channelClosed = true
+		s.channelMu.Unlock()
 		close(s.jobChan)
 	}()
 
@@ -178,6 +189,22 @@ func (s *Scraper) processURL(ctx context.Context, targetURL string) {
 
 	// Extract article content
 	title, content := s.extractContent(doc)
+
+	// MOVED SEMANTIC CHECK HERE (Strict Single Worker Flow)
+	// Check if this article matches our topic based on TITLE
+	if title != "" {
+		fmt.Printf("      🧠 Checking relevance: %s...\n", title[:min(50, len(title))])
+		titleVec, err := s.ollamaClient.GenerateEmbedding(ctx, title)
+		if err == nil {
+			score := cosineSimilarity(titleVec, s.topicEmbedding)
+			// Threshold 0.25 matched from crawler.go
+			if score < 0.26 {
+				fmt.Printf("      📉 Low relevance: [%.2f] (Skipping)\n", score)
+				return
+			}
+			fmt.Printf("      ✅ Relevant: [%.2f]\n", score)
+		}
+	}
 	// Length validation: Ensure content fits 1024 token limit for AI judge
 	// 1 token ≈ 4 chars, so 1024 tokens ≈ 4096 chars
 	const maxContentChars = 4000 // Leave buffer for title + prompt
@@ -192,10 +219,16 @@ func (s *Scraper) processURL(ctx context.Context, targetURL string) {
 		content = content[:maxContentChars] + "..."
 	}
 
-	// Apply filters (using original title)
-	if !filters.IsValidArticle(targetURL, title, content) {
-		fmt.Printf("   ⛔ Filtered out: %s\n", title[:min(50, len(title))])
-		return // Filtered out
+	// SEMANTIC MATCHING ONLY - No keyword filter needed!
+	// Semantic score (all-minilm) already filters quality:
+	// - High score (0.30+) = relevant psychology content
+	// - Low score (<0.30) = irrelevant/admin pages
+	// Keyword filters were too rigid and blocked good articles
+
+	// Optional: Basic URL blacklist for obvious non-articles
+	if filters.IsBlacklisted(targetURL) {
+		fmt.Printf("   ⛔ URL blacklisted: %s\n", title[:min(50, len(title))])
+		return
 	}
 
 	// SMART CHUNKING: Split content into chunks preserving paragraphs
@@ -326,8 +359,13 @@ func (s *Scraper) processURL(ctx context.Context, targetURL string) {
 
 	fmt.Printf("   ✅ [%d/%d] %s\n", articleID, s.cfg.MaxArticles, title[:min(50, len(title))])
 
+	// WAIT for Ollama to finish processing (prevent model thrashing)
+	// Give 2 seconds for embedding to complete before queuing new articles
+	time.Sleep(2 * time.Second)
+
 	// RECURSIVE CRAWLING: Extract links from saved article for further discovery
-	go s.extractLinksFromArticle(ctx, doc, targetURL)
+	// SYNC EXECUTION: To prevent model thrashing (Summary vs Embedding models)
+	s.extractLinksFromArticle(ctx, doc, targetURL)
 }
 
 // isReferenceChunk detects if a chunk is primarily bibliographic references
@@ -424,6 +462,13 @@ func (s *Scraper) chunkContent(content string) []string {
 func (s *Scraper) extractLinksFromArticle(ctx context.Context, doc *goquery.Document, baseURL string) {
 	// Extract all links from the article
 	doc.Find("a[href]").Each(func(i int, sel *goquery.Selection) {
+		// Panic recovery to prevent goroutine crashes
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("      ⚠️  Panic in link extraction: %v\n", r)
+			}
+		}()
+
 		// Check for cancellation
 		if ctx.Err() != nil {
 			return
@@ -455,20 +500,32 @@ func (s *Scraper) extractLinksFromArticle(ctx context.Context, doc *goquery.Docu
 		}
 
 		score := cosineSimilarity(linkVec, s.topicEmbedding)
-		if score < 0.20 {
+		if score < 0.26 {
 			return // Not semantically relevant
 		}
 
-		// Check if already processed
+		// Check if already processed (with safe mutex handling)
 		urlMutex.Lock()
-		if processedURLs[fullURL] {
+		_, alreadyProcessed := processedURLs[fullURL]
+		if alreadyProcessed {
 			urlMutex.Unlock()
 			return
 		}
 		processedURLs[fullURL] = true
 		urlMutex.Unlock()
 
-		// Queue for processing
+		// Save to persistent storage (async, ignore errors)
+		go SaveProcessedURL(fullURL)
+
+		// Queue for processing (check if channel is still open)
+		s.channelMu.RLock()
+		closed := s.channelClosed
+		s.channelMu.RUnlock()
+
+		if closed {
+			return // Channel already closed, skip
+		}
+
 		select {
 		case <-ctx.Done():
 			return
@@ -579,9 +636,22 @@ func (s *Scraper) extractContent(doc *goquery.Document) (string, string) {
 	}
 	title = strings.TrimSpace(title)
 
-	// Extract content
+	// Extract content - Improved Selector to avoid Footer/Sidebar
 	var contentParts []string
-	doc.Find("p").Each(func(i int, sel *goquery.Selection) {
+
+	// Prioritize semantic tags
+	selection := doc.Find("article, main, div.post-content, div.entry-content, div.article-body")
+	if selection.Length() == 0 {
+		// Fallback to body but exclude common non-content areas
+		selection = doc.Find("body")
+	}
+
+	selection.Find("p").Each(func(i int, sel *goquery.Selection) {
+		// SKIP if parent is footer, sidebar, header, nav, or menu
+		if sel.ParentsFiltered("footer, .footer, #footer, .sidebar, #sidebar, header, nav, .menu, .navigation, .related-posts, .comments").Length() > 0 {
+			return
+		}
+
 		text := strings.TrimSpace(sel.Text())
 		if len(text) > 40 {
 			contentParts = append(contentParts, text)

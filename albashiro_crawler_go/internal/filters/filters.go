@@ -97,13 +97,35 @@ var WhitelistKeywords = []string{
 	"pemulihan", "recovery", "healing", "baby blues", "postpartum", "postnatal",
 }
 
-// URL patterns to reject
+// URL patterns to reject (RELAXED - only truly problematic URLs)
 var URLBlacklist = []string{
+	// User-generated content (Q&A, forums)
 	"/tanya-dokter/", "/komunitas/", "/forum/", "/diskusi/", "/community/", "/conversation/",
-	"/user/", "/profile/", "/auth/", "/login/", "/register/", "/search/", "/tag/", "/category/",
-	"/author/", "/page/", "/feed/", "/rss/", "/sitemap/", "/wp-admin/", "/wp-content/",
-	"visi-misi", "struktur-", "pimpinan-", "senat-", "dewan-", "kepakaran-",
-	"surat-keputusan", "unit-kerja", "agenda", "pengumuman", "lowongan", "karir", "bab-",
+	"/user/", "/profile/", "/comment/", "/reply/",
+
+	// Auth & Admin
+	"/auth/", "/login/", "/register/", "/search/",
+	"/wp-admin/", "/wp-content/", "/wp-json/",
+
+	// Static/Meta pages
+	"/feed/", "/rss/", "/sitemap/", "/tag/", "/category/", "/author/",
+
+	// Administrative pages (STRICT - only exact matches)
+	"visi-misi", "tentang-kami", "about-us", "contact-us", "hubungi-kami",
+	"lowongan", "karir", "career", "job-vacancy",
+
+	// NOTE: Removed "struktur-", "pimpinan-", "senat-", "dewan-", "kepakaran-", "kelompok-riset"
+	// These were blocking legitimate academic/research content!
+}
+
+func IsBlacklisted(url string) bool {
+	urlLower := strings.ToLower(url)
+	for _, pattern := range URLBlacklist {
+		if strings.Contains(urlLower, pattern) {
+			return true
+		}
+	}
+	return false
 }
 
 // Article URL patterns (must match at least one)
@@ -171,41 +193,99 @@ func IsValidArticle(url, title, content string) bool {
 		return false
 	}
 
-	// Check blacklist keywords
+	// Check blacklist keywords (reject if found)
 	combinedText := titleLower + " " + contentLower
 	for _, keyword := range BlacklistKeywords {
 		if strings.Contains(combinedText, keyword) {
-			return false
+			return false // Reject if blacklist keyword found
 		}
 	}
 
-	// Check whitelist keywords (must have at least one)
-	hasWhitelistKeyword := false
-	for _, keyword := range WhitelistKeywords {
-		if strings.Contains(combinedText, keyword) {
-			hasWhitelistKeyword = true
-			break
-		}
-	}
+	// RELAXED FILTER: Accept if no blacklist keywords found
+	// Whitelist is now OPTIONAL (bonus points, not required)
+	// This allows broader psychology content through
 
-	return hasWhitelistKeyword
+	// Accept article if:
+	// 1. No blacklist keywords found (already checked above)
+	// 2. Has article-like URL pattern (already checked above)
+	// Whitelist is now optional, not mandatory
+	return true // Accept by default if passed blacklist check
 }
 
 func CleanContent(content string) string {
-	// Remove excessive whitespace
-	re := regexp.MustCompile(`\s+`)
-	content = re.ReplaceAllString(content, " ")
+	// 1. Remove specific spam/marketing phrases (Case Insensitive)
+	// We do this BEFORE collapsing whitespace so we can handle line-based spam safely.
 
-	// Remove common noise patterns
-	noisePatterns := []string{
-		"Baca juga:", "Read also:", "Related articles:",
-		"Share this:", "Bagikan:", "Subscribe",
-		"Advertisement", "Iklan",
+	spamPatterns := []*regexp.Regexp{
+		// Discount & Promo
+		regexp.MustCompile(`(?i)diskon\s+s/d\s+\d+%`),
+		regexp.MustCompile(`(?i)spesial\s+hari\s+ini`),
+		regexp.MustCompile(`(?i)psikotes\s+online\s+premium`),
+		regexp.MustCompile(`(?i)promo\s+terbatas`),
+		regexp.MustCompile(`(?i)flash\s+sale`),
+		regexp.MustCompile(`(?i)kode\s+voucher`),
+		regexp.MustCompile(`(?i)belanja\s+sekarang`),
+
+		// Social Media & CTA (Restricted to line or sentence end)
+		regexp.MustCompile(`(?i)follow\s+kami\s+di[^\n]*`),
+		regexp.MustCompile(`(?i)kunjungi\s+instagram[^\n]*`),
+		regexp.MustCompile(`(?i)cek\s+youtube[^\n]*`),
+		regexp.MustCompile(`(?i)jangan\s+lupa\s+like[^\n]*`),
+		regexp.MustCompile(`(?i)klik\s+di\s+sini`),
+		regexp.MustCompile(`(?i)baca\s+selengkapnya`),
+		regexp.MustCompile(`(?i)simak\s+video[^\n]*`),
+		regexp.MustCompile(`(?i)bergabung\s+dengan\s+komunitas[^\n]*`),
+		regexp.MustCompile(`(?i)download\s+aplikasi[^\n]*`),
+		regexp.MustCompile(`(?i)unduh\s+sekarang[^\n]*`),
+
+		// Editorial & Credits (Start of line only)
+		regexp.MustCompile(`(?m)^penulis:.*$`),
+		regexp.MustCompile(`(?m)^editor:.*$`),
+		regexp.MustCompile(`(?m)^sumber:.*$`),
+		regexp.MustCompile(`(?m)^foto:.*$`),
+		regexp.MustCompile(`(?m)^laporan:.*$`),
+		regexp.MustCompile(`(?i)copyright\s+©[^\n]*`),
+		regexp.MustCompile(`(?i)hak\s+cipta\s+dilindungi[^\n]*`),
+
+		// Generic Navigation/Filler
+		regexp.MustCompile(`(?i)baca\s+juga:?[^\n]*`),
+		regexp.MustCompile(`(?i)read\s+also:?[^\n]*`),
+		regexp.MustCompile(`(?i)related\s+articles:?[^\n]*`),
+		regexp.MustCompile(`(?i)share\s+this:?[^\n]*`),
+		regexp.MustCompile(`(?i)bagikan:?[^\n]*`),
+		regexp.MustCompile(`(?i)subscribe`),
+		regexp.MustCompile(`(?i)advertisement`),
+		regexp.MustCompile(`(?i)iklan`),
+		regexp.MustCompile(`(?i)halaman\s+selanjutnya`),
+		regexp.MustCompile(`(?i)sebelumnya`),
+
+		// Specific Greeting/Outro Spam
+		regexp.MustCompile(`(?i)tahu\s+gak\s+perseners\??`),
+		regexp.MustCompile(`(?i)halo,\s+perseners!`),
+		regexp.MustCompile(`(?i)balik\s+lagi\s+sama\s+aku[^\n]*`),
+		regexp.MustCompile(`(?i)semoga\s+bermanfaat[^\n]*`),
+		regexp.MustCompile(`(?i)terima\s+kasih\s+sudah\s+membaca[^\n]*`),
+
+		// ADDRESSES & CONTACTS (Strict Removal)
+		// Jl. Name No. 123, City, Zip
+		regexp.MustCompile(`(?i)Jl\.\s+.*No\.\s*\d+.*`),
+		regexp.MustCompile(`(?i)Jalan\s+.*Nomor\s*\d+.*`),
+		// Phone/WA: 08xx-xxxx-xxxx or +62
+		regexp.MustCompile(`(?i)(?:08\d{2}|62\d{2})[- ]?\d{4}[- ]?\d{4}`),
+		regexp.MustCompile(`(?i)Whatsapp.*`),
+		// Copyright footer
+		regexp.MustCompile(`(?i).*All\s+rights\s+reserved.*`),
+		regexp.MustCompile(`(?i).*Copyright.*`),
+		regexp.MustCompile(`(?i).*PT\s+.*Indonesia.*`), // Company footer
 	}
 
-	for _, noise := range noisePatterns {
-		content = strings.ReplaceAll(content, noise, "")
+	for _, re := range spamPatterns {
+		content = re.ReplaceAllString(content, "")
 	}
+
+	// 2. Remove excessive whitespace (Moved to END to preserve line structure for regex above)
+	reSpace := regexp.MustCompile(`\s+`)
+	content = reSpace.ReplaceAllString(content, " ")
 
 	return strings.TrimSpace(content)
 }

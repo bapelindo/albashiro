@@ -86,7 +86,7 @@ func main() {
 		score := cosineSimilarity(topicVec, vec)
 
 		status := "⛔ REJECT"
-		if score > 0.20 {
+		if score > 0.26 {
 			status = "✅ ACCEPT"
 		}
 

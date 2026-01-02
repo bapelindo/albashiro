@@ -177,11 +177,15 @@ func processFile(db *sql.DB, filePath string) bool {
 
 	fmt.Printf("   ✅ Imported %d vectors\n", totalInserted)
 
-	// Delete file after successful import
-	if err := os.Remove(filePath); err != nil {
-		fmt.Printf("   ⚠️  Failed to delete file: %v\n", err)
+	// Move file to trash/processed instead of deleting (safety measure)
+	archiveDir := filepath.Join(filepath.Dir(filePath), "trash", "processed")
+	os.MkdirAll(archiveDir, 0755)
+
+	archivePath := filepath.Join(archiveDir, filepath.Base(filePath))
+	if err := os.Rename(filePath, archivePath); err != nil {
+		fmt.Printf("   ⚠️  Failed to move file to trash: %v\n", err)
 	} else {
-		fmt.Printf("   🗑️  Consumed (Deleted): %s\n", filepath.Base(filePath))
+		fmt.Printf("   🗑️  Moved to trash: %s → trash/processed/%s\n", filepath.Base(filePath), filepath.Base(filePath))
 	}
 
 	return true

@@ -1,9 +1,11 @@
 package scraper
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 
@@ -11,9 +13,58 @@ import (
 )
 
 var (
-	processedURLs = make(map[string]bool)
-	urlMutex      sync.Mutex
+	processedURLs     = make(map[string]bool)
+	urlMutex          sync.Mutex
+	processedURLsFile = "scraped_data/processed_urls.txt"
 )
+
+// LoadProcessedURLs loads previously processed URLs from disk
+func LoadProcessedURLs() error {
+	file, err := os.Open(processedURLsFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			fmt.Println("   📂 No previous URL history found (starting fresh)")
+			return nil
+		}
+		return err
+	}
+	defer file.Close()
+
+	urlMutex.Lock()
+	defer urlMutex.Unlock()
+
+	scanner := bufio.NewScanner(file)
+	count := 0
+	for scanner.Scan() {
+		url := strings.TrimSpace(scanner.Text())
+		if url != "" {
+			processedURLs[url] = true
+			count++
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+
+	fmt.Printf("   ✅ Loaded %d previously processed URLs (will skip these)\n", count)
+	return nil
+}
+
+// SaveProcessedURL appends a URL to the persistent file
+func SaveProcessedURL(url string) error {
+	// Create directory if not exists
+	os.MkdirAll("scraped_data", 0755)
+
+	file, err := os.OpenFile(processedURLsFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(url + "\n")
+	return err
+}
 
 // crawlSeedPage fetches a seed page and extracts article links
 func (s *Scraper) crawlSeedPage(ctx context.Context, seedURL string) {
@@ -25,9 +76,15 @@ func (s *Scraper) crawlSeedPage(ctx context.Context, seedURL string) {
 		return
 	}
 
-	// Extract all links from the page
-	links := make([]string, 0)
+	// Extract links and queue them for parallel processing
 	doc.Find("a[href]").Each(func(i int, sel *goquery.Selection) {
+		// Panic recovery to prevent goroutine crashes
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("      ⚠️  Panic in seed crawling: %v\n", r)
+			}
+		}()
+
 		// Check for cancellation explicitly to prevent hang
 		if ctx.Err() != nil {
 			return
@@ -55,21 +112,7 @@ func (s *Scraper) crawlSeedPage(ctx context.Context, seedURL string) {
 			return
 		}
 
-		// Semantic Check: Does link text match our topic?
-		linkVec, err := s.ollamaClient.GenerateEmbedding(ctx, linkText)
-		if err != nil {
-			return // Skip if embedding fails
-		}
-
-		score := cosineSimilarity(linkVec, s.topicEmbedding)
-		// Threshold 0.20 determined by testing (Indonesian content scores ~0.21-0.57)
-		if score < 0.20 {
-			return // Not semantically relevant
-		}
-
-		fmt.Printf("      🧠 Semantic Match: [%.2f] %s (%s)\n", score, linkText, fullURL)
-
-		// Skip duplicates
+		// Skip duplicates (check in-memory map)
 		urlMutex.Lock()
 		if processedURLs[fullURL] {
 			urlMutex.Unlock()
@@ -78,19 +121,29 @@ func (s *Scraper) crawlSeedPage(ctx context.Context, seedURL string) {
 		processedURLs[fullURL] = true
 		urlMutex.Unlock()
 
-		links = append(links, fullURL)
-	})
+		// Save to persistent storage (async, ignore errors)
+		go SaveProcessedURL(fullURL)
 
-	fmt.Printf("   📄 Found %d potential article links\n", len(links))
+		// PARALLEL PROCESSING: Queue URL for worker pool
+		// Check if channel is still open before sending
+		s.channelMu.RLock()
+		closed := s.channelClosed
+		s.channelMu.RUnlock()
 
-	// Queue article links for processing
-	for _, link := range links {
+		if closed {
+			return // Channel already closed, skip
+		}
+
 		select {
 		case <-ctx.Done():
 			return
-		case s.jobChan <- link:
+		case s.jobChan <- fullURL:
+			fmt.Printf("      ⚡ Queued for parallel processing: %s\n", linkText[:min(50, len(linkText))])
+		default:
+			// Job queue full, skip
+			fmt.Printf("      ⚠️  Queue full, skipping: %s\n", linkText[:min(30, len(linkText))])
 		}
-	}
+	})
 }
 
 func isNonArticleURL(urlStr string) bool {
