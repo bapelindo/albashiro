@@ -5,7 +5,7 @@ import OllamaService from '../lib/ollama-service.js';
 
 export const config = {
     runtime: 'nodejs', // Use Node.js runtime for mysql2 support
-    maxDuration: 60, // 60 seconds timeout
+    maxDuration: 300, // 5 minutes timeout (Max for Pro, Hobby limited to 10s/60s but good to try)
 };
 
 export default async function handler(req) {
