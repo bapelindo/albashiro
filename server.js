@@ -1,5 +1,5 @@
 /**
- * Simple Node.js server for testing OllamaService locally
+ * Robust Node.js server for Albashiro AI
  * Run: node server.js
  * Access: http://localhost:3000
  */
@@ -7,6 +7,7 @@
 import express from 'express';
 import cors from 'cors';
 import streamHandler from './api/stream.js';
+import { OLLAMA_API_URL, OLLAMA_MODEL } from './lib/config.js';
 
 const app = express();
 const PORT = 3000;
@@ -16,38 +17,72 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// API endpoint
+// Process-level error handling to prevent crash
+process.on('uncaughtException', (err) => {
+    console.error('❌ UNCAUGHT EXCEPTION:', err);
+    // Don't exit, try to keep running
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ UNHANDLED REJECTION:', reason);
+    // Don't exit
+});
+
+// API endpoint with error boundary
 app.post('/api/stream', async (req, res) => {
-    // Convert Express req/res to Vercel-style Request/Response
-    const request = new Request('http://localhost:3000/api/stream', {
-        method: 'POST',
-        headers: req.headers,
-        body: JSON.stringify(req.body)
-    });
+    try {
+        // Log incoming request
+        // console.log(`[REQ] ${req.body.message ? req.body.message.substring(0, 50) : 'No msg'}`);
 
-    // Fix: ESM default import is the function itself
-    // Note: streamHandler is the default export from api/stream.js
-    const response = await streamHandler(request);
+        // Convert Express req/res to Vercel-style Request/Response
+        const request = new Request('http://localhost:3000/api/stream', {
+            method: 'POST',
+            headers: req.headers,
+            body: JSON.stringify(req.body)
+        });
 
-    // Copy headers
-    response.headers.forEach((value, key) => {
-        res.setHeader(key, value);
-    });
+        // Use core handler
+        const response = await streamHandler(request);
 
-    // Stream response
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+        // Check if handler returned error response
+        if (response.status >= 400) {
+            console.error(`handler returned status ${response.status}`);
+        }
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        res.write(decoder.decode(value, { stream: true }));
+        // Copy headers
+        response.headers.forEach((value, key) => {
+            res.setHeader(key, value);
+        });
+
+        // Set status
+        res.status(response.status);
+
+        // Stream response
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            res.write(decoder.decode(value, { stream: true }));
+        }
+
+        res.end();
+    } catch (error) {
+        console.error('SERVER ERROR:', error);
+        if (!res.headersSent) {
+            res.status(500).json({
+                error: true,
+                message: "Server Error: " + error.message
+            });
+        }
     }
-
-    res.end();
 });
 
 app.listen(PORT, () => {
+    console.log('=================================================');
     console.log(`✅ Node.js server running at http://localhost:${PORT}`);
-    console.log(`   Test chat at: http://localhost:${PORT}`);
+    console.log(`🤖 AI Model: ${OLLAMA_MODEL}`);
+    console.log(`🔗 Ollama URL: ${OLLAMA_API_URL}`);
+    console.log('=================================================');
 });

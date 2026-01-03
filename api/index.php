@@ -45,10 +45,20 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, false); // Stream directly to output
 // 1. Forward Response Headers (Critical for SSE)
 curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($curl, $header) {
     $len = strlen($header);
-    $header = trim($header);
-    if (!empty($header)) {
-        header($header);
-    }
+    $headerVal = trim($header);
+    if (empty($headerVal))
+        return $len;
+
+    // SAFETY: Don't forward internal transport headers that might conflict with Apache/Cloudflare
+    $lowerHeader = strtolower($headerVal);
+    if (strpos($lowerHeader, 'transfer-encoding:') === 0)
+        return $len;
+    if (strpos($lowerHeader, 'content-length:') === 0)
+        return $len;
+    if (strpos($lowerHeader, 'connection:') === 0)
+        return $len;
+
+    header($headerVal);
     return $len;
 });
 
