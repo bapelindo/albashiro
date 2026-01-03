@@ -15,6 +15,10 @@ if ($isVercel) {
     exit;
 }
 
+// EXTEND PHP TIMEOUTS FOR LOCAL/TUNNEL MODE
+set_time_limit(300); // 5 minutes execution time
+ini_set('default_socket_timeout', 300); // 5 minutes socket timeout
+
 // 3. If Local/Tunnel, PROXY to Node.js Service (Modern Mode)
 // This fixes the "spinning" issue on albashiro.bapel.my.id
 
