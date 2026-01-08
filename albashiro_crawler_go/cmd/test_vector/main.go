@@ -38,7 +38,7 @@ func main() {
 		Host:     "gateway01.ap-northeast-1.prod.aws.tidbcloud.com",
 		Port:     4000,
 		User:     "4TnpUUxik5ZLHTT.root",
-		Password: "LuCuUyXhfEy3EJVI",
+		Password: "hweuQGiW36RtoJLw",
 		Database: "albashiro",
 	}
 

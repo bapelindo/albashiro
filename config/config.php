@@ -38,7 +38,7 @@ if (!defined('ALBASHIRO') && php_sapi_name() !== 'cli') {
 define('DB_HOST', getenv('TIDB_HOST') ?: 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com');
 define('DB_NAME', getenv('TIDB_DATABASE') ?: 'albashiro');
 define('DB_USER', getenv('TIDB_USER') ?: '4TnpUUxik5ZLHTT.root');
-define('DB_PASS', getenv('TIDB_PASSWORD') ?: 'LuCuUyXhfEy3EJVI');
+define('DB_PASS', getenv('TIDB_PASSWORD') ?: 'hweuQGiW36RtoJLw');
 define('DB_PORT', getenv('TIDB_PORT') ?: '4000');
 define('DB_CHARSET', 'utf8mb4');
 
