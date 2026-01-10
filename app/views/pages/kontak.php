@@ -31,7 +31,8 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-primary-900 mb-1">Alamat</h3>
-                            <p class="text-gray-600">Jl. Imam Bonjol No. 123<br>Jakarta Pusat, DKI Jakarta 10310</p>
+                            <p class="text-gray-600">Jl. S.Suparman No.14, RT.03/RW.08, <br> Dusun Tanggung, Tanggung,
+                                Kec. Turen, <br> Kabupaten Malang, Jawa Timur 65175</p>
                         </div>
                     </div>
 
@@ -43,7 +44,7 @@
                             <h3 class="font-semibold text-primary-900 mb-1">WhatsApp</h3>
                             <a href="https://wa.me/<?= ADMIN_WHATSAPP ?>"
                                 class="text-green-600 hover:text-green-700 font-medium">
-                                +62 812-3456-7890
+                                +62 853-8520-4410
                             </a>
                             <p class="text-sm text-gray-500 mt-1">Klik untuk chat langsung</p>
                         </div>
@@ -57,7 +58,7 @@
                             <h3 class="font-semibold text-primary-900 mb-1">Email</h3>
                             <a href="mailto:<?= ADMIN_EMAIL ?>"
                                 class="text-accent-600 hover:text-accent-700 font-medium">
-                                info@albashiro.com
+                                ahnrizki@gmail.com
                             </a>
                         </div>
                     </div>
@@ -68,8 +69,8 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-primary-900 mb-1">Jam Operasional</h3>
-                            <p class="text-gray-600">Senin - Sabtu: 09:00 - 17:00 WIB</p>
-                            <p class="text-gray-500 text-sm">Minggu: Tutup</p>
+                            <p class="text-gray-600">Senin - jumat: 08:00 - 16:00 WIB</p>
+                            <p class="text-gray-500 text-sm">Sabtu - Minggu: Tutup</p>
                         </div>
                     </div>
                 </div>

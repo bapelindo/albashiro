@@ -61,6 +61,167 @@
     </div>
 </section>
 
+<!-- Online Hypnotherapy Service -->
+<section class="py-20 bg-primary-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div data-aos="fade-right">
+                <div class="relative">
+                    <img src="<?= base_url('public/images/therapist-1.jpg') ?>" alt="Bunda Dewi Irani"
+                        class="mx-auto relative z-10 w-3/4 md:w-2/3 lg:w-full drop-shadow-2xl rounded-2xl">
+                    <!-- Decorative Circle behind image if needed -->
+                    <div
+                        class="absolute top-10 left-10 w-64 h-64 bg-accent-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob">
+                    </div>
+                </div>
+            </div>
+
+            <div data-aos="fade-left">
+                <span
+                    class="inline-block px-4 py-2 bg-white text-primary-800 rounded-full text-sm font-semibold mb-4 shadow-sm">
+                    <i class="fas fa-notes-medical mr-2"></i>Layanan Klinis
+                </span>
+                <h2 class="text-3xl font-bold text-primary-900 mb-2">Layanan Hipnoterapi</h2>
+                <p class="text-xl text-accent-700 font-medium mb-6">Oleh Tim Terapis Profesional Albashiro</p>
+
+                <div class="bg-white rounded-3xl p-8 shadow-xl border border-primary-100">
+                    <ul class="grid sm:grid-cols-2 gap-x-4 gap-y-3">
+                        <?php
+                        $onlineServices = [
+                            'Stress',
+                            'Depresi',
+                            'Trauma',
+                            'Kebiasaan Buruk',
+                            'LGBT (Lesbian, Gay, Biseksual & Transgender)',
+                            'Menaikkan & Menurunkan Berat Badan',
+                            'Menurunkan Skala Nyeri',
+                            'Meningkatkan Imunitas',
+                            'Menaikkan Nafsu Makan',
+                            'Berhenti Merokok',
+                            'Phobia (Ketakutan Berlebihan)',
+                            'Kebiasaan/Perilaku Berulang',
+                            'Gangguan Emosi',
+                            'Baby Blues',
+                            'Mengatasi Gangguan Tidur',
+                            'Meningkatkan Motivasi Kerja',
+                            'Menghancurkan Mental Blok',
+                            'Membantu Mengatasi Masalah Seks',
+                            'Gangguan Stress Pasca Trauma',
+                            'Asam Lambung & Gerd',
+                            'Mengatasi Ketergantungan Obat-Obatan Terlarang',
+                            'Dan Masih Banyak Lagi'
+                        ];
+                        foreach ($onlineServices as $item): ?>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                                <span class="text-gray-700"><?= $item ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Child Hypnotherapy Service -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
+            <span
+                class="inline-block px-4 py-2 bg-lavender-100 text-lavender-800 rounded-full text-sm font-semibold mb-4">
+                <i class="fas fa-child mr-2"></i>Hypno Kids
+            </span>
+            <h2 class="text-3xl md:text-4xl font-bold text-primary-900 mb-4">Pelayanan Hipnotherapy Anak</h2>
+            <p class="text-xl text-gray-600">Perubahan Positif dengan Kekuatan Imajinasi</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+            <div class="order-2 lg:order-1" data-aos="fade-right">
+                <div
+                    class="bg-cream-50 rounded-3xl p-8 md:p-10 border border-gold-100 shadow-lg relative overflow-hidden">
+                    <!-- Decor -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gold-200 rounded-bl-full opacity-20"></div>
+
+                    <p class="text-lg text-gray-700 leading-relaxed mb-8 italic">
+                        "Hypnoterapi anak menekankan kekuatan imajinasi anak untuk dapatnya memberikan sebuah perubahan
+                        positif terhadap anak.
+                        Saat melakukan sesi terapi Hypnoterapi mampu menciptakan cerita dan gambaran positif pada
+                        pikiran bawah sadar anak
+                        sehingga sekaligus dapat diterimanya sugesti positif secara optimal."
+                    </p>
+
+                    <h3 class="font-bold text-primary-900 text-xl mb-6 flex items-center">
+                        <i class="fas fa-star text-gold-500 mr-2"></i>
+                        Hypno Kids Mampu Mengatasi:
+                    </h3>
+
+                    <ul class="space-y-3">
+                        <?php
+                        $childServices1 = [
+                            'Mengatasi Hiperaktif',
+                            'Mengatasi Fobia',
+                            'Mengatasi Insomnia',
+                            'Kurang Fokus Belajar',
+                            'Manajemen Kemarahan/Tantrum',
+                            'Mengatasi Anak Ngompol',
+                            'Mengatasi Kecemasan dan Stres',
+                            'Mengatasi Trauma dan Bingung Puting',
+                            'Mengatasi Anak Kecanduan Dot, Gadget dan Merokok',
+                            'Meningkatkan Rasa Percaya Diri'
+                        ];
+                        foreach ($childServices1 as $item): ?>
+                            <li class="flex items-center">
+                                <span
+                                    class="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs mr-3 flex-shrink-0">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                                <span class="text-gray-700"><?= $item ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="order-1 lg:order-2 space-y-8" data-aos="fade-left">
+                <div class="bg-lavender-50 rounded-3xl p-8 shadow-inner">
+                    <ul class="space-y-3">
+                        <?php
+                        $childServices2 = [
+                            'Meningkatkan Prestasi Anak',
+                            'Mengatasi Alergi, Asma',
+                            'Mengatasi Anak yang Kurang Disiplin',
+                            'Mengatasi Anak Gagap dan Sulit Bicara',
+                            'Mengatasi Kebiasaan Menggigit Kuku, Menghisap Jempol',
+                            'Mengatasi Anak yang Sulit Bergaul',
+                            'Mengurangi Rasa Sakit pada Saat Dilakukan Tindakan Medis (Imunisasi, Tindik, Infus, dll)',
+                            'Mempersiapkan Anak Mengikuti Lomba Kejuaraan',
+                            'Berbagai Fobia (Nasi, Buah, Ketinggian, Ketakutan Bersosialisasi)',
+                            'Mengatasi Inner Child (Hypno Kids + Hypno Parent)'
+                        ];
+                        foreach ($childServices2 as $item): ?>
+                            <li class="flex items-start">
+                                <i class="fas fa-heart text-lavender-500 mt-1 mr-3 flex-shrink-0"></i>
+                                <span class="text-gray-700"><?= $item ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+
+                <div
+                    class="bg-gradient-to-r from-primary-600 to-primary-800 rounded-2xl p-8 text-white text-center shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-2">Konsultasi Anak?</h3>
+                    <p class="mb-6 opacity-90">Hubungi kami untuk jadwal konsultasi terbaik buah hati Anda</p>
+                    <a href="https://wa.me/<?= ADMIN_WHATSAPP ?>?text=Halo, saya ingin konsultasi Hypno Kids"
+                        class="inline-block px-8 py-3 bg-white text-primary-900 font-bold rounded-full hover:bg-gold-300 transition-colors">
+                        Chat WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Service Flow -->
 <section class="py-20 bg-primary-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

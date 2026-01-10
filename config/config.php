@@ -63,8 +63,8 @@ define('SITE_ROOT', dirname(__DIR__));
 // =====================================================
 // ADMIN CONFIGURATION
 // =====================================================
-define('ADMIN_WHATSAPP', '6282228967897');
-define('ADMIN_EMAIL', 'info@albashiro.com');
+define('ADMIN_WHATSAPP', '6285385204410');
+define('ADMIN_EMAIL', 'ahnrizki@gmail.com');
 define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
 define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
 
@@ -99,9 +99,9 @@ define('USE_SEMANTIC_ROUTING', true); // Set to true to enable experimental vect
 // =====================================================
 // Format: Therapist ID => WhatsApp Number
 define('THERAPIST_WHATSAPP', [
-    1 => '628155017069',  // Bunda Dewi
+    1 => '6281252550500',  // Bunda Dewi
     2 => '62895335419945',  // Bu Muza
-    3 => '6282131089039',  // Ustadzah Fatimah Zahra
+    3 => '6285236239819',  // Ustadzah Fatimah Zahra
 ]);
 
 // =====================================================

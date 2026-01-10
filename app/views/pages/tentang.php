@@ -9,8 +9,13 @@
             <h1 class="text-4xl md:text-5xl font-bold text-primary-900 mb-6">
                 Mengenal <span class="gradient-text">Albashiroh</span>
             </h1>
+            <p class="text-lg text-gray-600 mb-4">
+                Semoga setiap kunjungan Anda membawa keberkahan, serta menjadi awal harapan dan solusi terbaik untuk
+                meningkatkan kualitas kehidupan Anda.
+            </p>
             <p class="text-lg text-gray-600">
-                Layanan hipnoterapi profesional dengan pendekatan Islami untuk membantu Anda menemukan kedamaian jiwa.
+                Kami mendoakan agar Anda senantiasa dianugerahi kesehatan yang paripurna oleh Allah SWT, serta diliputi
+                kemudahan, keberkahan, dan keajaiban dalam setiap langkah hidup Anda.
             </p>
         </div>
     </div>
@@ -30,15 +35,24 @@
 
             <div data-aos="fade-left">
                 <h2 class="text-3xl font-bold text-primary-900 mb-6">Mengapa Memilih Hipnoterapi Islami?</h2>
-                <p class="text-gray-600 mb-6 leading-relaxed">
-                    Albashiroh adalah klinik hipnoterapi yang menggabungkan teknik hipnoterapi klinis modern dengan
-                    bimbingan spiritual Islam. Kami percaya bahwa kesembuhan sejati datang dari keselarasan antara
-                    pikiran, hati, dan spiritualitas.
+                <p class="text-gray-600 mb-4 leading-relaxed font-medium text-lg text-primary-800">
+                    Jadikanlah Albashiro Islamic Hypnotherapy sebagai sahabat terpercaya dalam ikhtiar kesembuhan Anda.
                 </p>
-                <p class="text-gray-600 mb-8 leading-relaxed">
-                    Didirikan dengan visi membantu umat Muslim menemukan solusi untuk berbagai masalah psikologis sesuai
-                    dengan nilai-nilai syariat Islam. Setiap sesi terapi dilakukan dengan profesional, penuh empati, dan
-                    menjunjung tinggi kerahasiaan klien.
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    Albashiro bukan sekadar terapi pikiran, melainkan sebuah perjalanan pulang—membersihkan luka batin,
+                    menenangkan qolbu, dan menguatkan kembali ikatan ketauhidan dengan Allah SWT.
+                </p>
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    Insya Allah, kami senantiasa siap menemani proses kesembuhan Anda sebagai ikhtiar penyadaran jiwa,
+                    meluruskan niat, dan mengembalikan hati agar tenang bersama Allah semata.
+                </p>
+                <p class="text-gray-600 mb-6 leading-relaxed">
+                    Kami melayani berbagai keluhan mental mulai dari ringan, sedang, hingga berat (kompleks) untuk Anda
+                    dan keluarga tercinta. Termasuk penanganan bipolar, kecanduan, depresi, fobia, trauma, dan
+                    permasalahan psikologis lainnya.
+                </p>
+                <p class="text-gray-600 mb-8 leading-relaxed font-medium">
+                    Insya Allah kapan pun Anda membutuhkan bimbingan dengan izin Allah kami siap membantu.
                 </p>
 
                 <div class="grid sm:grid-cols-2 gap-4">

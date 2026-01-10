@@ -94,8 +94,8 @@
                         </div>
                         <div>
                             <p class="text-primary-300 text-sm leading-relaxed">
-                                Jl. Imam Bonjol No. 123<br>
-                                Jakarta Pusat, DKI Jakarta
+                                Dusun Tanggung, Tanggung, Kec. Turen, Kabupaten
+                                Malang, Jawa Timur 65175
                             </p>
                         </div>
                     </li>
@@ -106,7 +106,7 @@
                         </div>
                         <a href="https://wa.me/<?= ADMIN_WHATSAPP ?>"
                             class="text-primary-300 hover:text-gold-400 transition-colors">
-                            +62 812-3456-7890
+                            +62 853-8520-4410
                         </a>
                     </li>
                     <li class="flex items-center space-x-3">
@@ -116,7 +116,7 @@
                         </div>
                         <a href="mailto:<?= ADMIN_EMAIL ?>"
                             class="text-primary-300 hover:text-gold-400 transition-colors">
-                            info@albashiro.com
+                            ahnrizki@gmail.com
                         </a>
                     </li>
                     <li class="flex items-center space-x-3">
@@ -125,8 +125,8 @@
                             <i class="fas fa-clock text-accent-400"></i>
                         </div>
                         <div class="text-primary-300 text-sm">
-                            Senin - Sabtu: 09:00 - 17:00<br>
-                            Minggu: Tutup
+                            Senin - Jumat: 08:00 - 16:00<br>
+                            Sabtu - Minggu: Tutup
                         </div>
                     </li>
                 </ul>

@@ -54,7 +54,7 @@
                         <div class="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center">
                             <i class="fas fa-users text-gold-500"></i>
                         </div>
-                        <span class="text-sm font-medium">500+ Klien</span>
+                        <span class="text-sm font-medium">7500+ Klien</span>
                     </div>
                     <div class="flex items-center space-x-2 text-gray-600">
                         <div class="w-10 h-10 bg-accent-100 rounded-full flex items-center justify-center">
@@ -226,7 +226,7 @@
                     <i class="fas fa-users text-4xl text-gold-300 mb-2"></i>
                 </div>
                 <div class="text-4xl md:text-5xl font-bold mb-2">
-                    <span class="counter" data-target="500">0</span>+
+                    <span class="counter" data-target="7500">0</span>+
                 </div>
                 <p class="text-primary-200 font-medium">Klien Puas</p>
             </div>
@@ -237,7 +237,7 @@
                     <i class="fas fa-calendar-check text-4xl text-gold-300 mb-2"></i>
                 </div>
                 <div class="text-4xl md:text-5xl font-bold mb-2">
-                    <span class="counter" data-target="1000">0</span>+
+                    <span class="counter" data-target="8000">0</span>+
                 </div>
                 <p class="text-primary-200 font-medium">Sesi Terapi</p>
             </div>
@@ -248,7 +248,7 @@
                     <i class="fas fa-award text-4xl text-gold-300 mb-2"></i>
                 </div>
                 <div class="text-4xl md:text-5xl font-bold mb-2">
-                    <span class="counter" data-target="5">0</span>+
+                    <span class="counter" data-target="12">0</span>+
                 </div>
                 <p class="text-primary-200 font-medium">Tahun Pengalaman</p>
             </div>
