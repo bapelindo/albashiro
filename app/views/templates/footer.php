@@ -430,16 +430,31 @@
             }
         }
 
+        // UI Actions
         function showControls() {
             startBtn.classList.add('hidden');
             controlsDiv.classList.remove('hidden');
-            controlsDiv.classList.add('flex', 'animate-fade-in-up'); // Ensure styling for display
+            controlsDiv.classList.add('flex', 'animate-fade-in-up');
         }
 
         function showStartButton() {
             startBtn.classList.remove('hidden');
             controlsDiv.classList.add('hidden');
             controlsDiv.classList.remove('flex');
+        }
+
+        function collapseControls() {
+            if (!controlsDiv.classList.contains('hidden')) {
+                showStartButton();
+            }
+        }
+
+        // Logic to run when Main/Start Button is clicked
+        function handleStartClick() {
+            showControls();
+            if (music.paused) {
+                playMusic();
+            }
         }
 
         // Playback Control
@@ -451,12 +466,12 @@
                     localStorage.setItem('musicPlaying', 'true');
                     updateMusicUI(true);
                 })
-                    .catch(error => {
-                        console.log("Autoplay prevented:", error);
-                        isPlaying = false;
-                        localStorage.setItem('musicPlaying', 'false');
-                        updateMusicUI(false);
-                    });
+                .catch(error => {
+                    console.log("Autoplay prevented:", error);
+                    isPlaying = false;
+                    localStorage.setItem('musicPlaying', 'false');
+                    updateMusicUI(false);
+                });
             }
         }
 
@@ -465,11 +480,15 @@
             isPlaying = false;
             localStorage.setItem('musicPlaying', 'false');
             updateMusicUI(false);
+            // Default behavior: collapse when explicitly paused by user
+            showStartButton(); 
         }
 
         function toggleMusic() {
             if (music.paused) {
                 playMusic();
+                // If toggling to play from controls, ensure controls stay visible? 
+                // Yes, playMusic updates UI which usually sets visuals
             } else {
                 pauseMusic();
             }
@@ -478,24 +497,40 @@
         function nextTrack() {
             currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
             localStorage.setItem('musicTrackIndex', currentTrackIndex);
-            localStorage.setItem('musicTime', '0');
+            localStorage.setItem('musicTime', '0'); 
             loadTrack(currentTrackIndex);
             playMusic();
         }
 
-
-
         // Event Listeners
-        startBtn.addEventListener('click', playMusic);
+        startBtn.addEventListener('click', handleStartClick);
         toggleBtn.addEventListener('click', toggleMusic);
         nextBtn.addEventListener('click', nextTrack);
 
+        // Auto-Collapse Listeners
+        window.addEventListener('scroll', () => {
+            // Only collapse if user has scrolled down a bit to avoid accidental collapse on minor moves
+            if (window.scrollY > 100) { 
+                collapseControls();
+            }
+        }, { passive: true });
+
+        // Collapse when opening Chatbot
+        const chatToggle = document.getElementById('ai-chat-toggle');
+        if (chatToggle) {
+            chatToggle.addEventListener('click', collapseControls);
+        }
+
         // Initialization Logic
-        // Check preference and try to play if previously playing
         if (isPlaying) {
             playMusic();
+            // If it was playing, we might want to start collapsed or expanded?
+            // User feedback implies they like "clean" look. 
+            // Let's start Expanded if just loaded (to show controls), but scroll will collapse it.
+            showControls(); 
         } else {
-            updateMusicUI(false); // Ensures correct initial state (Start Button visible)
+            updateMusicUI(false);
+            showStartButton();
         }
     });
 </script>
