@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?> - Admin Albashiro</title>
+    <title><?= $title ?> - Admin Albashiroh</title>
     <style>
         <?php include __DIR__ . '/../includes/dark-mode-styles.php'; ?>
     </style>
@@ -19,7 +19,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-8">
                     <a href="<?= base_url('admin') ?>" class="text-xl font-bold">
-                        <i class="fas fa-mosque mr-2"></i>Albashiro Admin
+                        <i class="fas fa-mosque mr-2"></i>Albashiroh Admin
                     </a>
                     <div class="hidden md:flex space-x-4">
                         <a href="<?= base_url('admin') ?>" class="hover:bg-purple-700 px-3 py-2 rounded-md">

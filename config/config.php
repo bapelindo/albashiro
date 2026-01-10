@@ -45,7 +45,7 @@ define('DB_CHARSET', 'utf8mb4');
 // =====================================================
 // SITE CONFIGURATION
 // =====================================================
-define('SITE_NAME', 'Albashiro');
+define('SITE_NAME', 'Albashiroh');
 define('SITE_TAGLINE', 'Islamic Spiritual Hypnotherapy');
 // Detect environment URL
 $protocol = 'http://';

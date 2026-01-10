@@ -149,11 +149,12 @@
                 </span>
 
                 <h2 class="text-3xl md:text-4xl font-bold text-primary-900 mb-6">
-                    Mengapa Memilih <span class="gradient-text">Albashiro?</span>
+                    Mengapa Memilih <span class="gradient-text">Albashiroh?</span>
                 </h2>
 
                 <p class="text-gray-600 leading-relaxed mb-8">
-                    Albashiro adalah layanan hipnoterapi profesional yang menggabungkan teknik hipnoterapi modern dengan
+                    Albashiroh adalah layanan hipnoterapi profesional yang menggabungkan teknik hipnoterapi modern
+                    dengan
                     bimbingan spiritual Islami. Kami percaya bahwa kesembuhan jiwa datang dari keselarasan antara
                     pikiran, hati, dan spiritualitas.
                 </p>

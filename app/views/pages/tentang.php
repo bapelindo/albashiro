@@ -7,7 +7,7 @@
                 <i class="fas fa-info-circle mr-2"></i>Tentang Kami
             </span>
             <h1 class="text-4xl md:text-5xl font-bold text-primary-900 mb-6">
-                Mengenal <span class="gradient-text">Albashiro</span>
+                Mengenal <span class="gradient-text">Albashiroh</span>
             </h1>
             <p class="text-lg text-gray-600">
                 Layanan hipnoterapi profesional dengan pendekatan Islami untuk membantu Anda menemukan kedamaian jiwa.
@@ -31,7 +31,7 @@
             <div data-aos="fade-left">
                 <h2 class="text-3xl font-bold text-primary-900 mb-6">Mengapa Memilih Hipnoterapi Islami?</h2>
                 <p class="text-gray-600 mb-6 leading-relaxed">
-                    Albashiro adalah klinik hipnoterapi yang menggabungkan teknik hipnoterapi klinis modern dengan
+                    Albashiroh adalah klinik hipnoterapi yang menggabungkan teknik hipnoterapi klinis modern dengan
                     bimbingan spiritual Islam. Kami percaya bahwa kesembuhan sejati datang dari keselarasan antara
                     pikiran, hati, dan spiritualitas.
                 </p>

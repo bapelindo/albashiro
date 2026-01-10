@@ -315,7 +315,7 @@
         } catch (error) {
             console.error('Error fetching welcome message:', error);
             // Fallback to default welcome message
-            appendMessage('ai', 'Assalamu\'alaikum! Selamat datang di Albashiro. Ada yang bisa saya bantu?');
+            appendMessage('ai', 'Assalamu\'alaikum! Selamat datang di Albashiroh. Ada yang bisa saya bantu?');
         }
     };
 

@@ -191,7 +191,7 @@
                         style="font-family: 'Amiri', 'Traditional Arabic', serif; direction: rtl;">
                         بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                     </div>
-                    <h3 class="text-white font-semibold text-xs sm:text-sm">Asisten AI Albashiro</h3>
+                    <h3 class="text-white font-semibold text-xs sm:text-sm">Asisten AI Albashiroh</h3>
                     <div class="flex items-center space-x-1 sm:space-x-1.5">
                         <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
                         <p class="text-white/70 text-[10px] sm:text-xs">Siap Melayani 24/7</p>

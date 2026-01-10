@@ -15,7 +15,7 @@
     <link rel="dns-prefetch" href="https://unpkg.com">
 
     <meta name="description"
-        content="Albashiro - Islamic Spiritual Hypnotherapy. Temukan kedamaian jiwa dengan hipnoterapi yang berlandaskan nilai-nilai Islam.">
+        content="Albashiroh - Islamic Spiritual Hypnotherapy. Temukan kedamaian jiwa dengan hipnoterapi yang berlandaskan nilai-nilai Islam.">
     <meta name="keywords"
         content="hipnoterapi islami, hipnoterapi syariah, konseling islam, terapi trauma, kecemasan, Jakarta">
     <meta name="csrf-token" content="<?= csrf_token() ?>">

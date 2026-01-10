@@ -90,7 +90,7 @@ class Reminder
         $appointmentDateTime = "$appointmentDate $appointmentTime";
 
         // 1. Confirmation (immediate)
-        $confirmationMsg = "🌙 Konfirmasi Booking Albashiro\n\n";
+        $confirmationMsg = "🌙 Konfirmasi Booking Albashiroh\n\n";
         $confirmationMsg .= "Halo $clientName,\n";
         $confirmationMsg .= "Booking Anda telah dikonfirmasi!\n\n";
         $confirmationMsg .= "📅 Tanggal: " . date('d M Y', strtotime($appointmentDate)) . "\n";
@@ -104,7 +104,7 @@ class Reminder
         // 2. 24 hours before
         $reminder24h = date('Y-m-d H:i:s', strtotime($appointmentDateTime . ' -24 hours'));
         if (strtotime($reminder24h) > time()) {
-            $msg24h = "⏰ Pengingat Booking Albashiro\n\n";
+            $msg24h = "⏰ Pengingat Booking Albashiroh\n\n";
             $msg24h .= "Halo $clientName,\n";
             $msg24h .= "Pengingat: Anda memiliki sesi hipnoterapi besok!\n\n";
             $msg24h .= "📅 Tanggal: " . date('d M Y', strtotime($appointmentDate)) . "\n";
@@ -118,7 +118,7 @@ class Reminder
         // 3. 1 hour before
         $reminder1h = date('Y-m-d H:i:s', strtotime($appointmentDateTime . ' -1 hour'));
         if (strtotime($reminder1h) > time()) {
-            $msg1h = "🔔 Pengingat Terakhir - Albashiro\n\n";
+            $msg1h = "🔔 Pengingat Terakhir - Albashiroh\n\n";
             $msg1h .= "Halo $clientName,\n";
             $msg1h .= "Sesi Anda akan dimulai dalam 1 jam!\n\n";
             $msg1h .= "⏰ Waktu: " . date('H:i', strtotime($appointmentTime)) . " WIB\n";

@@ -804,7 +804,7 @@ class OllamaService
         // BASELINE CONTEXT (Always Injected)
         // This gives the AI "Ground Truth" about identity, preventing hallucination on greetings.
         $context = "IDENTITAS AI:\n";
-        $context .= "Nama: Asisten Albashiro\n";
+        $context .= "Nama: Asisten Albashiroh\n";
         $context .= "Peran: Chatbot Islamic Spiritual Hypnotherapy yang empatik dan profesional\n";
         $context .= "Tujuan: Membantu klien dengan penuh perhatian, memberikan informasi akurat, jika perlu arahkan ke terapis profesional\n\n";
 
