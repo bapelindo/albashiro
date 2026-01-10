@@ -275,10 +275,59 @@
     </button>
 </div>
 
+<!-- Floating Music Control -->
+<div id="music-widget" class="fixed bottom-24 right-4 sm:bottom-28 sm:right-6 z-[100] flex flex-col items-center gap-3">
+
+    <!-- Initial Start Button (Unified) -->
+    <button id="music-start-btn"
+        class="w-12 h-12 sm:w-14 sm:h-14 bg-white/90 backdrop-blur-sm hover:bg-white text-emerald-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all border border-emerald-100 group relative z-50">
+        <div class="absolute inset-0 bg-emerald-50 rounded-full opacity-0 group-hover:opacity-50 transition-opacity">
+        </div>
+        <i class="fas fa-music text-lg sm:text-xl relative z-10 animate-pulse-slow"></i>
+        <!-- Ripple effect hint -->
+        <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-20 animate-ping"></span>
+    </button>
+
+    <!-- Controls Group (Hidden initially, appears after interaction) -->
+    <div id="music-controls" class="hidden flex-col items-center gap-3 transition-all duration-500">
+        <!-- Play/Pause Button -->
+        <button id="music-toggle"
+            class="w-10 h-10 sm:w-12 sm:h-12 bg-white/90 backdrop-blur-sm hover:bg-white text-emerald-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all border border-emerald-100 group relative overflow-hidden">
+
+            <!-- Animated Background for Playing State -->
+            <div id="music-playing-bg" class="absolute inset-0 bg-emerald-50 opacity-0 transition-opacity duration-300">
+            </div>
+            <div id="music-waves" class="absolute inset-0 flex items-center justify-center opacity-0">
+                <span
+                    class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-20 animate-ping"></span>
+            </div>
+
+            <!-- Icons -->
+            <i id="music-icon-play"
+                class="fas fa-play text-sm sm:text-base relative z-10 transition-transform duration-300 pl-0.5"></i>
+            <i id="music-icon-pause"
+                class="fas fa-pause text-sm sm:text-base absolute z-10 opacity-0 scale-50 transition-all duration-300"></i>
+        </button>
+
+        <!-- Next Track Button -->
+        <button id="music-next"
+            class="w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm hover:bg-white text-emerald-600 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all border border-emerald-100 transform hover:scale-105"
+            title="Ganti Musik">
+            <i class="fas fa-step-forward text-xs sm:text-sm"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Background Audio -->
+<audio id="bg-music" loop preload="auto">
+    <source src="" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
 <!-- Floating WhatsApp Button -->
 <a href="https://wa.me/<?= ADMIN_WHATSAPP ?>?text=Assalamu'alaikum, saya ingin konsultasi tentang hipnoterapi"
     target="_blank"
-    class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 w-14 h-14 sm:w-16 sm:h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-2xl hover:shadow-green-500/30 transition-all group">
+    class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[90] w-14 h-14 sm:w-16 sm:h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-2xl hover:shadow-green-500/30 transition-all group">
     <i class="fab fa-whatsapp text-white text-2xl sm:text-3xl group-hover:scale-110 transition-transform"></i>
     <span
         class="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
@@ -298,13 +347,181 @@
         once: true,
         offset: 50
     });
+
+    // Background Music Control
+    document.addEventListener('DOMContentLoaded', function () {
+        const music = document.getElementById('bg-music');
+        const source = music.querySelector('source');
+
+        // Widget Elements
+        const startBtn = document.getElementById('music-start-btn');
+        const controlsDiv = document.getElementById('music-controls');
+        const toggleBtn = document.getElementById('music-toggle');
+        const nextBtn = document.getElementById('music-next');
+
+        // UI Icons/Effects
+        const iconPlay = document.getElementById('music-icon-play');
+        const iconPause = document.getElementById('music-icon-pause');
+        const playingBg = document.getElementById('music-playing-bg');
+        const waves = document.getElementById('music-waves');
+
+        // Playlist Configuration
+        const playlist = [
+            '<?= base_url("public/sound/1.mpeg") ?>',
+            '<?= base_url("public/sound/2.mpeg") ?>'
+        ];
+
+        // State Management
+        let isPlaying = localStorage.getItem('musicPlaying') === 'true';
+        let storedTime = localStorage.getItem('musicTime');
+        let currentTrackIndex = parseInt(localStorage.getItem('musicTrackIndex') || '0');
+
+        // Validate track index
+        if (currentTrackIndex >= playlist.length || currentTrackIndex < 0) {
+            currentTrackIndex = 0;
+        }
+
+        // Initialize Audio Source
+        function loadTrack(index) {
+            source.src = playlist[index];
+            music.load();
+        }
+
+        // Initial Load
+        loadTrack(currentTrackIndex);
+        music.volume = 0.3;
+
+        // Restore playback position
+        if (storedTime) {
+            music.currentTime = parseFloat(storedTime);
+        }
+
+        // Persist playback position
+        setInterval(() => {
+            if (!music.paused) {
+                localStorage.setItem('musicTime', music.currentTime);
+            }
+        }, 1000);
+
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('musicTime', music.currentTime);
+        });
+
+        // UI Updates
+        function updateMusicUI(playing) {
+            if (playing) {
+                // Expanding to 2 buttons
+                showControls();
+
+                iconPlay.classList.add('opacity-0', 'scale-50');
+                iconPause.classList.remove('opacity-0', 'scale-50');
+                playingBg.classList.remove('opacity-0');
+                waves.classList.remove('opacity-0');
+                toggleBtn.classList.add('ring-2', 'ring-emerald-400', 'ring-offset-2');
+            } else {
+                // Collapsing to 1 button
+                showStartButton();
+
+                iconPlay.classList.remove('opacity-0', 'scale-50');
+                iconPause.classList.add('opacity-0', 'scale-50');
+                playingBg.classList.add('opacity-0');
+                waves.classList.add('opacity-0');
+                toggleBtn.classList.remove('ring-2', 'ring-emerald-400', 'ring-offset-2');
+            }
+        }
+
+        function showControls() {
+            startBtn.classList.add('hidden');
+            controlsDiv.classList.remove('hidden');
+            controlsDiv.classList.add('flex', 'animate-fade-in-up'); // Ensure styling for display
+        }
+
+        function showStartButton() {
+            startBtn.classList.remove('hidden');
+            controlsDiv.classList.add('hidden');
+            controlsDiv.classList.remove('flex');
+        }
+
+        // Playback Control
+        function playMusic() {
+            const playPromise = music.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    isPlaying = true;
+                    localStorage.setItem('musicPlaying', 'true');
+                    updateMusicUI(true);
+                })
+                    .catch(error => {
+                        console.log("Autoplay prevented:", error);
+                        isPlaying = false;
+                        localStorage.setItem('musicPlaying', 'false');
+                        updateMusicUI(false);
+                    });
+            }
+        }
+
+        function pauseMusic() {
+            music.pause();
+            isPlaying = false;
+            localStorage.setItem('musicPlaying', 'false');
+            updateMusicUI(false);
+        }
+
+        function toggleMusic() {
+            if (music.paused) {
+                playMusic();
+            } else {
+                pauseMusic();
+            }
+        }
+
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            localStorage.setItem('musicTrackIndex', currentTrackIndex);
+            localStorage.setItem('musicTime', '0');
+            loadTrack(currentTrackIndex);
+            playMusic();
+        }
+
+
+
+        // Event Listeners
+        startBtn.addEventListener('click', playMusic);
+        toggleBtn.addEventListener('click', toggleMusic);
+        nextBtn.addEventListener('click', nextTrack);
+
+        // Initialization Logic
+        // Check preference and try to play if previously playing
+        if (isPlaying) {
+            playMusic();
+        } else {
+            updateMusicUI(false); // Ensures correct initial state (Start Button visible)
+        }
+    });
 </script>
-
-
 
 <!-- Custom Scripts - Local -->
 <?php $appVersion = '1.0.1'; // Bump version to clear cache ?>
 <script src="<?= base_url('public/js/main.js?v=' . $appVersion) ?>"></script>
+
+<style>
+    /* Additional animations for music widget */
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fade-in-up 0.3s ease-out forwards;
+    }
+</style>
 
 <!-- Calming Animations Styles -->
 <style>
