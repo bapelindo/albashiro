@@ -1427,23 +1427,44 @@ class Admin extends Controller
      */
     public function deleteGalleryBulk()
     {
-        if (!$this->isPost()) {
+        if (!$this->isPost())
             redirect('admin/gallery');
-        }
-
-        // Verify CSRF
         if (!verify_csrf($this->input('csrf_token'))) {
-            $this->setFlash('error', 'Sesi tidak valid.');
+            $this->setFlash('error', 'Token keamanan tidak valid.');
             redirect('admin/gallery');
         }
 
         $ids = $_POST['selected_ids'] ?? [];
-
-        if (empty($ids)) {
-            $this->setFlash('error', 'Tidak ada gambar yang dipilih.');
-        } else {
+        if (!empty($ids)) {
             $this->galleryModel->deleteBulk($ids);
             $this->setFlash('success', count($ids) . ' gambar berhasil dihapus.');
+        } else {
+            $this->setFlash('error', 'Tidak ada gambar yang dipilih.');
+        }
+
+        redirect('admin/gallery');
+    }
+
+    /**
+     * Move multiple gallery images to another category
+     */
+    public function moveGalleryBulk()
+    {
+        if (!$this->isPost())
+            redirect('admin/gallery');
+        if (!verify_csrf($this->input('csrf_token'))) {
+            $this->setFlash('error', 'Token keamanan tidak valid.');
+            redirect('admin/gallery');
+        }
+
+        $ids = $_POST['selected_ids'] ?? [];
+        $targetCategory = (int) $this->input('target_category');
+
+        if (!empty($ids) && $targetCategory) {
+            $this->galleryModel->moveBulk($ids, $targetCategory);
+            $this->setFlash('success', count($ids) . ' gambar berhasil dipindahkan.');
+        } else {
+            $this->setFlash('error', 'Gagal memindahkan gambar. Pastikan gambar dipilih dan kategori tujuan valid.');
         }
 
         redirect('admin/gallery');

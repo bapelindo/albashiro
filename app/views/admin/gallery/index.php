@@ -97,7 +97,7 @@
                 </form>
 
                 <!-- Bulk Actions Toolbar -->
-                <div class="w-full md:w-auto flex items-center justify-end space-x-4">
+                <div class="w-full md:w-auto flex items-center justify-end space-x-2">
                     <div class="flex items-center bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100">
                         <input type="checkbox" id="selectAll"
                             class="form-checkbox h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
@@ -106,13 +106,31 @@
                             Semua</label>
                     </div>
 
-                    <form action="<?= base_url('admin/deleteGalleryBulk') ?>" method="POST" id="bulkDeleteForm"
-                        class="hidden transition-all duration-300">
+                    <form method="POST" id="bulkActionForm"
+                        class="hidden flex items-center space-x-2 transition-all duration-300">
                         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                        <!-- IDs will be injected here via JS -->
-                        <button type="submit" onclick="return confirm('Hapus item terpilih?')"
-                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md font-medium transition-transform transform active:scale-95">
-                            <i class="fas fa-trash-alt mr-2"></i>Hapus (<span id="selectedCountDisplay">0</span>)
+                        <!-- IDs injected via JS -->
+
+                        <!-- Move Action -->
+                        <div class="flex rounded-md shadow-sm">
+                            <select name="target_category"
+                                class="rounded-l-lg border-gray-300 border-r-0 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                <option value="">Pindah ke...</option>
+                                <?php foreach ($categories as $cat): ?>
+                                    <option value="<?= $cat->id ?>"><?= e($cat->name) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="submit" formaction="<?= base_url('admin/moveGalleryBulk') ?>"
+                                class="inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-r-lg font-medium text-sm transition-colors">
+                                <i class="fas fa-exchange-alt mr-1"></i> Pindah
+                            </button>
+                        </div>
+
+                        <!-- Delete Action -->
+                        <button type="submit" formaction="<?= base_url('admin/deleteGalleryBulk') ?>"
+                            onclick="return confirm('Hapus item terpilih secara permanen?')"
+                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md font-medium text-sm transition-colors">
+                            <i class="fas fa-trash-alt mr-1"></i>Hapus (<span id="selectedCountDisplay">0</span>)
                         </button>
                     </form>
                 </div>
@@ -331,7 +349,7 @@
             init() {
                 this.checkboxes = document.querySelectorAll('.item-checkbox');
                 this.masterCheckbox = document.getElementById('selectAll');
-                this.bulkForm = document.getElementById('bulkDeleteForm');
+                this.bulkForm = document.getElementById('bulkActionForm');
                 this.countDisplay = document.getElementById('selectedCountDisplay');
 
                 if (!this.masterCheckbox) return;

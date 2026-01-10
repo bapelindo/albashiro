@@ -143,4 +143,20 @@ class Gallery
             $ids
         );
     }
+
+    /**
+     * Move multiple images to another category
+     */
+    public function moveBulk($ids, $newCategoryId)
+    {
+        if (empty($ids) || empty($newCategoryId))
+            return false;
+
+        $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+        $sql = "UPDATE galleries SET category_id = ? WHERE id IN ($placeholders)";
+
+        $params = array_merge([$newCategoryId], $ids);
+
+        return $this->db->query($sql, $params);
+    }
 }
