@@ -227,6 +227,8 @@
                         class="px-4 py-2 text-gray-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg font-medium transition-all <?= ($title ?? '') === 'Layanan' ? 'text-primary-800 bg-primary-50' : '' ?>">Layanan</a>
                     <a href="<?= base_url('terapis') ?>"
                         class="px-4 py-2 text-gray-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg font-medium transition-all <?= ($title ?? '') === 'Terapis Kami' ? 'text-primary-800 bg-primary-50' : '' ?>">Terapis</a>
+                    <a href="<?= base_url('galeri') ?>"
+                        class="px-4 py-2 text-gray-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg font-medium transition-all <?= ($title ?? '') === 'Galeri' ? 'text-primary-800 bg-primary-50' : '' ?>">Galeri</a>
                     <a href="<?= base_url('blog') ?>"
                         class="px-4 py-2 text-gray-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg font-medium transition-all <?= ($title ?? '') === 'Blog' || str_contains($title ?? '', 'Blog') ? 'text-primary-800 bg-primary-50' : '' ?>">Blog</a>
                     <a href="<?= base_url('kontak') ?>"
@@ -257,6 +259,8 @@
                     class="block py-3 px-4 text-gray-600 hover:bg-primary-50 hover:text-primary-800 rounded-lg font-medium transition-colors">Layanan</a>
                 <a href="<?= base_url('terapis') ?>"
                     class="block py-3 px-4 text-gray-600 hover:bg-primary-50 hover:text-primary-800 rounded-lg font-medium transition-colors">Terapis</a>
+                <a href="<?= base_url('galeri') ?>"
+                    class="block py-3 px-4 text-gray-600 hover:bg-primary-50 hover:text-primary-800 rounded-lg font-medium transition-colors">Galeri</a>
                 <a href="<?= base_url('blog') ?>"
                     class="block py-3 px-4 text-gray-600 hover:bg-primary-50 hover:text-primary-800 rounded-lg font-medium transition-colors">Blog</a>
                 <a href="<?= base_url('kontak') ?>"

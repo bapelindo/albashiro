@@ -51,6 +51,13 @@
                 </a>
             </li>
             <li>
+                <a href="<?= base_url('admin/gallery') ?>"
+                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors <?= (isset($activeMenu) && $activeMenu === 'gallery') ? 'bg-indigo-50 text-indigo-700' : '' ?>">
+                    <i class="fas fa-images w-5 mr-3"></i>
+                    Gallery
+                </a>
+            </li>
+            <li>
                 <a href="<?= base_url('admin/analytics') ?>"
                     class="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors <?= (isset($activeMenu) && $activeMenu === 'analytics') ? 'bg-indigo-50 text-indigo-700' : '' ?>">
                     <i class="fas fa-chart-bar w-5 mr-3"></i>

@@ -18,6 +18,7 @@ class App
         'kontak' => ['Pages', 'kontak'],
         'reservasi' => ['Pages', 'reservasi'],
         'blog' => ['Pages', 'blog'],
+        'galeri' => ['Pages', 'galeri'],
         'login' => ['Auth', 'login'],
     ];
 

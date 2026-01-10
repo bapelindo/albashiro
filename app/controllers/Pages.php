@@ -12,6 +12,8 @@ class Pages extends Controller
     private $testimonialModel;
     private $faqModel;
     private $blogModel;
+    private $galleryModel;
+    private $galleryCategoryModel;
 
     public function __construct()
     {
@@ -20,6 +22,8 @@ class Pages extends Controller
         $this->testimonialModel = $this->model('Testimonial');
         $this->faqModel = $this->model('Faq');
         $this->blogModel = $this->model('BlogPost');
+        $this->galleryModel = $this->model('Gallery');
+        $this->galleryCategoryModel = $this->model('GalleryCategory');
     }
 
     /**
@@ -59,6 +63,48 @@ class Pages extends Controller
             'therapists' => $this->therapistModel->getAll(true)
         ];
         echo $this->view('pages/terapis', $data);
+    }
+
+    /**
+     * Gallery page
+     */
+    public function galeri()
+    {
+        $categoryId = isset($_GET['kategori']) ? (int) $_GET['kategori'] : null;
+        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $limit = 18; // 18 is divisible by 2 and 3 for grid layouts
+
+        $galleries = [];
+        $categories = [];
+        $totalPages = 1;
+
+        try {
+            // Get Categories
+            $categories = $this->galleryCategoryModel->getAll();
+
+            // Get Pagination Data
+            $totalItems = $this->galleryModel->countAll($categoryId);
+            $totalPages = ceil($totalItems / $limit);
+
+            // Validate Page
+            $page = max(1, min($page, $totalPages > 0 ? $totalPages : 1));
+
+            // Fetch Items
+            $galleries = $this->galleryModel->getPaginated($categoryId, $page, $limit);
+
+        } catch (Exception $e) {
+            // Tables might not exist yet, ignore error and show empty gallery
+        }
+
+        $data = [
+            'title' => 'Galeri',
+            'galleries' => $galleries,
+            'categories' => $categories,
+            'currentCategory' => $categoryId,
+            'page' => $page,
+            'totalPages' => $totalPages
+        ];
+        echo $this->view('pages/gallery', $data);
     }
 
     /**
