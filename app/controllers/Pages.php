@@ -29,7 +29,7 @@ class Pages extends Controller
     {
         $data = [
             'title' => 'Tentang Kami',
-            'therapists' => $this->therapistModel->getAll(),
+            'therapists' => $this->therapistModel->getAll(true),
             'testimonials' => $this->testimonialModel->getFeatured(6),
             'faqs' => $this->faqModel->getAll()
         ];
@@ -56,7 +56,7 @@ class Pages extends Controller
     {
         $data = [
             'title' => 'Terapis Kami',
-            'therapists' => $this->therapistModel->getAll()
+            'therapists' => $this->therapistModel->getAll(true)
         ];
         echo $this->view('pages/terapis', $data);
     }

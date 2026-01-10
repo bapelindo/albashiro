@@ -13,13 +13,20 @@ class Therapist
     }
 
     /**
-     * Get all active therapists
+     * Get all therapists
+     * @param bool $includeInactive Whether to include inactive therapists
      */
-    public function getAll()
+    public function getAll($includeInactive = false)
     {
-        return $this->db->query(
-            "SELECT * FROM therapists WHERE is_active = 1 ORDER BY id ASC"
-        )->fetchAll();
+        $sql = "SELECT * FROM therapists";
+
+        if (!$includeInactive) {
+            $sql .= " WHERE is_active = 1";
+        }
+
+        $sql .= " ORDER BY id ASC";
+
+        return $this->db->query($sql)->fetchAll();
     }
 
     /**

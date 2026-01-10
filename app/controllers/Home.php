@@ -28,7 +28,7 @@ class Home extends Controller
     {
         $data = [
             'title' => 'Beranda',
-            'therapists' => $this->therapistModel->getAll(),
+            'therapists' => $this->therapistModel->getAll(true),
             'services' => $this->serviceModel->getFeatured(),
             'allServices' => $this->serviceModel->getAll(),
             'testimonials' => $this->testimonialModel->getFeatured(6),
