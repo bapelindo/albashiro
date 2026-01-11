@@ -205,7 +205,7 @@
 
         <!-- Logo -->
         <div class="overlay-logo-container animate-in">
-            <img src="<?= base_url('public/images/favicon1.jpg') ?>" alt="Albashiro Logo" class="overlay-logo-img">
+            <img src="<?= base_url('public/images/favicon.jpg') ?>" alt="Albashiro Logo" class="overlay-logo-img">
         </div>
 
         <h1 class="overlay-title animate-in delay-1">Ahlan Wa Sahlan</h1>
