@@ -318,6 +318,9 @@
     </div>
 </div>
 
+<!-- Audio Consent Overlay (Isolated) -->
+<?php include __DIR__ . '/overlay.php'; ?>
+
 <!-- Background Audio -->
 <audio id="bg-music" loop preload="auto">
     <source src="" type="audio/mpeg">
@@ -466,12 +469,12 @@
                     localStorage.setItem('musicPlaying', 'true');
                     updateMusicUI(true);
                 })
-                .catch(error => {
-                    console.log("Autoplay prevented:", error);
-                    isPlaying = false;
-                    localStorage.setItem('musicPlaying', 'false');
-                    updateMusicUI(false);
-                });
+                    .catch(error => {
+                        console.log("Autoplay prevented:", error);
+                        isPlaying = false;
+                        localStorage.setItem('musicPlaying', 'false');
+                        updateMusicUI(false);
+                    });
             }
         }
 
@@ -481,7 +484,7 @@
             localStorage.setItem('musicPlaying', 'false');
             updateMusicUI(false);
             // Default behavior: collapse when explicitly paused by user
-            showStartButton(); 
+            showStartButton();
         }
 
         function toggleMusic() {
@@ -497,7 +500,7 @@
         function nextTrack() {
             currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
             localStorage.setItem('musicTrackIndex', currentTrackIndex);
-            localStorage.setItem('musicTime', '0'); 
+            localStorage.setItem('musicTime', '0');
             loadTrack(currentTrackIndex);
             playMusic();
         }
@@ -510,7 +513,7 @@
         // Auto-Collapse Listeners
         window.addEventListener('scroll', () => {
             // Only collapse if user has scrolled down a bit to avoid accidental collapse on minor moves
-            if (window.scrollY > 100) { 
+            if (window.scrollY > 100) {
                 collapseControls();
             }
         }, { passive: true });
@@ -527,7 +530,7 @@
             // If it was playing, we might want to start collapsed or expanded?
             // User feedback implies they like "clean" look. 
             // Let's start Expanded if just loaded (to show controls), but scroll will collapse it.
-            showControls(); 
+            showControls();
         } else {
             updateMusicUI(false);
             showStartButton();
