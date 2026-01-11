@@ -384,14 +384,15 @@
             currentTrackIndex = 0;
         }
 
-        // Initialize Audio Source
+        // Initialize Audio Source - Lazy Loaded
         function loadTrack(index) {
             source.src = playlist[index];
             music.load();
         }
 
-        // Initial Load
-        loadTrack(currentTrackIndex);
+        // NO IMMEDIATE LOAD - Fixes "Blocking Skeleton" issue
+        // loadTrack(currentTrackIndex); <-- REMOVED
+
         music.volume = 0.3;
 
         // Restore playback position
@@ -460,8 +461,13 @@
             }
         }
 
-        // Playback Control
+        // Playback Control - Lazy Loading Implemented
         function playMusic() {
+            // Check if track is loaded. If not (src is empty), load it now.
+            if (!source.getAttribute('src')) {
+                loadTrack(currentTrackIndex);
+            }
+
             const playPromise = music.play();
             if (playPromise !== undefined) {
                 playPromise.then(_ => {
@@ -490,8 +496,6 @@
         function toggleMusic() {
             if (music.paused) {
                 playMusic();
-                // If toggling to play from controls, ensure controls stay visible? 
-                // Yes, playMusic updates UI which usually sets visuals
             } else {
                 pauseMusic();
             }
@@ -510,6 +514,11 @@
         toggleBtn.addEventListener('click', toggleMusic);
         nextBtn.addEventListener('click', nextTrack);
 
+        // Global Event Bus for Overlay to trigger music without knowing logic
+        window.addEventListener('request-music-start', () => {
+            playMusic();
+        });
+
         // Auto-Collapse Listeners
         window.addEventListener('scroll', () => {
             // Only collapse if user has scrolled down a bit to avoid accidental collapse on minor moves
@@ -526,10 +535,7 @@
 
         // Initialization Logic
         if (isPlaying) {
-            playMusic();
-            // If it was playing, we might want to start collapsed or expanded?
-            // User feedback implies they like "clean" look. 
-            // Let's start Expanded if just loaded (to show controls), but scroll will collapse it.
+            playMusic(); // This handles lazy load inside function
             showControls();
         } else {
             updateMusicUI(false);

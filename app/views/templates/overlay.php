@@ -1,4 +1,4 @@
-<!-- Audio Consent Overlay (Premium Component - Site Theme V7) -->
+<!-- Audio Consent Overlay (Premium Component - Site Theme V7 - Optimized) -->
 <style>
     /* Import Google Fonts directly to ensure they load if not already cached */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
@@ -256,13 +256,11 @@
 
         if (btn) {
             btn.addEventListener('click', () => {
-                const music = document.getElementById('bg-music');
-                if (music) {
-                    music.play().then(() => {
-                        localStorage.setItem('musicPlaying', 'true');
-                        window.dispatchEvent(new CustomEvent('music-started'));
-                    }).catch(e => console.warn("Autoplay blocked", e));
-                }
+                // Event Bus Pattern: Trigger Global Music Request
+                // This ensures footer.php handles lazy loading the audio track safely.
+                window.dispatchEvent(new CustomEvent('request-music-start'));
+
+                // Cleanup Overlay immediately
                 sessionStorage.setItem('has_entered_site', 'true');
                 overlay.style.opacity = '0';
                 overlay.style.pointerEvents = 'none';
