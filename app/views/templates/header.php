@@ -14,10 +14,26 @@
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="https://unpkg.com">
 
-    <meta name="description"
-        content="Albashiroh - Islamic Spiritual Hypnotherapy. Temukan kedamaian jiwa dengan hipnoterapi yang berlandaskan nilai-nilai Islam.">
-    <meta name="keywords"
-        content="hipnoterapi islami, hipnoterapi syariah, konseling islam, terapi trauma, kecemasan, Jakarta">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="<?= e($meta_description ?? 'Albashiroh - Islamic Spiritual Hypnotherapy. Temukan kedamaian jiwa dengan hipnoterapi yang berlandaskan nilai-nilai Islam.') ?>">
+    <meta name="keywords" content="<?= e($meta_keywords ?? 'hipnoterapi islami, hipnoterapi syariah, konseling islam, terapi trauma, kecemasan, Jakarta') ?>">
+    <meta name="author" content="<?= SITE_NAME ?>">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
+    <meta property="og:title" content="<?= e($title ?? 'Beranda') ?> | <?= SITE_NAME ?>">
+    <meta property="og:description" content="<?= e($meta_description ?? 'Albashiroh - Islamic Spiritual Hypnotherapy. Solusi kesehatan mental dengan pendekatan Islami.') ?>">
+    <meta property="og:image" content="<?= e($og_image ?? base_url('public/images/og-image.jpg')) ?>">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
+    <meta property="twitter:title" content="<?= e($title ?? 'Beranda') ?> | <?= SITE_NAME ?>">
+    <meta property="twitter:description" content="<?= e($meta_description ?? 'Albashiroh - Islamic Spiritual Hypnotherapy. Solusi kesehatan mental dengan pendekatan Islami.') ?>">
+    <meta property="twitter:image" content="<?= e($og_image ?? base_url('public/images/og-image.jpg')) ?>">
     <meta name="csrf-token" content="<?= csrf_token() ?>">
 
     <!-- Favicon -->
@@ -25,6 +41,48 @@
     <link rel="apple-touch-icon" href="<?= base_url('public/images/favicon.jpg') ?>">
 
     <title><?= e($title ?? 'Beranda') ?> | <?= SITE_NAME ?> - <?= SITE_TAGLINE ?></title>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "<?= SITE_NAME ?>",
+      "image": "<?= base_url('public/images/logo.png') ?>",
+      "@id": "<?= base_url() ?>",
+      "url": "<?= base_url() ?>",
+      "telephone": "<?= ADMIN_WHATSAPP ?>",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Jl. Albashiroh",
+        "addressLocality": "Jakarta",
+        "postalCode": "12345",
+        "addressCountry": "ID"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -6.2088,
+        "longitude": 106.8456
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "opens": "09:00",
+        "closes": "17:00"
+      },
+      "sameAs": [
+        "https://www.facebook.com/albashiroh",
+        "https://www.instagram.com/albashiroh"
+      ]
+    }
+    </script>
 
     <!-- Tailwind CSS CDN (Development only - compile for production) -->
     <script src="https://cdn.tailwindcss.com"></script>
