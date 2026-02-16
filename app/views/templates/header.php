@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="google-site-verification" content="LO79aX08NpEkKkXAqI0NyCk6LAubHGmNbXTjBOQZ8vM" />
 
     <!-- DNS Prefetch for External Resources -->
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">

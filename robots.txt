@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Disallow sensitive directories and files
+Disallow: /app/
+Disallow: /config/
+Disallow: /core/
+Disallow: /logs/
+Disallow: /vendor/
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /.env
+Disallow: /composer.lock
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /README.md
+
+# Sitemap
+Sitemap: https://albashiro.bapel.my.id/sitemap.xml
