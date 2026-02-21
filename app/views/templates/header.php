@@ -6,55 +6,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="LO79aX08NpEkKkXAqI0NyCk6LAubHGmNbXTjBOQZ8vM" />
 
-    <!-- DNS Prefetch for External Resources -->
+    <!-- DNS Preconnect for Faster Loading (Core Web Vitals) -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    
+    <!-- Fallback Prefetch -->
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="https://unpkg.com">
 
     <!-- SEO Meta Tags -->
-    <meta name="description" content="<?= e($meta_description ?? 'Albashiroh - Islamic Spiritual Hypnotherapy. Temukan kedamaian jiwa dengan hipnoterapi yang berlandaskan nilai-nilai Islam.') ?>">
-    <meta name="keywords" content="<?= e($meta_keywords ?? 'hipnoterapi islami, hipnoterapi syariah, konseling islam, terapi trauma, kecemasan, Jakarta') ?>">
-    <meta name="author" content="<?= SITE_NAME ?>">
-    <meta name="robots" content="index, follow">
+    <meta name="description" content="<?= e($meta_description ?? 'Albashiroh - Pusat Hypnotherapy Islami & Spiritual Hypnotherapy di Jakarta. Temukan kedamaian jiwa, atasi trauma, dan kecemasan dengan terapi berlandaskan nilai syariah dan Tauhid bersama ahlinya di Albashiroh.') ?>">
+    <meta name="keywords" content="<?= e($meta_keywords ?? 'Albashiroh, albashiroh, albashiroh terdekat, pusat hipnoterapi albashiroh, hipnoterapi islami, spiritual hypnotherapy, hipnoterapi syariah, ruqyah syariah terpadu, konseling islam, psikologi islam, terapi trauma jakarta, atasi kecemasan, pengobatan mental islami') ?>">
+    <meta name="author" content="Tim Albashiroh - <?= SITE_NAME ?>">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Internationalization / Geo-targeting -->
+    <link rel="alternate" hreflang="id-ID" href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>" />
+    <link rel="alternate" hreflang="x-default" href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>" />
+    
     <link rel="canonical" href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
 
     <!-- Open Graph / Facebook -->
+    <meta property="og:site_name" content="Albashiroh">
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
-    <meta property="og:title" content="<?= e($title ?? 'Beranda') ?> | <?= SITE_NAME ?>">
-    <meta property="og:description" content="<?= e($meta_description ?? 'Albashiroh - Islamic Spiritual Hypnotherapy. Solusi kesehatan mental dengan pendekatan Islami.') ?>">
+    <meta property="og:title" content="<?= e($title ?? 'Beranda') ?> | Albashiroh - <?= SITE_NAME ?>">
+    <meta property="og:description" content="<?= e($meta_description ?? 'Albashiroh: Spesialis Islamic Spiritual Hypnotherapy. Solusi tepat untuk kesehatan mental dengan pendekatan holistik Islami. Hubungi Albashiroh sekarang.') ?>">
     <meta property="og:image" content="<?= e($og_image ?? base_url('public/images/og-image.jpg')) ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Klinik Albashiroh - Islamic Hypnotherapy">
+    <meta property="og:locale" content="id_ID">
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
-    <meta property="twitter:title" content="<?= e($title ?? 'Beranda') ?> | <?= SITE_NAME ?>">
-    <meta property="twitter:description" content="<?= e($meta_description ?? 'Albashiroh - Islamic Spiritual Hypnotherapy. Solusi kesehatan mental dengan pendekatan Islami.') ?>">
-    <meta property="twitter:image" content="<?= e($og_image ?? base_url('public/images/og-image.jpg')) ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
+    <meta name="twitter:title" content="<?= e($title ?? 'Beranda') ?> | Albashiroh">
+    <meta name="twitter:description" content="<?= e($meta_description ?? 'Albashiroh: Spesialis Islamic Spiritual Hypnotherapy. Temukan kedamaian dan solusi kesehatan mental berlandaskan tauhid.') ?>">
+    <meta name="twitter:image" content="<?= e($og_image ?? base_url('public/images/og-image.jpg')) ?>">
+    
     <meta name="csrf-token" content="<?= csrf_token() ?>">
+
+    <!-- PWA & Mobile Optimization -->
+    <meta name="theme-color" content="#1e3a5f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Albashiroh">
 
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="<?= base_url('public/images/favicon.jpg') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('public/images/favicon.jpg') ?>">
 
-    <title><?= e($title ?? 'Beranda') ?> | <?= SITE_NAME ?> - <?= SITE_TAGLINE ?></title>
+    <title><?= e($title ?? 'Beranda') ?> | Albashiroh - <?= SITE_TAGLINE ?></title>
 
-    <!-- JSON-LD Structured Data -->
+    <!-- JSON-LD Structured Data Schema Markup (World-Class SEO) -->
     <script type="application/ld+json">
+    [{
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Albashiroh",
+      "alternateName": "Albashiroh Islamic Hypnotherapy",
+      "url": "<?= base_url() ?>",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "<?= base_url() ?>search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
     {
       "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "<?= SITE_NAME ?>",
-      "image": "<?= base_url('public/images/logo.png') ?>",
-      "@id": "<?= base_url() ?>",
+      "@type": "Organization",
+      "name": "Albashiroh",
+      "url": "<?= base_url() ?>",
+      "logo": "<?= base_url('public/images/logo.png') ?>",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "<?= ADMIN_WHATSAPP ?>",
+        "contactType": "Customer Service",
+        "areaServed": "ID",
+        "availableLanguage": "Indonesian"
+      },
+      "sameAs": [
+        "https://www.facebook.com/albashiroh",
+        "https://www.instagram.com/albashiroh",
+        "https://www.tiktok.com/@albashiroh",
+        "https://www.youtube.com/@albashiroh"
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "HealthAndBeautyBusiness",
+      "name": "Albashiroh Islamic Spiritual Hypnotherapy",
+      "image": [
+        "<?= base_url('public/images/logo.png') ?>",
+        "<?= base_url('public/images/og-image.jpg') ?>"
+      ],
+      "@id": "<?= base_url() ?>#localbusiness",
       "url": "<?= base_url() ?>",
       "telephone": "<?= ADMIN_WHATSAPP ?>",
+      "priceRange": "$$",
+      "description": "Pusat Hypnotherapy Islami terpercaya di Jakarta. Albashiroh membantu mengatasi masalah psikologis, trauma, dan kecemasan dengan pendekatan spiritual syariah.",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Jl. Albashiroh",
+        "streetAddress": "Jl. Albashiroh No. 1",
         "addressLocality": "Jakarta",
         "postalCode": "12345",
         "addressCountry": "ID"
@@ -81,7 +139,7 @@
         "https://www.facebook.com/albashiroh",
         "https://www.instagram.com/albashiroh"
       ]
-    }
+    }]
     </script>
 
     <!-- Tailwind CSS CDN (Development only - compile for production) -->
