@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Auth Controller
+ * Albashiroh - Auth Controller
  * Handles admin login/logout
  */
 

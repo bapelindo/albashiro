@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - WhatsApp Service
+ * Albashiroh - WhatsApp Service
  * Handles WhatsApp message sending (unofficial API)
  */
 

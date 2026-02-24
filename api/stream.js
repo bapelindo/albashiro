@@ -10,7 +10,7 @@ export const config = {
 
 export default async function handler(req) {
     const corsHeaders = {
-        'Access-Control-Allow-Origin': '*', // Atau spesifik 'https://albashiro.bapel.my.id'
+        'Access-Control-Allow-Origin': '*', // Atau spesifik 'https://albashiroh.bapel.my.id'
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
     };

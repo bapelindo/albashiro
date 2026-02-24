@@ -16,4 +16,4 @@ Disallow: /package-lock.json
 Disallow: /README.md
 
 # Sitemap
-Sitemap: https://albashiro.bapel.my.id/sitemap.xml
+Sitemap: https://albashiroh.bapel.my.id/sitemap.xml

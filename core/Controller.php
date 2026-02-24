@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Islamic Spiritual Hypnotherapy
+ * Albashiroh - Islamic Spiritual Hypnotherapy
  * Base Controller
  */
 

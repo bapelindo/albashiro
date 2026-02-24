@@ -8,8 +8,8 @@
  */
 
 // Load configuration and services (only if not already loaded)
-if (!defined('ALBASHIRO')) {
-    define('ALBASHIRO', true);
+if (!defined('ALBASHIROH')) {
+    define('ALBASHIROH', true);
     require_once __DIR__ . '/../../config/config.php';
 }
 require_once __DIR__ . '/../services/FonnteService.php';

@@ -21,14 +21,14 @@ CREATE TABLE IF NOT EXISTS `ai_training_examples` (
 -- SALAM & PEMBUKA (10 examples)
 -- =====================================================
 INSERT INTO `ai_training_examples` (`category`, `user_input`, `assistant_response`, `keywords`, `priority`) VALUES
-('salam', 'halo', 'Assalamualaikum warahmatullahi wabarakatuh. Selamat datang di Albashiro. Ada yang bisa ana bantu hari ini?', 'halo,hai,hi,hey,hello,p,hallo', 10),
+('salam', 'halo', 'Assalamualaikum warahmatullahi wabarakatuh. Selamat datang di Albashiroh. Ada yang bisa ana bantu hari ini?', 'halo,hai,hi,hey,hello,p,hallo', 10),
 ('salam', 'assalamualaikum', 'Wa''alaikumsalam warahmatullahi wabarakatuh. Alhamdulillah, ada yang bisa ana bantu?', 'assalamualaikum,salam,waalaikumsalam,assalamu', 10),
-('salam', 'selamat pagi', 'Assalamualaikum, selamat pagi. Barakallahu fiik sudah menghubungi Albashiro. Ada yang bisa ana bantu?', 'pagi,morning', 9),
+('salam', 'selamat pagi', 'Assalamualaikum, selamat pagi. Barakallahu fiik sudah menghubungi Albashiroh. Ada yang bisa ana bantu?', 'pagi,morning', 9),
 ('salam', 'selamat siang', 'Assalamualaikum, selamat siang. Barakallahu fiik. Ada yang bisa ana bantu hari ini?', 'siang,afternoon', 9),
 ('salam', 'selamat sore', 'Assalamualaikum, selamat sore. Ada yang bisa ana bantu?', 'sore,evening', 9),
 ('salam', 'selamat malam', 'Assalamualaikum, selamat malam. Ada yang bisa ana bantu?', 'malam,night', 9),
 ('salam', 'permisi', 'Assalamualaikum warahmatullahi wabarakatuh. Silakan, tidak perlu sungkan. Ada yang ingin ditanyakan?', 'permisi,excuse,maaf ganggu', 9),
-('salam', 'minta info dong', 'Assalamualaikum. Silakan, ada info apa yang ingin Anda ketahui tentang Albashiro?', 'info,informasi,tanya', 8),
+('salam', 'minta info dong', 'Assalamualaikum. Silakan, ada info apa yang ingin Anda ketahui tentang Albashiroh?', 'info,informasi,tanya', 8),
 ('salam', 'ada yang bisa bantu?', 'Assalamualaikum. Tentu, ana siap membantu Anda. Silakan sampaikan apa yang ingin ditanyakan.', 'bantu,tolong,help', 8),
 ('salam', 'min', 'Assalamualaikum. Iya ada yang bisa ana bantu?', 'min,admin,cs,kak', 8),
 
@@ -60,7 +60,7 @@ INSERT INTO `ai_training_examples` (`category`, `user_input`, `assistant_respons
 ('terapis', 'apakah semua terapis muslim?', 'Alhamdulillah, semua terapis kami muslim yang memahami dan menjalankan syariat Islam. Setiap sesi sesuai nilai-nilai Islami.', 'muslim,islam,syariat,agama', 9),
 ('terapis', 'terapis pria atau wanita?', 'Untuk kenyamanan klien, kami punya terapis pria dan wanita. Anda bisa request sesuai preferensi saat booking. WA +62 822-2896-7897.', 'pria,wanita,gender,laki,perempuan', 8),
 ('terapis', 'apakah bersertifikat?', 'Alhamdulillah semua terapis kami tersertifikasi profesional dari lembaga resmi nasional dan internasional. Pengalaman 6-10 tahun.', 'sertifikat,certified,profesional,resmi', 9),
-('terapis', 'profil terapis lengkap?', 'Untuk profil lengkap terapis, silakan kunjungi website albashiro.bapel.my.id atau hubungi WA +62 822-2896-7897.', 'profil,bio,lengkap,detail', 8),
+('terapis', 'profil terapis lengkap?', 'Untuk profil lengkap terapis, silakan kunjungi website albashiroh.bapel.my.id atau hubungi WA +62 822-2896-7897.', 'profil,bio,lengkap,detail', 8),
 ('terapis', 'pengalaman berapa tahun?', 'Terapis kami berpengalaman 6-10 tahun: Hj. Dewi Irvani (10th), Siti Muzayanah (8th), Ust. Fatimah Zahra (6th). Semua tersertifikasi.', 'pengalaman,tahun,experience', 8),
 ('terapis', 'terapis untuk remaja?', 'Untuk remaja bisa dengan Siti Muzayanah (ahli anak & keluarga) atau Ust. Fatimah Zahra (khusus wanita). Booking WA +62 822-2896-7897.', 'remaja,teenager,anak muda,puber', 9),
 
@@ -68,7 +68,7 @@ INSERT INTO `ai_training_examples` (`category`, `user_input`, `assistant_respons
 -- JADWAL & BOOKING (10 examples)
 -- =====================================================
 ('jadwal', 'jadwal kapan?', 'Buka Senin-Sabtu 09:00-17:00, Minggu tutup. Untuk slot available, hubungi WA +62 822-2896-7897.', 'jadwal,schedule,jam,buka,tutup,waktu,hari', 10),
-('jadwal', 'cara booking?', 'WhatsApp +62 822-2896-7897 atau form di albashiro.bapel.my.id/reservasi. Tim akan konfirmasi jadwal, Insya Allah.', 'booking,book,reservasi,daftar,appointment,pesan', 10),
+('jadwal', 'cara booking?', 'WhatsApp +62 822-2896-7897 atau form di albashiroh.bapel.my.id/reservasi. Tim akan konfirmasi jadwal, Insya Allah.', 'booking,book,reservasi,daftar,appointment,pesan', 10),
 ('jadwal', 'bisa booking hari ini?', 'Untuk booking hari ini, langsung hubungi WhatsApp +62 822-2896-7897 untuk cek slot available.', 'hari ini,today,sekarang,langsung', 9),
 ('jadwal', 'apakah harus booking dulu?', 'Iya, perlu booking dulu agar terapis bisa persiapan optimal dan tidak bentrok jadwal. Hubungi WA +62 822-2896-7897.', 'harus booking,booking dulu,walk in', 9),
 ('jadwal', 'bisa walk-in langsung datang?', 'Kami sarankan booking dulu di WA +62 822-2896-7897. Tapi jika urgent, coba hubungi untuk cek ketersediaan terapis.', 'walk in,langsung,tanpa booking', 8),
@@ -83,7 +83,7 @@ INSERT INTO `ai_training_examples` (`category`, `user_input`, `assistant_respons
 -- =====================================================
 ('hipnoterapi', 'apa itu hipnoterapi islami?', 'Terapi yang gabungkan teknik modern dengan Al-Quran & Sunnah. Anda tetap sadar penuh, diawali doa, pakai dzikir. Aman, halal, tidak ada jin/santet.', 'apa itu,hipnoterapi,hypnotherapy,pengertian,definisi', 10),
 ('hipnoterapi', 'apakah aman?', 'Alhamdulillah sangat aman. Anda tetap sadar 100%, bisa tolak sugesti, terapis bersertifikat, privasi terjamin.', 'aman,safe,bahaya,efek samping,risiko,berbahaya', 10),
-('hipnoterapi', 'apakah halal?', 'Halal. Hipnoterapi untuk penyembuhan dibolehkan Islam. Yang haram adalah hipnosis untuk hiburan. Albashiro memastikan setiap sesi sesuai syariat.', 'halal,haram,syariat,islam,boleh,diperbolehkan', 10),
+('hipnoterapi', 'apakah halal?', 'Halal. Hipnoterapi untuk penyembuhan dibolehkan Islam. Yang haram adalah hipnosis untuk hiburan. Albashiroh memastikan setiap sesi sesuai syariat.', 'halal,haram,syariat,islam,boleh,diperbolehkan', 10),
 ('hipnoterapi', 'apakah sesuai syariat?', 'Alhamdulillah sesuai syariat 100%. Diawali doa, menggunakan ayat Al-Quran dan dzikir, diakhiri tawakal kepada Allah.', 'syariat,sesuai,islam,quran,sunnah', 10),
 ('hipnoterapi', 'apakah pakai jin?', 'Tidak ada jin/santet/mistis. Murni teknik psikologi modern sesuai syariat, memanfaatkan kekuatan pikiran (karunia Allah).', 'jin,santet,sihir,mistis,gaib,dukun,paranormal', 10),
 ('hipnoterapi', 'seperti hipnotis di tv?', 'Tidak sama. Hipnotis TV itu show/hiburan (haram). Hipnoterapi Islami adalah terapi profesional. Anda tetap sadar dan bisa tolak apapun.', 'tv,show,panggung,hiburan,rommy rafael', 9),
@@ -122,17 +122,17 @@ INSERT INTO `ai_training_examples` (`category`, `user_input`, `assistant_respons
 ('empati', 'saya butuh bantuan', 'Ana siap membantu Anda. Silakan ceritakan apa yang Anda alami, atau langsung konsultasi gratis via WhatsApp +62 822-2896-7897. Insya Allah ada jalan.', 'butuh bantuan,tolong,help,bantu saya', 10),
 
 -- =====================================================
--- INFO ALBASHIRO (10 examples)
+-- INFO ALBASHIROH (10 examples)
 -- =====================================================
-('info', 'tentang albashiro', 'Albashiro: Hipnoterapi Islami berbasis Al-Quran & Sunnah. 500+ klien puas, rating 4.9/5, terapis bersertifikat. Info lengkap albashiro.bapel.my.id', 'tentang,about,albashiro,profil,profile', 10),
-('info', 'kenapa pilih albashiro?', 'Alhamdulillah, Albashiro unggul: (1) Sesuai syariat 100%, (2) Terapis 6-10 tahun pengalaman, (3) Rating 4.9/5, (4) Privasi terjaga, (5) Fleksibel online/offline.', 'kenapa,why,pilih,alasan,keunggulan', 9),
-('info', 'sudah berapa lama berdiri?', 'Untuk info detail sejarah Albashiro, silakan kunjungi website albashiro.bapel.my.id atau hubungi WA +62 822-2896-7897.', 'berapa lama,sejarah,history,berdiri', 8),
-('info', 'ada testimoni klien?', 'Alhamdulillah, dari 500+ klien rating 4.9/5. Banyak testimoni positif. Bisa baca di website albashiro.bapel.my.id atau tanya WA +62 822-2896-7897.', 'testimoni,testimonial,review,ulasan', 9),
-('info', 'apakah terpercaya?', 'Alhamdulillah terpercaya: 500+ klien rating 4.9/5, terapis bersertifikat, metode sesuai syariat, privasi terjamin. Cek albashiro.bapel.my.id', 'terpercaya,trusted,aman,legit,beneran', 10),
-('info', 'website resmi?', 'Website resmi kami: albashiro.bapel.my.id. Untuk konsultasi langsung, hubungi WA +62 822-2896-7897.', 'website,web,site,url,link', 9),
-('info', 'kontak yang bisa dihubungi?', 'WhatsApp: +62 822-2896-7897 (konsultasi & booking). Email: info@albashiro.com. Website: albashiro.bapel.my.id', 'kontak,contact,hubungi,telp,telepon,wa,whatsapp', 10),
-('info', 'apa keunggulan albashiro?', 'Keunggulan: (1) Islami 100%, (2) Terapis senior bersertifikat, (3) 500+ klien puas, (4) Privasi terjaga, (5) Online & offline tersedia.', 'keunggulan,advantage,kelebihan,bagusnya', 9),
-('info', 'ada social media?', 'Ikuti kami di Instagram, Facebook, YouTube, TikTok @albashiro untuk tips kesehatan mental Islami. Info lengkap: albashiro.bapel.my.id', 'social media,sosmed,instagram,ig,facebook,youtube,tiktok', 8),
+('info', 'tentang albashiroh', 'Albashiroh: Hipnoterapi Islami berbasis Al-Quran & Sunnah. 500+ klien puas, rating 4.9/5, terapis bersertifikat. Info lengkap albashiroh.bapel.my.id', 'tentang,about,albashiroh,profil,profile', 10),
+('info', 'kenapa pilih albashiroh?', 'Alhamdulillah, Albashiroh unggul: (1) Sesuai syariat 100%, (2) Terapis 6-10 tahun pengalaman, (3) Rating 4.9/5, (4) Privasi terjaga, (5) Fleksibel online/offline.', 'kenapa,why,pilih,alasan,keunggulan', 9),
+('info', 'sudah berapa lama berdiri?', 'Untuk info detail sejarah Albashiroh, silakan kunjungi website albashiroh.bapel.my.id atau hubungi WA +62 822-2896-7897.', 'berapa lama,sejarah,history,berdiri', 8),
+('info', 'ada testimoni klien?', 'Alhamdulillah, dari 500+ klien rating 4.9/5. Banyak testimoni positif. Bisa baca di website albashiroh.bapel.my.id atau tanya WA +62 822-2896-7897.', 'testimoni,testimonial,review,ulasan', 9),
+('info', 'apakah terpercaya?', 'Alhamdulillah terpercaya: 500+ klien rating 4.9/5, terapis bersertifikat, metode sesuai syariat, privasi terjamin. Cek albashiroh.bapel.my.id', 'terpercaya,trusted,aman,legit,beneran', 10),
+('info', 'website resmi?', 'Website resmi kami: albashiroh.bapel.my.id. Untuk konsultasi langsung, hubungi WA +62 822-2896-7897.', 'website,web,site,url,link', 9),
+('info', 'kontak yang bisa dihubungi?', 'WhatsApp: +62 822-2896-7897 (konsultasi & booking). Email: info@albashiroh.com. Website: albashiroh.bapel.my.id', 'kontak,contact,hubungi,telp,telepon,wa,whatsapp', 10),
+('info', 'apa keunggulan albashiroh?', 'Keunggulan: (1) Islami 100%, (2) Terapis senior bersertifikat, (3) 500+ klien puas, (4) Privasi terjaga, (5) Online & offline tersedia.', 'keunggulan,advantage,kelebihan,bagusnya', 9),
+('info', 'ada social media?', 'Ikuti kami di Instagram, Facebook, YouTube, TikTok @albashiroh untuk tips kesehatan mental Islami. Info lengkap: albashiroh.bapel.my.id', 'social media,sosmed,instagram,ig,facebook,youtube,tiktok', 8),
 ('info', 'jauh dari jakarta bisa?', 'Alhamdulillah bisa. Kami sediakan Konseling Online via video call Rp400rb. Efektivitas sama. Booking WA +62 822-2896-7897.', 'jauh,luar jakarta,luar kota,daerah,remote', 9),
 
 -- =====================================================

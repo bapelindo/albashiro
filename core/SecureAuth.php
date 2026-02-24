@@ -6,7 +6,7 @@
 
 class SecureAuth
 {
-    private static $cookieName = 'albashiro_auth';
+    private static $cookieName = 'albashiroh_auth';
     private static $cookieLifetime = 86400; // 24 hours
 
     /**

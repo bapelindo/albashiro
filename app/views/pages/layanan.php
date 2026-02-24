@@ -82,7 +82,7 @@
                     <i class="fas fa-notes-medical mr-2"></i>Layanan Klinis
                 </span>
                 <h2 class="text-3xl font-bold text-primary-900 mb-2">Layanan Hipnoterapi</h2>
-                <p class="text-xl text-accent-700 font-medium mb-6">Oleh Tim Terapis Profesional Albashiro</p>
+                <p class="text-xl text-accent-700 font-medium mb-6">Oleh Tim Terapis Profesional Albashiroh</p>
 
                 <div class="bg-white rounded-3xl p-8 shadow-xl border border-primary-100">
                     <ul class="grid sm:grid-cols-2 gap-x-4 gap-y-3">

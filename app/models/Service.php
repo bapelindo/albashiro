@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Service Model
+ * Albashiroh - Service Model
  */
 
 class Service

@@ -10,14 +10,14 @@ echo Masalah: SSH server mencari key di lokasi khusus untuk Administrator
 echo Solusi: Copy key ke C:\ProgramData\ssh\administrators_authorized_keys
 echo.
 
-if not exist "albashiro.pub" (
-    echo [ERROR] File albashiro.pub tidak ditemukan!
+if not exist "albashiroh.pub" (
+    echo [ERROR] File albashiroh.pub tidak ditemukan!
     pause
     exit /b 1
 )
 
 echo [INFO] Copying key to administrators location...
-copy /Y albashiro.pub C:\ProgramData\ssh\administrators_authorized_keys
+copy /Y albashiroh.pub C:\ProgramData\ssh\administrators_authorized_keys
 
 if errorlevel 1 (
     echo [ERROR] Gagal copy! Pastikan run as Administrator

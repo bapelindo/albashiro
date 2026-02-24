@@ -23,11 +23,11 @@ if (file_exists(__DIR__ . '/../.env.local')) {
 }
 
 /**
- * Albashiro - Configuration File
+ * Albashiroh - Configuration File
  */
 
-// Allow web access (via ALBASHIRO constant) or CLI execution (for cron jobs)
-if (!defined('ALBASHIRO') && php_sapi_name() !== 'cli') {
+// Allow web access (via ALBASHIROH constant) or CLI execution (for cron jobs)
+if (!defined('ALBASHIROH') && php_sapi_name() !== 'cli') {
     exit('Direct access not permitted');
 }
 
@@ -36,7 +36,7 @@ if (!defined('ALBASHIRO') && php_sapi_name() !== 'cli') {
 // =====================================================
 // Support for Environment Variables (Vercel/Cloud) with Local Fallback
 define('DB_HOST', getenv('TIDB_HOST') ?: 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com');
-define('DB_NAME', getenv('TIDB_DATABASE') ?: 'albashiro');
+define('DB_NAME', getenv('TIDB_DATABASE') ?: 'albashiroh');
 define('DB_USER', getenv('TIDB_USER') ?: '4TnpUUxik5ZLHTT.root');
 define('DB_PASS', getenv('TIDB_PASSWORD') ?: 'hweuQGiW36RtoJLw');
 define('DB_PORT', getenv('TIDB_PORT') ?: '4000');
@@ -56,7 +56,7 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 }
 
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$root = $host === 'localhost' ? '/albashiro' : ''; // Vercel serves from root
+$root = $host === 'localhost' ? '/albashiroh' : ''; // Vercel serves from root
 define('SITE_URL', getenv('SITE_URL') ?: $protocol . $host . $root);
 define('SITE_ROOT', dirname(__DIR__));
 
@@ -81,7 +81,7 @@ $isLocalhost = (isset($_SERVER['HTTP_HOST']) && (
 ));
 $defaultOllamaUrl = $isLocalhost ? 'http://localhost:11434' : 'https://ollama.bapel.my.id';
 define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: $defaultOllamaUrl);
-define('OLLAMA_MODEL', 'albashiro');  // Fine-tuned Qwen3 4B with Islamic persona & Albashiro knowledgeIslamic persona & Albashiro knowledge
+define('OLLAMA_MODEL', 'albashiroh');  // Fine-tuned Qwen2 0.5B with Islamic persona & Albashiroh knowledge
 // Secondary: Embedding Model// Embedding Model: 'all-minilm' (Official, Light & Fast)
 
 // Legacy/Cloud APIs (DISABLED)
@@ -184,7 +184,7 @@ function e($string)
  */
 function csrf_token()
 {
-    $cookieName = 'albashiro_csrf';
+    $cookieName = 'albashiroh_csrf';
 
     // Try to get from cookie first
     if (isset($_COOKIE[$cookieName])) {
@@ -226,7 +226,7 @@ function csrf_token()
  */
 function verify_csrf($token)
 {
-    $cookieName = 'albashiro_csrf';
+    $cookieName = 'albashiroh_csrf';
 
     // Check cookie first (for Vercel)
     if (isset($_COOKIE[$cookieName])) {

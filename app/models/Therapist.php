@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Therapist Model
+ * Albashiroh - Therapist Model
  */
 
 class Therapist

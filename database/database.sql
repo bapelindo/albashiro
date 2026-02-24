@@ -1,12 +1,12 @@
 -- =====================================================
 -- TiDB Cloud Compatible Database Schema
--- Generated for: Albashiro Hypnotherapy
+-- Generated for: Albashiroh Hypnotherapy
 -- Target Database: test (TiDB Serverless)
 -- =====================================================
 
 -- Create database (skip this line when importing to TiDB Cloud)
-CREATE DATABASE IF NOT EXISTS `albashiro` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `albashiro`;
+CREATE DATABASE IF NOT EXISTS `albashiroh` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `albashiroh`;
 
 SET FOREIGN_KEY_CHECKS=0;
 
@@ -291,7 +291,7 @@ INSERT INTO `testimonials` (`id`, `client_name`, `client_initial`, `client_locat
 -- =====================================================
 INSERT INTO `faqs` (`id`, `question`, `answer`, `sort_order`, `is_active`) VALUES
 (1, 'Apa itu Hipnoterapi Islami?', 'Hipnoterapi Islami adalah metode terapi yang menggabungkan teknik hipnoterapi modern dengan nilai-nilai dan prinsip Islam. Terapi ini menggunakan kondisi relaksasi mendalam (trance) untuk mengakses pikiran bawah sadar, dikombinasikan dengan doa, dzikir, dan bimbingan spiritual sesuai syariat Islam.', 1, 1),
-(2, 'Apakah Hipnoterapi itu halal?', 'Ya, hipnoterapi yang dilakukan dengan tujuan menyembuhkan dan membantu seseorang adalah halal. Yang diharamkan adalah hipnosis untuk tujuan hiburan (hypnosis show) atau merugikan orang lain. Di Albashiro, kami memastikan setiap sesi terapi sesuai dengan syariat Islam.', 2, 1),
+(2, 'Apakah Hipnoterapi itu halal?', 'Ya, hipnoterapi yang dilakukan dengan tujuan menyembuhkan dan membantu seseorang adalah halal. Yang diharamkan adalah hipnosis untuk tujuan hiburan (hypnosis show) atau merugikan orang lain. Di Albashiroh, kami memastikan setiap sesi terapi sesuai dengan syariat Islam.', 2, 1),
 (3, 'Berapa lama durasi satu sesi terapi?', 'Durasi satu sesi terapi berkisar antara 90-120 menit, tergantung jenis layanan dan kebutuhan klien. Sesi pertama biasanya lebih lama karena mencakup konsultasi awal dan pengisian form data.', 3, 1),
 (4, 'Berapa kali sesi yang dibutuhkan untuk sembuh?', 'Setiap orang berbeda-beda. Beberapa klien merasakan perubahan signifikan setelah 1-2 sesi, sementara yang lain membutuhkan 3-5 sesi. Terapis akan mendiskusikan rencana terapi yang sesuai dengan kondisi Anda.', 4, 1),
 (5, 'Apakah bisa terapi online?', 'Ya, kami menyediakan layanan terapi online via video call untuk klien yang tidak bisa datang langsung. Efektivitasnya sama dengan terapi offline, asalkan koneksi internet stabil dan berada di ruangan yang tenang.', 5, 1),
@@ -303,16 +303,16 @@ INSERT INTO `faqs` (`id`, `question`, `answer`, `sort_order`, `is_active`) VALUE
 -- SEED DATA: Site Settings
 -- =====================================================
 INSERT INTO `site_settings` (`setting_key`, `setting_value`, `setting_type`) VALUES
-('site_name', 'Albashiro', 'text'),
+('site_name', 'Albashiroh', 'text'),
 ('site_tagline', 'Islamic Spiritual Hypnotherapy', 'text'),
 ('admin_whatsapp', '6282228967897', 'text'),
-('admin_email', 'info@albashiro.com', 'text'),
+('admin_email', 'info@albashiroh.com', 'text'),
 ('address', 'Jl. Imam Bonjol No. 123, Jakarta Pusat, DKI Jakarta 10310, Indonesia', 'text'),
 ('operating_hours', 'Senin - Sabtu: 09:00 - 17:00 WIB | Minggu: Tutup', 'text'),
-('instagram', 'https://instagram.com/albashiro', 'text'),
-('facebook', 'https://facebook.com/albashiro', 'text'),
-('youtube', 'https://youtube.com/@albashiro', 'text'),
-('tiktok', 'https://tiktok.com/@albashiro', 'text'),
+('instagram', 'https://instagram.com/albashiroh', 'text'),
+('facebook', 'https://facebook.com/albashiroh', 'text'),
+('youtube', 'https://youtube.com/@albashiroh', 'text'),
+('tiktok', 'https://tiktok.com/@albashiroh', 'text'),
 ('fonnte_api_token', 'baXPGAQDBSfTe3vQ84W8', 'text'),
 ('fonnte_group_id', '120363422821859147@g.us', 'text');
 
@@ -321,7 +321,7 @@ INSERT INTO `site_settings` (`setting_key`, `setting_value`, `setting_type`) VAL
 -- Password: admin123
 -- =====================================================
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `is_active`) VALUES
-(1, 'Administrator', 'admin@albashiro.com', '$2y$12$kvw/bsfKfHvglz5W1xEqkeef.4jlsqvIMXg1ksYrb6HCxbXxs4VOG', 'admin', 1);
+(1, 'Administrator', 'admin@albashiroh.com', '$2y$12$kvw/bsfKfHvglz5W1xEqkeef.4jlsqvIMXg1ksYrb6HCxbXxs4VOG', 'admin', 1);
 
 -- =====================================================
 -- SEED DATA: Blog Posts

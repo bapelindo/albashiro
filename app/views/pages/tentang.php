@@ -36,10 +36,10 @@
             <div data-aos="fade-left">
                 <h2 class="text-3xl font-bold text-primary-900 mb-6">Mengapa Memilih Hipnoterapi Islami?</h2>
                 <p class="text-gray-600 mb-4 leading-relaxed font-medium text-lg text-primary-800">
-                    Jadikanlah Albashiro Islamic Hypnotherapy sebagai sahabat terpercaya dalam ikhtiar kesembuhan Anda.
+                    Jadikanlah Albashiroh Islamic Hypnotherapy sebagai sahabat terpercaya dalam ikhtiar kesembuhan Anda.
                 </p>
                 <p class="text-gray-600 mb-4 leading-relaxed">
-                    Albashiro bukan sekadar terapi pikiran, melainkan sebuah perjalanan pulang—membersihkan luka batin,
+                    Albashiroh bukan sekadar terapi pikiran, melainkan sebuah perjalanan pulang—membersihkan luka batin,
                     menenangkan qolbu, dan menguatkan kembali ikatan ketauhidan dengan Allah SWT.
                 </p>
                 <p class="text-gray-600 mb-4 leading-relaxed">

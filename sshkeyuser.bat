@@ -4,7 +4,7 @@ title SSH KEY INSTALLER
 cd /d %~dp0
 
 echo ==================================================
-echo  SSH KEY INSTALLER - ALBASHIRO
+echo  SSH KEY INSTALLER - ALBASHIROH
 echo ==================================================
 echo.
 
@@ -18,7 +18,7 @@ for %%f in (*.pub) do (
 :found
 if "%PUBFILE%"=="" (
     echo [ERROR] File .pub tidak ditemukan!
-    echo Simpan public key dari PuTTYgen sebagai albashiro.pub
+    echo Simpan public key dari PuTTYgen sebagai albashiroh.pub
     pause
     exit /b 1
 )
@@ -47,7 +47,7 @@ for /f "usebackq delims=" %%a in ("%PUBFILE%") do (
 echo %KEYDATA% | findstr /C:"ssh-rsa" >nul
 if errorlevel 1 (
     echo [CONVERTING] PuTTY SSH2 -^> OpenSSH format...
-    set "KEYDATA=ssh-rsa %KEYDATA% albashiro"
+    set "KEYDATA=ssh-rsa %KEYDATA% albashiroh"
 ) else (
     echo [OK] Format OpenSSH detected
 )

@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Ollama AI Service (Local Standalone)
+ * Albashiroh - Ollama AI Service (Local Standalone)
  * Handles interactions with Local Ollama API (gemma3:4b - Optimized)
  */
 
@@ -47,7 +47,7 @@ class OllamaService
         int $timeout = 180
     ) {
         $defaultHost = defined('OLLAMA_API_URL') ? OLLAMA_API_URL : 'http://localhost:11434';
-        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'albashiro';
+        $defaultModel = defined('OLLAMA_MODEL') ? OLLAMA_MODEL : 'albashiroh';
 
         $this->baseUrl = rtrim($host ?? $defaultHost, '/');
         $this->model = $model ?? $defaultModel;
@@ -170,9 +170,9 @@ class OllamaService
 
         }
 
-        // 4. For custom model (albashiro-assistant), SYSTEM prompt is already embedded in Modelfile
+        // 4. For custom model (albashiroh-assistant), SYSTEM prompt is already embedded in Modelfile
         // Don't override with system role - instead, prepend dynamic data to user message
-        $isCustomModel = (strpos($this->model, 'albashiro') !== false);
+        $isCustomModel = (strpos($this->model, 'albashiroh') !== false);
 
         if (!$isCustomModel) {
             // Standard model: send system context as system role
@@ -606,7 +606,7 @@ class OllamaService
 
 
     /**
-     * Build system context with Albashiro information
+     * Build system context with Albashiroh information
      * SMART INJECTION: Only include relevant data based on user's question
      */
     private function buildSystemContext($userMessage = '', &$perfData = null, $onStatus = null, $hasHistory = false)

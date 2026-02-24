@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Pages Controller
+ * Albashiroh - Pages Controller
  * Handles separate pages: About, Services, Therapists, Contact, Blog
  */
 

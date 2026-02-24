@@ -51,7 +51,7 @@
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                                 <i class="fas fa-envelope"></i>
                             </span>
-                            <input type="email" name="email" required placeholder="admin@albashiro.com"
+                            <input type="email" name="email" required placeholder="admin@albashiroh.com"
                                 class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
                         </div>
                     </div>

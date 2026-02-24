@@ -1,8 +1,8 @@
-# Panduan Migrasi Sistem Albashiro ke Komputer Baru
+# Panduan Migrasi Sistem Albashiroh ke Komputer Baru
 JANGAN LUPA CEK ENVIROMENT VARIABLES
 
 
-Berikut adalah daftar lengkap hal-hal yang perlu disiapkan dan langkah-langkah untuk memindahkan sistem Albashiro ke komputer lain.
+Berikut adalah daftar lengkap hal-hal yang perlu disiapkan dan langkah-langkah untuk memindahkan sistem Albashiroh ke komputer lain.
 
 ## 1. Persiapan Software (Wajib Install)
 Pastikan komputer baru sudah terinstall software berikut:
@@ -31,10 +31,10 @@ Ada 2 cara:
 *   **Cara A (Git - Disarankan):**
     Buka terminal di folder `htdocs`, lalu jalankan:
     ```bash
-    git clone https://github.com/username-anda/albashiro.git
+    git clone https://github.com/username-anda/albashiroh.git
     ```
 *   **Cara B (Manual):**
-    Copy seluruh folder `c:\apache\htdocs\albashiro` dari komputer lama, lalu paste ke `c:\apache\htdocs\albashiro` di komputer baru.
+    Copy seluruh folder `c:\apache\htdocs\albashiroh` dari komputer lama, lalu paste ke `c:\apache\htdocs\albashiroh` di komputer baru.
 
 ---
 
@@ -42,13 +42,13 @@ Ada 2 cara:
 
 1.  **Di Komputer Lama (Export):**
     *   Buka **phpMyAdmin** (`http://localhost/phpmyadmin`).
-    *   Pilih database `albashiro` (atau nama database yang Anda pakai).
+    *   Pilih database `albashiroh` (atau nama database yang Anda pakai).
     *   Klik menu **Export** -> **Go**.
     *   Simpan file `.sql` yang terdownload.
 
 2.  **Di Komputer Baru (Import):**
     *   Buka **phpMyAdmin**.
-    *   Buat database baru dengan nama yang sama (misal: `albashiro`).
+    *   Buat database baru dengan nama yang sama (misal: `albashiroh`).
     *   Klik menu **Import**.
     *   Upload file `.sql` dari komputer lama.
     *   Klik **Go**.
@@ -59,20 +59,20 @@ Ada 2 cara:
 
 Fonnte sudah terintegrasi di dalam kode.
 *   Token Fonnte Anda tersimpan di file `config/config.php`.
-*   Selama Anda meng-copy seluruh folder `albashiro` (termasuk folder config), **Token Anda aman**.
+*   Selama Anda meng-copy seluruh folder `albashiroh` (termasuk folder config), **Token Anda aman**.
 *   Tidak perlu setting ulang di website Fonnte, kecuali token expired.
 
 ---
 
 ## 5. Setup Ollama (AI Model)
 
-Agar AI berjalan seperti semula, Anda perlu membuat ulang custom model `albashiro`.
+Agar AI berjalan seperti semula, Anda perlu membuat ulang custom model `albashiroh`.
 
-1.  Pastikan file `Modelfile.albashiro` ada di folder proyek.
+1.  Pastikan file `Modelfile.albashiroh` ada di folder proyek.
 2.  Buka terminal/CMD, arahkan ke folder proyek.
 3.  Jalankan perintah ini untuk membuat ulang model:
     ```bash
-    ollama create albashiro -f Modelfile.albashiro
+    ollama create albashiroh -f Modelfile.albashiroh
     ```
     *(Tunggu prosesnya sampai selesai. Ini akan mendownload base model jika belum ada)*.
 
@@ -82,7 +82,7 @@ Agar AI berjalan seperti semula, Anda perlu membuat ulang custom model `albashir
 
 Agar server Node.js bisa jalan, Anda perlu menginstall library-nya lagi.
 
-1.  Buka terminal/CMD di folder `albashiro`.
+1.  Buka terminal/CMD di folder `albashiroh`.
 2.  Jalankan:
     ```bash
     npm install
@@ -119,7 +119,7 @@ Agar tidak ada masalah timeout atau "terpotong" di komputer baru, atur konfigura
 
 ## 7. Setup Cloudflare Tunnel (Agar Website Online)
 
-Agar website bisa diakses publik (https://albashiro.bapel.my.id), Anda perlu menjalankan Cloudflare Tunnel.
+Agar website bisa diakses publik (https://albashiroh.bapel.my.id), Anda perlu menjalankan Cloudflare Tunnel.
 
 1.  **Download Cloudflared:**
     *   Download file `cloudflared-windows-amd64.msi` dari [cloudflare/cloudflared](https://github.com/cloudflare/cloudflared/releases).
@@ -130,14 +130,14 @@ Agar website bisa diakses publik (https://albashiro.bapel.my.id), Anda perlu men
     ```bash
     cloudflared tunnel login
     ```
-    *(Browser akan terbuka, login ke akun Cloudflare Anda -> Pilih domain albashiro)*.
+    *(Browser akan terbuka, login ke akun Cloudflare Anda -> Pilih domain albashiroh)*.
 
 3.  **Jalankan Tunnel:**
     Perintah ini harus selalu jalan di background (CMD terpisah).
     ```bash
-    cloudflared tunnel run albashiro
+    cloudflared tunnel run albashiroh
     ```
-    *(Ganti 'albashiro' dengan nama tunnel yang Anda buat di dashboard Cloudflare)*.
+    *(Ganti 'albashiroh' dengan nama tunnel yang Anda buat di dashboard Cloudflare)*.
 
 ---
 
@@ -172,7 +172,7 @@ Setiap kali menyalakan komputer baru, lakukan urutan ini:
 1.  **Start XAMPP** (Apache & MySQL).
 2.  **Start Ollama** (Biasanya otomatis jalan di background, atau jalankan `ollama serve`).
 3.  **Start Node.js Server**:
-    *   Buka CMD di folder `albashiro`.
+    *   Buka CMD di folder `albashiroh`.
     *   Ketik:
         ```bash
         node server.js

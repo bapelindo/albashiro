@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Availability Management Page
+ * Albashiroh - Availability Management Page
  */
 
 // Check authentication

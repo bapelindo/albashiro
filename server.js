@@ -1,5 +1,5 @@
 /**
- * Robust Node.js server for Albashiro AI
+ * Robust Node.js server for Albashiroh AI
  * Run: node server.js
  * Access: http://localhost:3000
  */

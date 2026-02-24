@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Reminder Model
+ * Albashiroh - Reminder Model
  * Manages booking reminders and notifications
  */
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Chat Controller
+ * Albashiroh - Chat Controller
  * Handles AI chatbot requests
  */
 
@@ -264,7 +264,7 @@ class Chat extends Controller
         // Return detailed Islamic welcome message (Matching AI Persona)
         echo json_encode([
             'success' => true,
-            'message' => "Assalamualaikum Warahmatullahi Wabarakatuh 🌙\n\nSelamat datang di h - Islamic Spiritual Hypnotherapy.\n\nSaya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan konsultasikan:\n\n✨ Keluhan & Gejala\n🕌 Layanan Hipnoterapi Islami\n💰 Harga & Paket\n👨‍⚕️ Terapis Profesional\n📅 Cek Jadwal Real-time\n\nSilakan ceritakan apa yang Anda rasakan, Insya Allah saya bantu carikan solusinya."
+            'message' => "Assalamualaikum Warahmatullahi Wabarakatuh 🌙\n\nSelamat datang di Albashiroh - Islamic Spiritual Hypnotherapy.\n\nSaya adalah asisten AI yang siap membantu Anda dengan penuh empati. Silakan konsultasikan:\n\n✨ Keluhan & Gejala\n🕌 Layanan Hipnoterapi Islami\n💰 Harga & Paket\n👨‍⚕️ Terapis Profesional\n📅 Cek Jadwal Real-time\n\nSilakan ceritakan apa yang Anda rasakan, Insya Allah saya bantu carikan solusinya."
         ]);
     }
 }

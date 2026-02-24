@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - FAQ Model
+ * Albashiroh - FAQ Model
  */
 
 class Faq

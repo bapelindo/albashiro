@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Home Controller
+ * Albashiroh - Home Controller
  */
 
 class Home extends Controller

@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Admin Controller
+ * Albashiroh - Admin Controller
  * Handles admin dashboard and blog CRUD
  */
 

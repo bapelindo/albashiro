@@ -1,11 +1,11 @@
 <?php
 /**
- * Albashiro - Islamic Spiritual Hypnotherapy
+ * Albashiroh - Islamic Spiritual Hypnotherapy
  * Front Controller / Entry Point
  */
 
 // Define constant to allow config access
-define('ALBASHIRO', true);
+define('ALBASHIROH', true);
 
 // Load configuration
 require_once __DIR__ . '/config/config.php';

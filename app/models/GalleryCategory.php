@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Gallery Category Model
+ * Albashiroh - Gallery Category Model
  */
 
 class GalleryCategory

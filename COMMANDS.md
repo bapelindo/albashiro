@@ -1,12 +1,12 @@
-# CHEAT SHEET: DAFTAR PERINTAH ALBASHIRO AI SYSTEM
+# CHEAT SHEET: DAFTAR PERINTAH ALBASHIROH AI SYSTEM
 
-Berikut adalah kumpulan perintah penting untuk mengelola server Albashiro di komputer baru.
+Berikut adalah kumpulan perintah penting untuk mengelola server Albashiroh di komputer baru.
 
 ---
 
 ## 1. SETUP AWAL (INSTALASI)
 
-Jalankan di folder project `albashiro`:
+Jalankan di folder project `albashiroh`:
 
 **A. Install Dependencies:**
 ```cmd
@@ -15,7 +15,7 @@ npm install
 
 **B. Buat Otak AI:**
 ```cmd
-ollama create albashiro -f Modelfile.albashiro
+ollama create albashiroh -f Modelfile.albashiroh
 ```
 
 ---
@@ -36,7 +36,7 @@ pm2-startup install
 
 **C. Jalankan Server:**
 ```cmd
-pm2 start server.js --name "albashiro-ai"
+pm2 start server.js --name "albashiroh-ai"
 ```
 
 **D. Simpan (Agar Permanen):**
@@ -47,7 +47,7 @@ pm2 save
 **E. Cek Status/Log:**
 ```cmd
 pm2 status
-pm2 logs albashiro-ai
+pm2 logs albashiroh-ai
 ```
 
 ---
@@ -63,7 +63,7 @@ ollama list
 
 **B. Jalankan Model (Manual Chat):**
 ```cmd
-ollama run albashiro
+ollama run albashiroh
 ```
 
 **C. Update Model (Pull dari Library):**
@@ -89,7 +89,7 @@ cloudflared tunnel login
 
 **B. Jalankan Tunnel:**
 ```cmd
-cloudflared tunnel run albashiro
+cloudflared tunnel run albashiroh
 ```
 
 ### OPSI: SSH via Cloudflare Tunnel
@@ -103,9 +103,9 @@ tunnel: <tunnel-id>
 credentials-file: C:\Users\USERNAME\.cloudflared\<tunnel-id>.json
 
 ingress:
-  - hostname: ssh.albashiro.bapel.my.id
+  - hostname: ssh.albashiroh.bapel.my.id
     service: ssh://localhost:22
-  - hostname: albashiro.bapel.my.id
+  - hostname: albashiroh.bapel.my.id
     service: http://localhost:80
   - service: http_status:404
 ```
@@ -135,7 +135,7 @@ Mengelola update kode.
 
 **A. Download Kode (Clone):**
 ```cmd
-git clone https://github.com/username/albashiro.git
+git clone https://github.com/username/albashiroh.git
 ```
 
 **B. Update Kode Terbaru (Pull):**
@@ -164,11 +164,11 @@ Biasanya dijalankan lewat GUI, tapi ini versi command line-nya (Jika path folder
 *   Login Client: `mysql -u root -p`
 *   Backup Database:
     ```cmd
-    mysqldump -u root -p albashiro > backup_albashiro.sql
+    mysqldump -u root -p albashiroh > backup_albashiroh.sql
     ```
 *   Restore Database:
     ```cmd
-    mysql -u root -p albashiro < backup_albashiro.sql
+    mysql -u root -p albashiroh < backup_albashiroh.sql
     ```
 
 **C. PHP:**
@@ -225,23 +225,23 @@ Berikut cara mendaftarkannya agar script `send_reminders.php` jalan setiap 5 men
 
 **Perintah Auto-Register (Jalankan di CMD Admin):**
 ```cmd
-schtasks /create /tn "Albashiro Reminders" /tr "C:\apache\php\php.exe C:\apache\htdocs\albashiro\app\cron\send_reminders.php" /sc minute /mo 5
+schtasks /create /tn "Albashiroh Reminders" /tr "C:\apache\php\php.exe C:\apache\htdocs\albashiroh\app\cron\send_reminders.php" /sc minute /mo 5
 ```
 
 **Penjelasan:**
-*   `/tn`: Nama Task ("Albashiro Reminders")
+*   `/tn`: Nama Task ("Albashiroh Reminders")
 *   `/tr`: Target Program (PHP + File Script)
 *   `/sc`: Jadwal (Minute = Menit)
 *   `/mo`: Interval (Setiap 5 menit)
 
 **Cek Apakah Sudah Jalan:**
 ```cmd
-schtasks /query /tn "Albashiro Reminders"
+schtasks /query /tn "Albashiroh Reminders"
 ```
 
 **Hapus Cron Job:**
 ```cmd
-schtasks /delete /tn "Albashiro Reminders" /f
+schtasks /delete /tn "Albashiroh Reminders" /f
 ```
 
 **OPSI 2: PM2 CRON (Lebih Praktis):**
@@ -249,7 +249,7 @@ Kalau Anda sudah pakai PM2, bisa juga pakai PM2 buat cron job.
 Perintahnya:
 
 ```cmd
-pm2 start C:\apache\htdocs\albashiro\app\cron\send_reminders.php --name "reminder-cron" --interpreter "C:\apache\php\php.exe" --cron "*/5 * * * *" --no-autorestart
+pm2 start C:\apache\htdocs\albashiroh\app\cron\send_reminders.php --name "reminder-cron" --interpreter "C:\apache\php\php.exe" --cron "*/5 * * * *" --no-autorestart
 ```
 
 *   `--interpreter "..."`: Menunjuk ke file `php.exe` manual Anda.
@@ -368,7 +368,7 @@ Kalau masih ditolak, kemungkinan private key tidak match. **Generate ulang key p
 
 2.  **Generate key BARU di PuTTYgen:**
     - Buka PuTTYgen → Generate (gerakkan mouse)
-    - **Save private key** → `albashiro_new.ppk`
+    - **Save private key** → `albashiroh_new.ppk`
     - **COPY** public key dari kotak atas (jangan klik "Save public key"!)
 
 3.  **Install ke server:**
@@ -384,7 +384,7 @@ Kalau masih ditolak, kemungkinan private key tidak match. **Generate ulang key p
     ```
 
 4.  **Load di PuTTY:**
-    - Connection → SSH → Auth → Credentials → Browse `albashiro_new.ppk`
+    - Connection → SSH → Auth → Credentials → Browse `albashiroh_new.ppk`
     - Save session
 
 Sekarang coba login lagi. Harusnya langsung masuk!

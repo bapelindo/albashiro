@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Islamic Spiritual Hypnotherapy
+ * Albashiroh - Islamic Spiritual Hypnotherapy
  * Application Router with Custom Routes
  */
 
@@ -102,7 +102,7 @@ class App
             return explode('/', $url);
         }
 
-        // Fallback: Check REQUEST_URI manually (e.g., /albashiro/login)
+        // Fallback: Check REQUEST_URI manually (e.g., /albashiroh/login)
         // This attempts to support pretty URLs even if .htaccess fails but Apache sends 404 to index.php (rare config but possible)
         // Or if user uses index.php/login style
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

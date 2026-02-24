@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 
 // Define constant to allow config access
-define('ALBASHIRO', true);
+define('ALBASHIROH', true);
 
 // Load configuration
 require_once __DIR__ . '/../config/config.php';

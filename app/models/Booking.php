@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Booking Model
+ * Albashiroh - Booking Model
  */
 
 class Booking

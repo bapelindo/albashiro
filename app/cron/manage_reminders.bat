@@ -2,14 +2,14 @@
 setlocal EnableDelayedExpansion
 
 REM =====================================================
-REM Albashiro Reminder System - Manager
+REM Albashiroh Reminder System - Manager
 REM Manage the automatic WhatsApp reminder system
 REM =====================================================
 
 :MENU
 cls
 echo ===========================================
-echo   ALBASHIRO REMINDER SYSTEM MANAGER
+echo   ALBASHIROH REMINDER SYSTEM MANAGER
 echo ===========================================
 echo.
 echo  [1] INSTALL / ENABLE (Runs every 1 hour)
@@ -37,7 +37,7 @@ echo.
 
 set "SCRIPT_DIR=%~dp0"
 if "%SCRIPT_DIR:~-1%"=="\" set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
-set "TASK_NAME=AlbashiroReminder"
+set "TASK_NAME=AlbashirohReminder"
 set "RUN_COMMAND=%SCRIPT_DIR%\run_reminders.bat"
 
 echo Script Path: %RUN_COMMAND%
@@ -64,7 +64,7 @@ echo ===========================================
 echo   UNINSTALLING REMINDER SYSTEM
 echo ===========================================
 echo.
-set "TASK_NAME=AlbashiroReminder"
+set "TASK_NAME=AlbashirohReminder"
 
 echo Deleting Scheduled Task...
 schtasks /Delete /TN "%TASK_NAME%" /F
@@ -87,7 +87,7 @@ echo ===========================================
 echo   SYSTEM STATUS
 echo ===========================================
 echo.
-set "TASK_NAME=AlbashiroReminder"
+set "TASK_NAME=AlbashirohReminder"
 
 schtasks /Query /TN "%TASK_NAME%"
 if %ERRORLEVEL% NEQ 0 (

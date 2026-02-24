@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Holiday Model
+ * Albashiroh - Holiday Model
  * Manages global holidays that apply to all therapists
  */
 

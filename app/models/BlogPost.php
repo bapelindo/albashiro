@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - BlogPost Model
+ * Albashiroh - BlogPost Model
  */
 
 class BlogPost

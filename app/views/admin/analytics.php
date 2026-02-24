@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Analytics Dashboard
+ * Albashiroh - Analytics Dashboard
  */
 
 // Check authentication

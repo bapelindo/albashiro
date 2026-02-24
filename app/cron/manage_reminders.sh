@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =====================================================
-# Albashiro Reminder System - Manager (Linux)
+# Albashiroh Reminder System - Manager (Linux)
 # Manage the automatic WhatsApp reminder system via Crontab
 # =====================================================
 
@@ -19,7 +19,7 @@ pause() {
 show_menu() {
     clear
     echo "==========================================="
-    echo "  ALBASHIRO REMINDER SYSTEM MANAGER (Linux)"
+    echo "  ALBASHIROH REMINDER SYSTEM MANAGER (Linux)"
     echo "==========================================="
     echo ""
     echo " [1] INSTALL / ENABLE (Runs every 1 hour)"

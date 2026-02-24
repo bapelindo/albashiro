@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Availability Model
+ * Albashiroh - Availability Model
  * Manages therapist availability schedules
  */
 

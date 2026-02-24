@@ -1,6 +1,6 @@
 /**
  * Main JavaScript File
- * Contains all custom scripts for Albashiro website
+ * Contains all custom scripts for Albashiroh website
  */
 
 // ============================================
@@ -245,10 +245,10 @@
 
     // Get base URL for API calls (handles both localhost and Vercel)
     const getBaseUrl = () => {
-        // On Vercel, base is just '/', on localhost it's '/albashiro'
+        // On Vercel, base is just '/', on localhost it's '/albashiroh'
         const path = window.location.pathname;
-        if (path.startsWith('/albashiro')) {
-            return '/albashiro';
+        if (path.startsWith('/albashiroh')) {
+            return '/albashiroh';
         }
         return '';
     };

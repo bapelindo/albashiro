@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - User Model
+ * Albashiroh - User Model
  */
 
 class User

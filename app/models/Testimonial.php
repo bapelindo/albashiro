@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiro - Testimonial Model
+ * Albashiroh - Testimonial Model
  */
 
 class Testimonial

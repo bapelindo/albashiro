@@ -12,30 +12,37 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    
+
     <!-- Fallback Prefetch -->
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://unpkg.com">
 
     <!-- SEO Meta Tags -->
-    <meta name="description" content="<?= e($meta_description ?? 'Albashiroh - Pusat Hypnotherapy Islami & Spiritual Hypnotherapy di Jakarta. Temukan kedamaian jiwa, atasi trauma, dan kecemasan dengan terapi berlandaskan nilai syariah dan Tauhid bersama ahlinya di Albashiroh.') ?>">
-    <meta name="keywords" content="<?= e($meta_keywords ?? 'Albashiroh, albashiroh, albashiroh terdekat, pusat hipnoterapi albashiroh, hipnoterapi islami, spiritual hypnotherapy, hipnoterapi syariah, ruqyah syariah terpadu, konseling islam, psikologi islam, terapi trauma jakarta, atasi kecemasan, pengobatan mental islami') ?>">
+    <meta name="description"
+        content="<?= e($meta_description ?? 'Albashiroh - Pusat Hypnotherapy Islami & Spiritual Hypnotherapy di Jakarta. Temukan kedamaian jiwa, atasi trauma, dan kecemasan dengan terapi berlandaskan nilai syariah dan Tauhid bersama ahlinya di Albashiroh.') ?>">
+    <meta name="keywords"
+        content="<?= e($meta_keywords ?? 'Albashiroh, albashiroh, albashiroh terdekat, pusat hipnoterapi albashiroh, hipnoterapi islami, spiritual hypnotherapy, hipnoterapi syariah, ruqyah syariah terpadu, konseling islam, psikologi islam, terapi trauma jakarta, atasi kecemasan, pengobatan mental islami') ?>">
     <meta name="author" content="Tim Albashiroh - <?= SITE_NAME ?>">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    
+
     <!-- Internationalization / Geo-targeting -->
-    <link rel="alternate" hreflang="id-ID" href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>" />
-    <link rel="alternate" hreflang="x-default" href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>" />
-    
-    <link rel="canonical" href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
+    <link rel="alternate" hreflang="id-ID"
+        href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>" />
+    <link rel="alternate" hreflang="x-default"
+        href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>" />
+
+    <link rel="canonical"
+        href="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:site_name" content="Albashiroh">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
+    <meta property="og:url"
+        content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
     <meta property="og:title" content="<?= e($title ?? 'Beranda') ?> | Albashiroh - <?= SITE_NAME ?>">
-    <meta property="og:description" content="<?= e($meta_description ?? 'Albashiroh: Spesialis Islamic Spiritual Hypnotherapy. Solusi tepat untuk kesehatan mental dengan pendekatan holistik Islami. Hubungi Albashiroh sekarang.') ?>">
+    <meta property="og:description"
+        content="<?= e($meta_description ?? 'Albashiroh: Spesialis Islamic Spiritual Hypnotherapy. Solusi tepat untuk kesehatan mental dengan pendekatan holistik Islami. Hubungi Albashiroh sekarang.') ?>">
     <meta property="og:image" content="<?= e($og_image ?? base_url('public/images/og-image.jpg')) ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -44,11 +51,13 @@
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
+    <meta name="twitter:url"
+        content="<?= e($canonical_url ?? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]") ?>">
     <meta name="twitter:title" content="<?= e($title ?? 'Beranda') ?> | Albashiroh">
-    <meta name="twitter:description" content="<?= e($meta_description ?? 'Albashiroh: Spesialis Islamic Spiritual Hypnotherapy. Temukan kedamaian dan solusi kesehatan mental berlandaskan tauhid.') ?>">
+    <meta name="twitter:description"
+        content="<?= e($meta_description ?? 'Albashiroh: Spesialis Islamic Spiritual Hypnotherapy. Temukan kedamaian dan solusi kesehatan mental berlandaskan tauhid.') ?>">
     <meta name="twitter:image" content="<?= e($og_image ?? base_url('public/images/og-image.jpg')) ?>">
-    
+
     <meta name="csrf-token" content="<?= csrf_token() ?>">
 
     <!-- PWA & Mobile Optimization -->
