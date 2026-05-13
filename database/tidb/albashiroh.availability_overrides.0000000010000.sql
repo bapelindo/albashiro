@@ -1,0 +1,4 @@
+/*!40014 SET FOREIGN_KEY_CHECKS=0*/;
+/*!40101 SET NAMES binary*/;
+INSERT INTO `availability_overrides` VALUES
+(30001,2,'2025-12-26',0,NULL,NULL,'sakit','2025-12-26 00:12:03');

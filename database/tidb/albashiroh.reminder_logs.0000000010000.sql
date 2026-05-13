@@ -1,0 +1,5 @@
+/*!40014 SET FOREIGN_KEY_CHECKS=0*/;
+/*!40101 SET NAMES binary*/;
+INSERT INTO `reminder_logs` VALUES
+(1,120001,'Assalamu\'alaikum Ahmad Nur Rizki,\n\n🔔 *PENGINGAT JANJI TEMU*\n\nAnda memiliki jadwal hipnoterapi dalam *2 MENIT LAGI*:\n\n👳 Terapis: Siti Muzayanah\n✨ Layanan: Hipnoterapi Anak\n📅 Tanggal: Selasa, 30 Desember 2025\n⏰ Waktu: 12:00 WIB\n📍 Lokasi: Al-Bashiro Hypnotherapy Center\n🔖 Kode Booking: *ALB-676AC151*\n\n⚠️ Mohon bersiap dan datang 10 menit lebih awal.\n\nJika berhalangan hadir, silakan hubungi kami segera.\n\nJazakallahu khairan. 🤲','6282228967897','2025-12-30 04:57:57','sent'),
+(30001,180001,'Assalamu\'alaikum Ahmad Nur Rizki,\n\n🔔 *PENGINGAT JANJI TEMU*\n\nAnda memiliki jadwal hipnoterapi dalam *1 MENIT LAGI*:\n\n👳 Terapis: Ustadzah Fatimah Zahra\n✨ Layanan: Hipnoterapi Remaja\n📅 Tanggal: Senin, 5 Januari 2026\n⏰ Waktu: 10:00 WIB\n📍 Lokasi: Al-Bashiro Hypnotherapy Center\n🔖 Kode Booking: *ALB-C0470A87*\n\n⚠️ Mohon bersiap dan datang 10 menit lebih awal.\n\nJika berhalangan hadir, silakan hubungi kami segera.\n\nJazakallahu khairan. 🤲','6282228967897','2026-01-05 02:58:11','sent');

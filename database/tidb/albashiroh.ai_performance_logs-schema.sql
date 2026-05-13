@@ -1,0 +1,31 @@
+/*!40014 SET FOREIGN_KEY_CHECKS=0*/;
+/*!40101 SET NAMES binary*/;
+CREATE TABLE `ai_performance_logs` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Chat session identifier',
+  `user_message` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'User input message',
+  `ai_response` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'AI response text',
+  `provider` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'AI Provider: Google Gemini/Ollama/HuggingFace',
+  `model` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Model name used',
+  `total_time_ms` int NOT NULL COMMENT 'Total response time',
+  `api_call_time_ms` int DEFAULT NULL COMMENT 'Time for API call to provider',
+  `db_services_time_ms` int DEFAULT NULL COMMENT 'Time to query services',
+  `db_therapists_time_ms` int DEFAULT NULL COMMENT 'Time to query therapists',
+  `db_schedule_time_ms` int DEFAULT NULL COMMENT 'Time to query schedules',
+  `db_knowledge_time_ms` int DEFAULT NULL COMMENT 'Time to query knowledge base',
+  `context_build_time_ms` int DEFAULT NULL COMMENT 'Time to build system context',
+  `knowledge_matched` int DEFAULT '0' COMMENT 'Number of knowledge base entries matched',
+  `keywords_searched` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Keywords used for search',
+  `error_occurred` tinyint(1) DEFAULT '0' COMMENT 'Whether an error occurred',
+  `error_message` text COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Error message if any',
+  `fallback_used` tinyint(1) DEFAULT '0' COMMENT 'Whether fallback provider was used',
+  `fallback_reason` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Reason for fallback',
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,
+  KEY `idx_session` (`session_id`),
+  KEY `idx_provider` (`provider`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_error` (`error_occurred`),
+  KEY `idx_total_time` (`total_time_ms`),
+  KEY `idx_session_created` (`session_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=2955297;
