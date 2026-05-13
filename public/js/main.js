@@ -254,6 +254,22 @@
     };
 
 
+    // Helper function to hide/show floating buttons on mobile
+    const toggleFloatingButtons = (hide) => {
+        const isMobile = window.innerWidth <= 768; // Mobile break point
+        const waButton = document.getElementById('wa-button');
+        const musicWidget = document.getElementById('music-widget');
+        
+        if (isMobile) {
+            if (waButton) {
+                waButton.style.display = hide ? 'none' : '';
+            }
+            if (musicWidget) {
+                musicWidget.style.display = hide ? 'none' : '';
+            }
+        }
+    };
+
     // Toggle chat window
     chatToggle?.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent triggering document click
@@ -263,6 +279,7 @@
             chatWindow.classList.remove('hidden');
             chatBackdrop.classList.remove('hidden');
             chatInput.focus();
+            toggleFloatingButtons(true);
 
             // Show welcome message on first open
             if (isFirstOpen) {
@@ -272,6 +289,7 @@
         } else {
             chatWindow.classList.add('hidden');
             chatBackdrop.classList.add('hidden');
+            toggleFloatingButtons(false);
         }
     });
 
@@ -279,12 +297,14 @@
     closeChat?.addEventListener('click', () => {
         chatWindow.classList.add('hidden');
         chatBackdrop.classList.add('hidden');
+        toggleFloatingButtons(false);
     });
 
     // Close chat when clicking backdrop
     chatBackdrop?.addEventListener('click', () => {
         chatWindow.classList.add('hidden');
         chatBackdrop.classList.add('hidden');
+        toggleFloatingButtons(false);
     });
 
     // Prevent chat window clicks from closing it
