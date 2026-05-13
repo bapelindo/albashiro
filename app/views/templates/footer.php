@@ -106,7 +106,7 @@
                         </div>
                         <a href="https://wa.me/<?= ADMIN_WHATSAPP ?>"
                             class="text-primary-300 hover:text-gold-400 transition-colors">
-                            +62 853-8520-4410
+                            +62 8222-911-4960
                         </a>
                     </li>
                     <li class="flex items-center space-x-3">
@@ -125,7 +125,7 @@
                             <i class="fas fa-clock text-accent-400"></i>
                         </div>
                         <div class="text-primary-300 text-sm">
-                            Senin - Jumat: 08:00 - 16:00<br>
+                            Senin - Jumat: 09:00 - 17:00<br>
                             Sabtu - Minggu: Tutup
                         </div>
                     </li>

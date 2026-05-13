@@ -1,23 +1,13 @@
-FROM E:\LLM\Qwen3-4B-Instruct-2507-Q3_K_M.gguf
+FROM E:\LLM\Qwen3.5-2B-Q4_K_M.gguf
 
-# GPU Acceleration Parameters (4GB VRAM)
-PARAMETER num_gpu 99
-PARAMETER num_thread 1
-PARAMETER num_ctx 1024
-PARAMETER num_batch 1024
 
-TEMPLATE """{{ if .System }}<|im_start|>system
-{{ .System }}<|im_end|>
-{{ end }}{{ if .Prompt }}<|im_start|>user
-{{ .Prompt }}<|im_end|>
-{{ end }}<|im_start|>assistant
-{{ .Response }}<|im_end|>"""
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>{{ end -}}
+{{- if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>{{ end -}}
+<|im_start|>assistant"""
 
-SYSTEM """Anda adalah Asisten Albashiroh - chatbot hipnoterapi Islami yang empatik dan profesional.
-
-IDENTITAS: WhatsApp +62 822-2896-7897 | https://Albashiroh.bapel.my.id/ | Jl. Imam Bonjol 123, Jakarta | Senin-Sabtu 09:00-17:00
-
-PRINSIP FUNDAMENTAL:
+SYSTEM """PRINSIP FUNDAMENTAL:
 1. Kesembuhan HANYA dari Allah SWT - hipnoterapi adalah ikhtiar, selalu gunakan "Insya Allah"
 2. Tone: Ramah, empatik, lembut, responsif terhadap emosi klien
 3. Bahasa Islami natural: Alhamdulillah, Masha Allah, Subhanallah, Insya Allah
@@ -48,7 +38,7 @@ PRIORITAS 1 - <context> REAL-TIME (KEBENARAN MUTLAK):
 
 PRIORITAS 2 - KB: Gunakan HANYA jika topik TIDAK ADA dalam <context>
 
-PRIORITAS 3 - REDIRECT: Jika tidak ada di <context> dan KB, gunakan: "Untuk info [topik] lebih detail, silakan hubungi WhatsApp +62 822-2896-7897, Insya Allah."
+PRIORITAS 3 - REDIRECT: Jika tidak ada di <context> dan KB, gunakan: "Untuk info [topik] lebih detail, silakan hubungi WhatsApp +62 8222-911-4960, Insya Allah."
 
 FORMAT RESPONS (MAKSIMAL 5 KALIMAT):
 1. SALAM & EMPATI (1): Salam Islami HANYA SEKALI di awal, tunjukkan pemahaman terhadap kondisi/pertanyaan

@@ -37,8 +37,8 @@ if (!defined('ALBASHIROH') && php_sapi_name() !== 'cli') {
 // Support for Environment Variables (Vercel/Cloud) with Local Fallback
 define('DB_HOST', getenv('TIDB_HOST') ?: 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com');
 define('DB_NAME', getenv('TIDB_DATABASE') ?: 'albashiroh');
-define('DB_USER', getenv('TIDB_USER') ?: '4TnpUUxik5ZLHTT.root');
-define('DB_PASS', getenv('TIDB_PASSWORD') ?: 'hweuQGiW36RtoJLw');
+define('DB_USER', getenv('TIDB_USER') ?: '2tpcVrV4xMBvugW.root');
+define('DB_PASS', getenv('TIDB_PASSWORD') ?: 'GWYPlhpSQSF1QWFH');
 define('DB_PORT', getenv('TIDB_PORT') ?: '4000');
 define('DB_CHARSET', 'utf8mb4');
 
@@ -63,7 +63,7 @@ define('SITE_ROOT', dirname(__DIR__));
 // =====================================================
 // ADMIN CONFIGURATION
 // =====================================================
-define('ADMIN_WHATSAPP', '6285385204410');
+define('ADMIN_WHATSAPP', '6282229114960');
 define('ADMIN_EMAIL', 'ahnrizki@gmail.com');
 define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
 define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
