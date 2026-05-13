@@ -284,15 +284,15 @@ class OllamaService
             'keep_alive' => '60m',  // Keep model loaded for 10 mins (faster subsequent)
             'options' => [
                 // Quality Settings
-                'temperature' => 0.5,       // Balanced creativity
+                'temperature' => 0.1,       // Balanced creativity
                 'top_k' => 20,              // Standard diversity
-                'top_p' => 0.9,             // Natural language flow
-                'repeat_penalty' => 1.15,    // Prevent repetition
+                'top_p' => 0.95,             // Natural language flow
+                'repeat_penalty' => 1,    // Prevent repetition
 
                 // Speed Settings (GPU Enabled)
                 'num_gpu' => 99,            // Force all layers to GPU
-                'num_ctx' => 1024,          // Context window (2048 needed for emotional responses)
-                'num_predict' => 1024,      // Max response tokens
+                'num_ctx' => 3076,          // Optimized context window (Fits 2500+ prompt + response)
+                'num_predict' => 2048,      // Max response tokens
                 'num_thread' => 1,          // Minimal CPU threads (GPU handles processing)
                 'num_batch' => 1024,        // Larger batch for GPU throughput
             ]

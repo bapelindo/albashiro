@@ -545,7 +545,7 @@
 </script>
 
 <!-- Custom Scripts - Local -->
-<?php $appVersion = '1.0.1'; // Bump version to clear cache ?>
+<?php $appVersion = '1.0.6'; // Bump version to clear cache ?>
 <script src="<?= base_url('public/js/main.js?v=' . $appVersion) ?>"></script>
 
 <style>

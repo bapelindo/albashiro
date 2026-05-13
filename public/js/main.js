@@ -676,6 +676,18 @@
 
     // Simple markdown parser
     const parseMarkdown = (text) => {
+        if (!text) return '';
+
+        // Remove <think> blocks completely (both complete and incomplete during streaming)
+        text = text.replace(/<think>[\s\S]*?<\/think>\n*/gi, '');
+        text = text.replace(/<think>[\s\S]*/gi, '');
+
+        // Force strip leading whitespace
+        text = text.trimStart();
+
+        // Escape HTML to prevent AI-generated <tags> from being hidden by the browser
+        text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
         // Headings: ### text
         text = text.replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-3 mb-2">$1</h3>');
         text = text.replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-4 mb-2">$1</h2>');
