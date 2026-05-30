@@ -66,7 +66,7 @@ define('SITE_ROOT', dirname(__DIR__));
 define('ADMIN_WHATSAPP', '6282229114960');
 define('ADMIN_EMAIL', 'ahnrizki@gmail.com');
 define('FONNTE_API_TOKEN', 'baXPGAQDBSfTe3vQ84W8'); // Device Token
-define('FONNTE_GROUP_ID', '120363422798942271@g.us'); // WhatsApp Group for notifications
+define('FONNTE_GROUP_ID', '120363428572971562@g.us'); // WhatsApp Group for notifications
 
 // =====================================================
 // AI CHATBOT CONFIGURATION (Ollama)

@@ -24,10 +24,6 @@ class FonnteService
      */
     public function sendMessage($phoneNumber, $message)
     {
-        if (!function_exists('curl_init')) {
-            return ['success' => false, 'message' => 'cURL extension is not loaded.'];
-        }
-
         try {
 
             $curl = curl_init();
@@ -98,10 +94,6 @@ class FonnteService
      */
     public function sendToGroup($groupId, $message)
     {
-        if (!function_exists('curl_init')) {
-            return ['success' => false, 'message' => 'cURL extension is not loaded.'];
-        }
-
         try {
 
             $curl = curl_init();
