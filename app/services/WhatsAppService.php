@@ -88,7 +88,7 @@ class WhatsAppService
      */
     public function sendBookingConfirmation($booking)
     {
-        $message = "🌙 Konfirmasi Booking Albashiroh\n\n";
+        $message = "🌙 Konfirmasi Booking Klinik Kamu\n\n";
         $message .= "Halo {$booking->client_name},\n";
         $message .= "Booking Anda telah dikonfirmasi!\n\n";
         $message .= "📅 Tanggal: " . date('d M Y', strtotime($booking->appointment_date)) . "\n";
@@ -106,7 +106,7 @@ class WhatsAppService
      */
     public function send24HourReminder($booking)
     {
-        $message = "⏰ Pengingat Booking Albashiroh\n\n";
+        $message = "⏰ Pengingat Booking Klinik Kamu\n\n";
         $message .= "Halo {$booking->client_name},\n";
         $message .= "Pengingat: Anda memiliki sesi hipnoterapi besok!\n\n";
         $message .= "📅 Tanggal: " . date('d M Y', strtotime($booking->appointment_date)) . "\n";
@@ -122,7 +122,7 @@ class WhatsAppService
      */
     public function send1HourReminder($booking)
     {
-        $message = "🔔 Pengingat Terakhir - Albashiroh\n\n";
+        $message = "🔔 Pengingat Terakhir - Klinik Kamu\n\n";
         $message .= "Halo {$booking->client_name},\n";
         $message .= "Sesi Anda akan dimulai dalam 1 jam!\n\n";
         $message .= "⏰ Waktu: " . date('H:i', strtotime($booking->appointment_time)) . " WIB\n";
@@ -137,7 +137,7 @@ class WhatsAppService
      */
     public function sendRescheduleNotification($booking, $oldDate, $oldTime)
     {
-        $message = "📅 Perubahan Jadwal - Albashiroh\n\n";
+        $message = "📅 Perubahan Jadwal - Klinik Kamu\n\n";
         $message .= "Halo {$booking->client_name},\n";
         $message .= "Jadwal booking Anda telah diubah:\n\n";
         $message .= "❌ Jadwal Lama:\n";

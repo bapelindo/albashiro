@@ -7,7 +7,7 @@
                 <i class="fas fa-info-circle mr-2"></i>Tentang Kami
             </span>
             <h1 class="text-4xl md:text-5xl font-bold text-primary-900 mb-6">
-                Mengenal <span class="gradient-text">Albashiroh</span>
+                Mengenal <span class="gradient-text">Klinik Kamu</span>
             </h1>
             <p class="text-lg text-gray-600 mb-4">
                 Semoga setiap kunjungan Anda membawa keberkahan, serta menjadi awal harapan dan solusi terbaik untuk
@@ -36,10 +36,10 @@
             <div data-aos="fade-left">
                 <h2 class="text-3xl font-bold text-primary-900 mb-6">Mengapa Memilih Hipnoterapi Islami?</h2>
                 <p class="text-gray-600 mb-4 leading-relaxed font-medium text-lg text-primary-800">
-                    Jadikanlah Albashiroh Islamic Hypnotherapy sebagai sahabat terpercaya dalam ikhtiar kesembuhan Anda.
+                    Jadikanlah Klinik Kamu Islamic Hypnotherapy sebagai sahabat terpercaya dalam ikhtiar kesembuhan Anda.
                 </p>
                 <p class="text-gray-600 mb-4 leading-relaxed">
-                    Albashiroh bukan sekadar terapi pikiran, melainkan sebuah perjalanan pulang—membersihkan luka batin,
+                    Klinik Kamu bukan sekadar terapi pikiran, melainkan sebuah perjalanan pulang—membersihkan luka batin,
                     menenangkan qolbu, dan menguatkan kembali ikatan ketauhidan dengan Allah SWT.
                 </p>
                 <p class="text-gray-600 mb-4 leading-relaxed">

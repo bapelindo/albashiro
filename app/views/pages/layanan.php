@@ -67,7 +67,7 @@
         <div class="grid lg:grid-cols-2 gap-12 items-center">
             <div data-aos="fade-right">
                 <div class="relative">
-                    <img src="<?= base_url('public/images/therapist-1.jpg') ?>" alt="Bunda Dewi Irani"
+                    <img src="<?= base_url('public/images/therapist-1.jpg') ?>" alt="Dr. Ahmad Ridho"
                         class="mx-auto relative z-10 w-3/4 md:w-2/3 lg:w-full drop-shadow-2xl rounded-2xl">
                     <!-- Decorative Circle behind image if needed -->
                     <div
@@ -82,7 +82,7 @@
                     <i class="fas fa-notes-medical mr-2"></i>Layanan Klinis
                 </span>
                 <h2 class="text-3xl font-bold text-primary-900 mb-2">Layanan Hipnoterapi</h2>
-                <p class="text-xl text-accent-700 font-medium mb-6">Oleh Tim Terapis Profesional Albashiroh</p>
+                <p class="text-xl text-accent-700 font-medium mb-6">Oleh Tim Terapis Profesional Klinik Kamu</p>
 
                 <div class="bg-white rounded-3xl p-8 shadow-xl border border-primary-100">
                     <ul class="grid sm:grid-cols-2 gap-x-4 gap-y-3">

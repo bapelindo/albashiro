@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiroh - Pages Controller
+ * Klinik Kamu - Pages Controller
  * Handles separate pages: About, Services, Therapists, Contact, Blog
  */
 

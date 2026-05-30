@@ -1,0 +1,1 @@
+<?php \['REQUEST_METHOD']='POST'; \ = ['client_name'=>'Test', 'wa_number'=>'08123', 'therapist_id'=>2, 'appointment_date'=>'2030-01-01', 'appointment_time'=>'10:00', 'problem_description'=>'test']; require 'index.php'; print_r(error_get_last());

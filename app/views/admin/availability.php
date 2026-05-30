@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiroh - Availability Management Page
+ * Klinik Kamu - Availability Management Page
  */
 
 // Check authentication

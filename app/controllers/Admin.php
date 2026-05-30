@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiroh - Admin Controller
+ * Klinik Kamu - Admin Controller
  * Handles admin dashboard and blog CRUD
  */
 

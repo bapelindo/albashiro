@@ -1,6 +1,6 @@
 /**
  * Main JavaScript File
- * Contains all custom scripts for Albashiroh website
+ * Contains all custom scripts for Klinik Kamu website
  */
 
 // ============================================
@@ -335,7 +335,7 @@
         } catch (error) {
             console.error('Error fetching welcome message:', error);
             // Fallback to default welcome message
-            appendMessage('ai', 'Assalamu\'alaikum! Selamat datang di Albashiroh. Ada yang bisa saya bantu?');
+            appendMessage('ai', 'Assalamu\'alaikum! Selamat datang di Klinik Kamu. Ada yang bisa saya bantu?');
         }
     };
 

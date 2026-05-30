@@ -7,7 +7,7 @@
                 <i class="fas fa-images mr-2"></i>Dokumentasi
             </span>
             <h1 class="text-4xl md:text-5xl font-bold text-primary-900 mb-6">
-                Galeri <span class="gradient-text">Albashiroh</span>
+                Galeri <span class="gradient-text">Klinik Kamu</span>
             </h1>
             <p class="text-lg text-gray-600">
                 Dokumentasi kegiatan, fasilitas, dan momen berharga dalam perjalanan penyembuhan bersama kami.
@@ -48,7 +48,7 @@
                             <i class="fas fa-image text-4xl"></i>
                         </div>
 
-                        <img src="<?= base_url('public/images/' . $image->image_url) ?>" alt="Albashiroh Gallery"
+                        <img src="<?= base_url('public/images/' . $image->image_url) ?>" alt="Klinik Kamu Gallery"
                             loading="lazy"
                             class="relative z-10 w-full h-auto object-cover opacity-0 transition-opacity duration-700 block"
                             onload="this.classList.remove('opacity-0'); document.getElementById('wrapper-<?= $image->id ?>').classList.remove('animate-pulse', 'bg-gray-200', 'min-h-[250px]'); document.getElementById('wrapper-<?= $image->id ?>').querySelector('.skeleton-icon').remove();"
@@ -59,7 +59,7 @@
                             class="absolute inset-0 z-20 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                             <span
                                 class="inline-block px-3 py-1 text-sm font-medium text-white bg-primary-600/90 rounded-full backdrop-blur-sm shadow-sm">
-                                <?= e($image->category_name ?? 'Albashiroh') ?>
+                                <?= e($image->category_name ?? 'Klinik Kamu') ?>
                             </span>
                         </div>
                     </div>

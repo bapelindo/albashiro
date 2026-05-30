@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiroh - Analytics Dashboard
+ * Klinik Kamu - Analytics Dashboard
  */
 
 // Check authentication

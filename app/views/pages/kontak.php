@@ -31,8 +31,8 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-primary-900 mb-1">Alamat</h3>
-                            <p class="text-gray-600">Jl. S.Suparman No.14, RT.03/RW.08, <br> Dusun Tanggung, Tanggung,
-                                Kec. Turen, <br> Kabupaten Malang, Jawa Timur 65175</p>
+                            <p class="text-gray-600">Jl. Sudirman No. 45, RT.2/RW.3, <br> Senayan, Kec. Kby. Baru,
+                                <br> Kota Jakarta Selatan, DKI Jakarta 12190</p>
                         </div>
                     </div>
 
@@ -44,7 +44,7 @@
                             <h3 class="font-semibold text-primary-900 mb-1">WhatsApp</h3>
                             <a href="https://wa.me/<?= ADMIN_WHATSAPP ?>"
                                 class="text-green-600 hover:text-green-700 font-medium">
-                                +62 853-8520-4410
+                                +62 8222-911-4960
                             </a>
                             <p class="text-sm text-gray-500 mt-1">Klik untuk chat langsung</p>
                         </div>
@@ -103,7 +103,7 @@
             <div data-aos="fade-left">
                 <div class="rounded-3xl overflow-hidden shadow-2xl h-full min-h-[400px]">
                     <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1974.6454512306439!2d112.6743605646085!3d-8.17342051783145!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd61f83c129b44b%3A0x62d02f70e33434cd!2sKlinik%20Rawat%20Inap%20Al%20Bashiroh!5e0!3m2!1sid!2sid!4v1766568881160!5m2!1sid!2sid"
+                        src="https://maps.google.com/maps?q=Jl.%20Sudirman%20No.%2045,%20Senayan,%20Jakarta%20Selatan&t=&z=16&ie=UTF8&iwloc=&output=embed"
                         width="100%" height="100%" style="border:0; min-height: 400px;" allowfullscreen=""
                         loading="lazy" referrerpolicy="no-referrer-when-downgrade">
                     </iframe>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiroh - Home Controller
+ * Klinik Kamu - Home Controller
  */
 
 class Home extends Controller

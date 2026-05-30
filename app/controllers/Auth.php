@@ -1,6 +1,6 @@
 <?php
 /**
- * Albashiroh - Auth Controller
+ * Klinik Kamu - Auth Controller
  * Handles admin login/logout
  */
 

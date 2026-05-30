@@ -32,9 +32,9 @@
 
                             // Fallback mapping if database photo doesn't exist
                             $fallbackImages = [
-                                'Ustadz Ahmad Fadhil' => 'therapist-1.jpg',
-                                'Dr. Siti Aminah' => 'therapist-2.jpg',
-                                'Ustadzah Fatimah Zahra' => 'therapist-3.jpg'
+                                'Dr. Ahmad Ridho' => 'therapist-1.jpg',
+                                'Siti Aminah' => 'therapist-2.jpg',
+                                'Ustadz H. Budi Santoso' => 'therapist-3.jpg'
                             ];
 
                             if (file_exists($realPath) && !empty($therapist->photo_url)) {

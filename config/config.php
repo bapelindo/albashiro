@@ -23,7 +23,7 @@ if (file_exists(__DIR__ . '/../.env.local')) {
 }
 
 /**
- * Albashiroh - Configuration File
+ * Klinik Kamu - Configuration File
  */
 
 // Allow web access (via ALBASHIROH constant) or CLI execution (for cron jobs)
@@ -45,7 +45,7 @@ define('DB_CHARSET', 'utf8mb4');
 // =====================================================
 // SITE CONFIGURATION
 // =====================================================
-define('SITE_NAME', 'Albashiroh');
+define('SITE_NAME', 'Klinik Kamu');
 define('SITE_TAGLINE', 'Islamic Spiritual Hypnotherapy');
 // Detect environment URL
 $protocol = 'http://';
@@ -81,7 +81,7 @@ $isLocalhost = (isset($_SERVER['HTTP_HOST']) && (
 ));
 $defaultOllamaUrl = $isLocalhost ? 'http://localhost:11434' : 'https://ollama.bapel.my.id';
 define('OLLAMA_API_URL', getenv('OLLAMA_API_URL') ?: $defaultOllamaUrl);
-define('OLLAMA_MODEL', 'albashiroh');  // Fine-tuned Qwen2 0.5B with Islamic persona & Albashiroh knowledge
+define('OLLAMA_MODEL', 'albashiroh');  // Fine-tuned Qwen2 0.5B with Islamic persona & Klinik Kamu knowledge
 // Secondary: Embedding Model// Embedding Model: 'all-minilm' (Official, Light & Fast)
 
 // Legacy/Cloud APIs (DISABLED)
@@ -99,9 +99,9 @@ define('USE_SEMANTIC_ROUTING', true); // Set to true to enable experimental vect
 // =====================================================
 // Format: Therapist ID => WhatsApp Number
 define('THERAPIST_WHATSAPP', [
-    1 => '6281252550500',  // Bunda Dewi
-    2 => '62895335419945',  // Bu Muza
-    3 => '6285236239819',  // Ustadzah Fatimah Zahra
+    1 => '6282229114960',  // Bunda Dewi
+    2 => '6282229114960',  // Bu Muza
+    3 => '6282229114960',  // Ustadzah Fatimah Zahra
 ]);
 
 // =====================================================

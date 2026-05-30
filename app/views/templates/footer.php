@@ -85,7 +85,7 @@
 
             <!-- Contact Info -->
             <div>
-                <h4 class="text-lg font-semibold mb-6 text-white">Kontak</h4>
+                <h4 class="text-lg font-semibold mb-6 text-white">Hubungi Kami</h4>
                 <ul class="space-y-4">
                     <li class="flex items-start space-x-3">
                         <div
@@ -94,8 +94,9 @@
                         </div>
                         <div>
                             <p class="text-primary-300 text-sm leading-relaxed">
-                                Dusun Tanggung, Tanggung, Kec. Turen, Kabupaten
-                                Malang, Jawa Timur 65175
+                                Jl. Sudirman No. 45, RT.2/RW.3,<br>
+                                Senayan, Kec. Kby. Baru,<br>
+                                Kota Jakarta Selatan, DKI Jakarta 12190
                             </p>
                         </div>
                     </li>
@@ -191,7 +192,7 @@
                         style="font-family: 'Amiri', 'Traditional Arabic', serif; direction: rtl;">
                         بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                     </div>
-                    <h3 class="text-white font-semibold text-xs sm:text-sm">Asisten AI Albashiroh</h3>
+                    <h3 class="text-white font-semibold text-xs sm:text-sm">Asisten AI Klinik Kamu</h3>
                     <div class="flex items-center space-x-1 sm:space-x-1.5">
                         <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
                         <p class="text-white/70 text-[10px] sm:text-xs">Siap Melayani 24/7</p>

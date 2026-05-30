@@ -149,11 +149,11 @@
                 </span>
 
                 <h2 class="text-3xl md:text-4xl font-bold text-primary-900 mb-6">
-                    Mengapa Memilih <span class="gradient-text">Albashiroh?</span>
+                    Mengapa Memilih <span class="gradient-text">Klinik Kamu?</span>
                 </h2>
 
                 <p class="text-gray-600 leading-relaxed mb-8">
-                    Albashiroh adalah layanan hipnoterapi profesional yang menggabungkan teknik hipnoterapi modern
+                    Klinik Kamu adalah layanan hipnoterapi profesional yang menggabungkan teknik hipnoterapi modern
                     dengan
                     bimbingan spiritual Islami. Kami percaya bahwa kesembuhan jiwa datang dari keselarasan antara
                     pikiran, hati, dan spiritualitas.
@@ -433,9 +433,9 @@
 
                         // Fallback mapping if database photo doesn't exist
                         $fallbackImages = [
-                            'Ustadz Ahmad Fadhil' => 'therapist-1.jpg',
-                            'Dr. Siti Aminah' => 'therapist-2.jpg',
-                            'Ustadzah Fatimah Zahra' => 'therapist-3.jpg'
+                            'Dr. Ahmad Ridho' => 'therapist-1.jpg',
+                            'Siti Aminah' => 'therapist-2.jpg',
+                            'Ustadz H. Budi Santoso' => 'therapist-3.jpg'
                         ];
 
                         if (file_exists($realPath) && !empty($therapist->photo_url)) {
