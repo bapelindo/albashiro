@@ -47,13 +47,84 @@ try {
     $currentDateTimeStr = $currentDateTime->format('Y-m-d H:i:s');
 
     logMessage("Current time: {$currentDateTimeStr}");
-    logMessage("Looking for appointments approximately 30 minutes ahead...");
 
-    // Query bookings that need reminders
-    // Find appointments where time difference is between 0-45 minutes from now
-    // IMPORTANT: Appointment times are stored in WIB, but NOW() returns UTC
-    // So we need to convert appointment time to UTC for comparison
-    $query = "
+    // --- PART 1: H-1 (24-Hour) REMINDERS ---
+    logMessage("Checking H-1 (24-hour) reminders...");
+    $h1Query = "
+        SELECT 
+            b.id,
+            b.booking_code,
+            b.client_name,
+            b.wa_number,
+            b.appointment_date,
+            b.appointment_time,
+            b.problem_description,
+            b.therapist_id,
+            t.name as therapist_name,
+            s.name as service_name,
+            TIMESTAMPDIFF(HOUR, NOW(), CONVERT_TZ(CONCAT(b.appointment_date, ' ', b.appointment_time), '+07:00', '+00:00')) as hours_until
+        FROM bookings b
+        LEFT JOIN therapists t ON b.therapist_id = t.id
+        LEFT JOIN services s ON b.service_id = s.id
+        WHERE b.status IN ('confirmed', 'pending')
+          AND TIMESTAMPDIFF(HOUR, NOW(), CONVERT_TZ(CONCAT(b.appointment_date, ' ', b.appointment_time), '+07:00', '+00:00')) BETWEEN 20 AND 26
+          AND NOT EXISTS (
+              SELECT 1 FROM reminder_logs rl 
+              WHERE rl.booking_id = b.id 
+                AND rl.message LIKE '%PENGINGAT H-1%' 
+                AND rl.delivery_status = 'sent'
+          )
+        ORDER BY b.appointment_time ASC
+    ";
+
+    $stmt = $pdo->prepare($h1Query);
+    $stmt->execute();
+    $h1Bookings = $stmt->fetchAll();
+    logMessage("Found " . count($h1Bookings) . " booking(s) for H-1 reminders");
+
+    $sentH1 = 0;
+    foreach ($h1Bookings as $booking) {
+        $hoursUntil = isset($booking->hours_until) ? $booking->hours_until : 'unknown';
+        logMessage("Processing H-1 reminder for {$booking->client_name} (Booking Code: {$booking->booking_code}, hours until: {$hoursUntil})");
+        try {
+            $formattedDate = format_date_id($booking->appointment_date);
+            $formattedTime = substr($booking->appointment_time, 0, 5) . ' WIB';
+
+            $message = "Assalamu'alaikum {$booking->client_name},\n\n";
+            $message .= "🔔 *PENGINGAT H-1 JANJI TEMU*\n\n";
+            $message .= "Kami ingin mengingatkan bahwa Anda memiliki jadwal hipnoterapi *BESOK* di Klinik Kamu:\n\n";
+            $message .= "👳 Terapis: {$booking->therapist_name}\n";
+            $message .= "✨ Layanan: " . ($booking->service_name ?: 'Konsultasi Umum') . "\n";
+            $message .= "📅 Tanggal: {$formattedDate}\n";
+            $message .= "⏰ Waktu: {$formattedTime}\n";
+            $message .= "📍 Lokasi: Klinik Kamu Hypnotherapy Center\n";
+            $message .= "🔖 Kode Booking: *{$booking->booking_code}*\n\n";
+            $message .= "⚠️ Mohon bersiap dan datang 10 menit lebih awal.\n\n";
+            $message .= "Jika Anda berhalangan hadir atau ingin melakukan reschedule, silakan hubungi kami segera.\n\n";
+            $message .= "Jazakallahu khairan. 🤲";
+
+            $result = $fonnteService->sendMessage($booking->wa_number, $message);
+
+            if ($result['success']) {
+                $logStmt = $pdo->prepare("INSERT INTO reminder_logs (booking_id, message, wa_number, sent_at, delivery_status) VALUES (?, ?, ?, NOW(), 'sent')");
+                $logStmt->execute([$booking->id, $message, $booking->wa_number]);
+                $sentH1++;
+                logMessage("✓ H-1 reminder sent successfully to {$booking->wa_number}");
+            } else {
+                $errorMsg = $result['message'] ?? 'Unknown error';
+                logMessage("✗ Failed to send H-1 to {$booking->wa_number}: {$errorMsg}");
+                $logStmt = $pdo->prepare("INSERT INTO reminder_logs (booking_id, message, wa_number, sent_at, delivery_status) VALUES (?, ?, ?, NOW(), 'failed')");
+                $logStmt->execute([$booking->id, $message, $booking->wa_number]);
+            }
+        } catch (Exception $ex) {
+            logMessage("✗ Exception for booking {$booking->booking_code}: " . $ex->getMessage());
+        }
+        sleep(1);
+    }
+
+    // --- PART 2: H-1 HOUR (60-Minute) REMINDERS ---
+    logMessage("Checking H-1 hour (final) reminders...");
+    $h1hourQuery = "
         SELECT 
             b.id,
             b.booking_code,
@@ -70,57 +141,46 @@ try {
         LEFT JOIN therapists t ON b.therapist_id = t.id
         LEFT JOIN services s ON b.service_id = s.id
         WHERE b.status IN ('confirmed', 'pending')
-        AND (b.reminder_sent = 0 OR b.reminder_sent IS NULL)
-        AND TIMESTAMPDIFF(MINUTE, NOW(), CONVERT_TZ(CONCAT(b.appointment_date, ' ', b.appointment_time), '+07:00', '+00:00')) BETWEEN 0 AND 45
+          AND TIMESTAMPDIFF(MINUTE, NOW(), CONVERT_TZ(CONCAT(b.appointment_date, ' ', b.appointment_time), '+07:00', '+00:00')) BETWEEN 0 AND 75
+          AND NOT EXISTS (
+              SELECT 1 FROM reminder_logs rl 
+              WHERE rl.booking_id = b.id 
+                AND rl.message LIKE '%PENGINGAT TERAKHIR%' 
+                AND rl.delivery_status = 'sent'
+          )
         ORDER BY b.appointment_time ASC
     ";
 
-    $stmt = $pdo->prepare($query);
+    $stmt = $pdo->prepare($h1hourQuery);
     $stmt->execute();
+    $h1hourBookings = $stmt->fetchAll();
+    logMessage("Found " . count($h1hourBookings) . " booking(s) for H-1 hour reminders");
 
-    $bookings = $stmt->fetchAll();
-    $totalBookings = count($bookings);
-
-    logMessage("Found {$totalBookings} booking(s) that need reminders");
-
-    if ($totalBookings === 0) {
-        logMessage("No reminders to send at this time");
-        logMessage("=== Cron Job Completed ===");
-        exit(0);
-    }
-
-    // Send reminders to each client
-    $sentCount = 0;
-    $failedCount = 0;
-
-    foreach ($bookings as $booking) {
+    $sentH1Hour = 0;
+    foreach ($h1hourBookings as $booking) {
         $minutesUntil = isset($booking->minutes_until) ? $booking->minutes_until : 'unknown';
-        logMessage("Processing booking: {$booking->booking_code} for {$booking->client_name} (in {$minutesUntil} minutes)");
-
+        logMessage("Processing H-1 hour reminder for {$booking->client_name} (Booking Code: {$booking->booking_code}, minutes until: {$minutesUntil})");
         try {
-            // Format date and time
             $formattedDate = format_date_id($booking->appointment_date);
             $formattedTime = substr($booking->appointment_time, 0, 5) . ' WIB';
+            $minutesStr = $minutesUntil > 0 ? "dalam *{$minutesUntil} MENIT LAGI*" : "*SEKARANG*";
 
-            // Create reminder message for client
             $message = "Assalamu'alaikum {$booking->client_name},\n\n";
-            $message .= "🔔 *PENGINGAT JANJI TEMU*\n\n";
-            $message .= "Anda memiliki jadwal hipnoterapi dalam *{$minutesUntil} MENIT LAGI*:\n\n";
+            $message .= "🔔 *PENGINGAT TERAKHIR JANJI TEMU*\n\n";
+            $message .= "Jadwal hipnoterapi Anda akan dimulai {$minutesStr}:\n\n";
             $message .= "👳 Terapis: {$booking->therapist_name}\n";
             $message .= "✨ Layanan: " . ($booking->service_name ?: 'Konsultasi Umum') . "\n";
             $message .= "📅 Tanggal: {$formattedDate}\n";
             $message .= "⏰ Waktu: {$formattedTime}\n";
-            $message .= "📍 Lokasi: Al-Bashiro Hypnotherapy Center\n";
+            $message .= "📍 Lokasi: Klinik Kamu Hypnotherapy Center\n";
             $message .= "🔖 Kode Booking: *{$booking->booking_code}*\n\n";
-            $message .= "⚠️ Mohon bersiap dan datang 10 menit lebih awal.\n\n";
-            $message .= "Jika berhalangan hadir, silakan hubungi kami segera.\n\n";
+            $message .= "⚠️ Mohon bersiap dan datang tepat waktu. Sampai jumpa di lokasi!\n\n";
             $message .= "Jazakallahu khairan. 🤲";
 
-            // Send via Fonnte to individual client
             $result = $fonnteService->sendMessage($booking->wa_number, $message);
 
             if ($result['success']) {
-                // Update booking - mark reminder as sent
+                // Update booking - mark reminder as sent (keeps DB backward compatibility)
                 $updateStmt = $pdo->prepare("UPDATE bookings SET reminder_sent = 1, reminder_sent_at = NOW() WHERE id = ?");
                 $updateStmt->execute([$booking->id]);
 
@@ -128,8 +188,8 @@ try {
                 $logStmt = $pdo->prepare("INSERT INTO reminder_logs (booking_id, message, wa_number, sent_at, delivery_status) VALUES (?, ?, ?, NOW(), 'sent')");
                 $logStmt->execute([$booking->id, $message, $booking->wa_number]);
 
-                $sentCount++;
-                logMessage("✓ Reminder sent successfully to client: {$booking->wa_number}");
+                $sentH1Hour++;
+                logMessage("✓ H-1 hour reminder sent successfully to client: {$booking->wa_number}");
 
                 // Also send reminder to therapist
                 require_once __DIR__ . '/send_to_therapist.php';
@@ -149,27 +209,19 @@ try {
                 } else {
                     logMessage("⚠ Failed to send therapist reminder (client reminder still sent)");
                 }
-
             } else {
-                $failedCount++;
                 $errorMsg = $result['message'] ?? 'Unknown error';
-                logMessage("✗ Failed to send to {$booking->wa_number}: {$errorMsg}");
-
-                // Log failure
+                logMessage("✗ Failed to send H-1 hour to {$booking->wa_number}: {$errorMsg}");
                 $logStmt = $pdo->prepare("INSERT INTO reminder_logs (booking_id, message, wa_number, sent_at, delivery_status) VALUES (?, ?, ?, NOW(), 'failed')");
                 $logStmt->execute([$booking->id, $message, $booking->wa_number]);
             }
-
-        } catch (Exception $e) {
-            $failedCount++;
-            logMessage("✗ Exception for booking {$booking->booking_code}: " . $e->getMessage());
+        } catch (Exception $ex) {
+            logMessage("✗ Exception for booking {$booking->booking_code}: " . $ex->getMessage());
         }
-
-        // Small delay between messages
         sleep(1);
     }
 
-    logMessage("Summary: {$sentCount} sent, {$failedCount} failed out of {$totalBookings} total");
+    logMessage("Summary: H-1 Reminders: {$sentH1} sent; H-1 Hour Reminders: {$sentH1Hour} sent");
     logMessage("=== Cron Job Completed ===");
 
 } catch (Exception $e) {

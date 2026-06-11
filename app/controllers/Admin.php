@@ -661,13 +661,14 @@ class Admin extends Controller
         );
 
         if ($result) {
-            // Send WhatsApp notification
-            require_once __DIR__ . '/../services/WhatsAppService.php';
-            $whatsapp = new WhatsAppService();
-
-            if ($whatsapp->isEnabled()) {
+            // Send WhatsApp notification using FonnteService
+            try {
+                require_once SITE_ROOT . '/app/services/FonnteService.php';
+                $fonnteService = new FonnteService();
                 $updatedBooking = $this->bookingModel->getById($bookingId);
-                $whatsapp->sendRescheduleNotification($updatedBooking, $oldDate, $oldTime);
+                $fonnteService->sendRescheduleNotification($updatedBooking, $oldDate, $oldTime, $reason);
+            } catch (Exception $ex) {
+                error_log("Failed to send WhatsApp reschedule notification: " . $ex->getMessage());
             }
 
             $this->setFlash('success', 'Booking berhasil di-reschedule');
@@ -755,6 +756,23 @@ class Admin extends Controller
         // Update notes if provided
         if (!empty($notes)) {
             $this->bookingModel->updateNotes($bookingId, $notes);
+        }
+
+        // Send WhatsApp notification on status update
+        try {
+            $booking = $this->bookingModel->getById($bookingId);
+            if ($booking) {
+                require_once SITE_ROOT . '/app/services/FonnteService.php';
+                $fonnteService = new FonnteService();
+                
+                if ($status === 'confirmed') {
+                    $fonnteService->sendBookingConfirmation($booking);
+                } elseif ($status === 'cancelled') {
+                    $fonnteService->sendCancellationNotification($booking, $notes ?: null);
+                }
+            }
+        } catch (Exception $ex) {
+            error_log("Failed to send WhatsApp status update notification: " . $ex->getMessage());
         }
 
         $this->setFlash('success', 'Status reservasi berhasil diperbarui.');

@@ -155,23 +155,47 @@ class FonnteService
     }
 
     /**
-     * Send booking confirmation
+     * Send reservation receipt (immediate booking request, pending status)
      */
-    public function sendBookingConfirmation($booking)
+    public function sendReservationReceipt($booking)
     {
         $message = "Assalamu'alaikum {$booking->client_name},\n\n";
-        $message .= "✅ *KONFIRMASI RESERVASI*\n\n";
-        $message .= "Terima kasih telah melakukan reservasi hipnoterapi di Al-Bashiro.\n\n";
+        $message .= "📝 *RESERVASI DITERIMA (MENUNGGU KONFIRMASI)*\n\n";
+        $message .= "Terima kasih telah mengajukan reservasi hipnoterapi di Klinik Kamu. Permintaan Anda sedang diproses oleh admin/terapis kami.\n\n";
         $message .= "📋 *Detail Reservasi:*\n";
         $message .= "👤 Nama: {$booking->client_name}\n";
         $message .= "👳 Terapis: {$booking->therapist_name}\n";
         $message .= "✨ Layanan: " . ($booking->service_name ?? 'Konsultasi Umum') . "\n";
         $message .= "📅 Tanggal: " . format_date_id($booking->appointment_date) . "\n";
         $message .= "⏰ Waktu: " . substr($booking->appointment_time, 0, 5) . " WIB\n";
-        $message .= "📍 Lokasi: Al-Bashiro Hypnotherapy Center\n";
+        $message .= "📍 Lokasi: Klinik Kamu Hypnotherapy Center\n";
         $message .= "🔖 Kode Booking: *{$booking->booking_code}*\n\n";
-        $message .= "Kami akan mengirimkan pengingat pada hari dan jam yang sama dengan jadwal Anda.\n\n";
-        $message .= "Jika ada perubahan, silakan hubungi kami segera.\n\n";
+        $message .= "Status: ⏳ *Menunggu Konfirmasi*\n\n";
+        $message .= "Kami akan segera mengirimkan konfirmasi jika jadwal ini disetujui.\n\n";
+        $message .= "Jazakallahu khairan. 🤲";
+
+        return $this->sendMessage($booking->wa_number, $message);
+    }
+
+    /**
+     * Send booking confirmation
+     */
+    public function sendBookingConfirmation($booking)
+    {
+        $message = "Assalamu'alaikum {$booking->client_name},\n\n";
+        $message .= "✅ *RESERVASI DIKONFIRMASI*\n\n";
+        $message .= "Alhamdulillah, reservasi hipnoterapi Anda di Klinik Kamu telah disetujui oleh admin/terapis.\n\n";
+        $message .= "📋 *Detail Reservasi:*\n";
+        $message .= "👤 Nama: {$booking->client_name}\n";
+        $message .= "👳 Terapis: {$booking->therapist_name}\n";
+        $message .= "✨ Layanan: " . ($booking->service_name ?? 'Konsultasi Umum') . "\n";
+        $message .= "📅 Tanggal: " . format_date_id($booking->appointment_date) . "\n";
+        $message .= "⏰ Waktu: " . substr($booking->appointment_time, 0, 5) . " WIB\n";
+        $message .= "📍 Lokasi: Klinik Kamu Hypnotherapy Center\n";
+        $message .= "🔖 Kode Booking: *{$booking->booking_code}*\n\n";
+        $message .= "Status: 🟢 *DIKONFIRMASI*\n\n";
+        $message .= "Kami akan mengirimkan pengingat H-1 (24 jam sebelum) dan H-1 jam sebelum jadwal Anda.\n\n";
+        $message .= "Jika ada kendala atau ingin melakukan reschedule, silakan hubungi kami segera.\n\n";
         $message .= "Jazakallahu khairan. 🤲";
 
         return $this->sendMessage($booking->wa_number, $message);
@@ -189,7 +213,7 @@ class FonnteService
         $message .= "✨ Layanan: " . ($booking->service_name ?? 'Konsultasi Umum') . "\n";
         $message .= "📅 Tanggal: " . format_date_id($booking->appointment_date) . "\n";
         $message .= "⏰ Waktu: " . substr($booking->appointment_time, 0, 5) . " WIB\n";
-        $message .= "📍 Lokasi: Al-Bashiro Hypnotherapy Center\n";
+        $message .= "📍 Lokasi: Klinik Kamu Hypnotherapy Center\n";
         $message .= "🔖 Kode Booking: *{$booking->booking_code}*\n\n";
         $message .= "⚠️ Mohon datang 10 menit lebih awal.\n\n";
         $message .= "Jika berhalangan hadir, silakan hubungi kami segera.\n\n";

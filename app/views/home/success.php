@@ -44,14 +44,13 @@
             </div>
 
             <!-- Important Notice -->
-            <div class="bg-gold-50 border border-gold-200 rounded-2xl p-6 mb-8 text-left">
+            <div class="bg-sage-50 border border-sage-200 rounded-2xl p-6 mb-8 text-left">
                 <div class="flex items-start space-x-3">
-                    <i class="fas fa-info-circle text-gold-500 mt-1"></i>
+                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
                     <div>
-                        <h4 class="font-semibold text-gray-800 mb-1">Langkah Selanjutnya</h4>
+                        <h4 class="font-semibold text-gray-800 mb-1">Notifikasi Terkirim!</h4>
                         <p class="text-gray-600 text-sm">
-                            Silakan klik tombol di bawah untuk menghubungi kami via WhatsApp dan konfirmasi jadwal Anda.
-                            Tim kami akan segera merespons untuk memastikan ketersediaan jadwal.
+                            Sistem kami telah mengirimkan detail reservasi secara otomatis ke nomor WhatsApp Anda. Silakan periksa chat masuk. Kami juga akan mengirimkan pengingat H-1 hari dan H-1 jam sebelum jadwal janji temu Anda.
                         </p>
                     </div>
                 </div>
@@ -62,7 +61,7 @@
                 <a href="<?= e($booking['wa_link']) ?>" target="_blank"
                     class="inline-flex items-center justify-center px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
                     <i class="fab fa-whatsapp text-xl mr-3"></i>
-                    Konfirmasi via WhatsApp
+                    Hubungi WhatsApp Admin
                 </a>
 
                 <a href="<?= base_url() ?>"

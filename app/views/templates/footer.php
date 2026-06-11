@@ -371,8 +371,7 @@
 
         // Playlist Configuration
         const playlist = [
-            '<?= base_url("public/sound/1.mpeg") ?>',
-            '<?= base_url("public/sound/2.mpeg") ?>'
+            '<?= base_url("public/sound/1.mp3") ?>'
         ];
 
         // State Management

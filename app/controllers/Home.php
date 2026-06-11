@@ -150,6 +150,18 @@ class Home extends Controller
                 'problem_description' => $problemDescription
             ]);
 
+            // Send immediate reservation receipt to client via WhatsApp
+            try {
+                $bookingObj = $this->bookingModel->getByCode($bookingCode);
+                if ($bookingObj) {
+                    require_once SITE_ROOT . '/app/services/FonnteService.php';
+                    $fonnteService = new FonnteService();
+                    $fonnteService->sendReservationReceipt($bookingObj);
+                }
+            } catch (Exception $ex) {
+                error_log("Failed to send WhatsApp reservation receipt to client: " . $ex->getMessage());
+            }
+
             // Store success message with booking code
             $_SESSION['booking_success'] = [
                 'code' => $bookingCode,
