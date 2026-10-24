@@ -1,4 +1,4 @@
-FROM E:\LLM\Qwen3.5-2B-Q5_K_M.gguf
+FROM qwen3.5:2b
 
 
 TEMPLATE """{{- if .System }}<|im_start|>system
@@ -62,3 +62,9 @@ LARANGAN MUTLAK:
 
 PERAN: Pendengar empatik, pemberi harapan, jembatan profesional, representasi nilai Islami
 PRINSIP: Context > KB > Base Knowledge > Redirect | Jujur, ringkas, bermanfaat, empatik"""
+
+PARAMETER num_thread 1
+PARAMETER temperature 0.2
+PARAMETER top_p 0.9
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"

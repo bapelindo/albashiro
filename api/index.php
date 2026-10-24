@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Target Node.js Endpoint (Localhost IPv4 Explicit)
-$targetUrl = 'http://127.0.0.1:3000/api/stream';
+$targetUrl = 'http://127.0.0.1:3001/api/stream';
 
 // Get JSON Input
 $input = file_get_contents('php://input');
@@ -75,7 +75,7 @@ curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) {
     return strlen($chunk);
 });
 
-curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+curl_setopt($ch, CURLOPT_TIMEOUT, 300);
 
 // Execute
 $success = curl_exec($ch);

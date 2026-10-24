@@ -398,7 +398,7 @@
             let streamEndpoint;
 
             if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                streamEndpoint = 'http://localhost:3000/api/stream'; // Local Dev Server
+                streamEndpoint = 'http://localhost:3001/api/stream'; // Local Dev Server
             } else {
                 // Production (Cloudflare Tunnel)
                 // Route via same domain to avoid CORS
@@ -411,7 +411,7 @@
 
             // Add timeout to prevent hanging requests
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 300000); // 300 second timeout
 
             const response = await fetch(streamEndpoint, {
                 method: 'POST',

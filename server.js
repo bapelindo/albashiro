@@ -10,7 +10,7 @@ import streamHandler from './api/stream.js';
 import { OLLAMA_API_URL, OLLAMA_MODEL } from './lib/config.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
@@ -35,7 +35,7 @@ app.post('/api/stream', async (req, res) => {
         // console.log(`[REQ] ${req.body.message ? req.body.message.substring(0, 50) : 'No msg'}`);
 
         // Convert Express req/res to Vercel-style Request/Response
-        const request = new Request('http://localhost:3000/api/stream', {
+        const request = new Request('http://localhost:' + PORT + '/api/stream', {
             method: 'POST',
             headers: req.headers,
             body: JSON.stringify(req.body)
